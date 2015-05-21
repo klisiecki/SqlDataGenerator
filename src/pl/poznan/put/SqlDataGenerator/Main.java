@@ -30,13 +30,16 @@ public class Main {
         based on the kind of the statement, that is SELECT or INSERT etc. but here we are only
         interested in SELECTS
         */
+
+        TestVisitor visitor = new TestVisitor();
+
         if (statement instanceof Select) {
             Select selectStatement = (Select) statement;
 
-            //System.out.println("selectStatement.toString() = " + selectStatement.toString());
-            
-            ParserTest parserTest = new ParserTest();
-            List<String> tableList = parserTest.getTableList(selectStatement);
+            System.out.println(visitor.getSelectItems(selectStatement));
+            System.out.println("selectStatement = " + selectStatement);
+            TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();
+            List<String> tableList = tablesNamesFinder.getTableList(selectStatement);
 
             for(String table : tableList) {
                 System.out.println("table = " + table);
