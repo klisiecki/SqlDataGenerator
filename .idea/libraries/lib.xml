@@ -2,12 +2,18 @@
   <library name="lib">
     <CLASSES>
       <root url="file://$PROJECT_DIR$/lib" />
+      <root url="file://$PROJECT_DIR$/lib" />
     </CLASSES>
-    <JAVADOC />
+    <JAVADOC>
+      <root url="file://$PROJECT_DIR$/lib/jsqlparser-0.9.4-SNAPSHOT-javadoc" />
+    </JAVADOC>
     <SOURCES>
+      <root url="file://$PROJECT_DIR$/lib" />
       <root url="file://$PROJECT_DIR$/lib" />
     </SOURCES>
     <jarDirectory url="file://$PROJECT_DIR$/lib" recursive="false" />
+    <jarDirectory url="file://$PROJECT_DIR$/lib" recursive="false" />
+    <jarDirectory url="file://$PROJECT_DIR$/lib" recursive="false" type="SOURCES" />
     <jarDirectory url="file://$PROJECT_DIR$/lib" recursive="false" type="SOURCES" />
   </library>
 </component>

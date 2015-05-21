@@ -19,4 +19,4 @@
   order by r.DATABASE , 2^32*a.relrefs + case when a.reltuples < 0 then 2^32 + a.reltuples else a.reltuples end desc, a.relname , b.attnum
  ) all_tab_cols	
  WHERE upper(owner)      = upper('dbowner') 
-   AND upper(table_name) = upper('table_name')';
+   AND upper(table_name) = upper('table_name');

@@ -19,8 +19,9 @@ public class Main {
     public static void main(String[] args) throws JSQLParserException, IOException {
         CCJSqlParserManager pm = new CCJSqlParserManager();
 
-        String sql = readFile("in/simple6TablesJoin.sql");
-//        String sql = readFile("in/ibm1.sql");
+//        String sql = readFile("in/simple6TablesJoin.sql");
+//        String sql = readFile("in/ibm2.sql");
+        String sql = readFile("in/simpleJoin.sql");
 
         Statement statement = pm.parse(new StringReader(sql));
 
@@ -32,8 +33,10 @@ public class Main {
         if (statement instanceof Select) {
             Select selectStatement = (Select) statement;
 
-            TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();
-            List<String> tableList = tablesNamesFinder.getTableList(selectStatement);
+            //System.out.println("selectStatement.toString() = " + selectStatement.toString());
+            
+            ParserTest parserTest = new ParserTest();
+            List<String> tableList = parserTest.getTableList(selectStatement);
 
             for(String table : tableList) {
                 System.out.println("table = " + table);
