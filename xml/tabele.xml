@@ -4,7 +4,7 @@
 	xmlns="pl.poznan.put.SqlDataGenerator">
 	<TABLE>
 		<NAME>TabelaA</NAME>
-		<ROWS_NUM>10</ROWS_NUM>
+		<ROWS_NUM>15</ROWS_NUM>
 		<DISTRIBUTION>RANDOM</DISTRIBUTION>
 		<MIN_ROW_SIZE>200</MIN_ROW_SIZE>
 		<ATTRIBUTES>
