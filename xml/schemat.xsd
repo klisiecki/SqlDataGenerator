@@ -15,10 +15,10 @@
     <xs:element name="TABLE">
         <xs:complexType>
             <xs:all>
-                <xs:element name="NAME" type="xs:string" minOccurs="1" />
-                <xs:element name="ROWS_NUM" type="xs:integer" minOccurs="0" />
-                <xs:element name="DISTRIBUTION" type="xs:string" minOccurs="0" />
-                <xs:element name="MIN_ROW_SIZE" type="xs:string" minOccurs="0" />
+                <xs:element name="NAME" type="xs:string" />
+                <xs:element name="ROWS_NUM" type="xs:integer" />
+                <xs:element name="DISTRIBUTION" type="xs:string" />
+                <xs:element name="MIN_ROW_SIZE" type="xs:integer" minOccurs="0" />
                 <xs:element ref="ATTRIBUTES" minOccurs="1"/>
             </xs:all>
         </xs:complexType>
@@ -36,25 +36,32 @@
     <xs:element name="ATTRIBUTE">
         <xs:complexType>
             <xs:all>
-                <xs:element name="NAME" type="xs:string" minOccurs="1" />
-                <xs:element name="NULL_PERCENTAGE" type="xs:integer" minOccurs="0" />
-                <xs:element name="TYPE" type="TYPE" minOccurs="0" />
+                <xs:element name="NAME" type="xs:string" />
+                <xs:element name="NULL_PERCENTAGE" type="percentage_type" minOccurs="0" />
+                <xs:element name="TYPE" type="data_type" minOccurs="0" />
                 <xs:element name="MIN_VALUE" type="xs:integer" minOccurs="0" />
                 <xs:element name="MAX_VALUE" type="xs:integer" minOccurs="0" />
-                <xs:element name="MIN_UNIQUE_PERCENTAGE" type="xs:integer" minOccurs="0" />
-                <xs:element name="MAX_UNIQUE_PERCENTAGE" type="xs:integer" minOccurs="0" />
+                <xs:element name="MIN_UNIQUE_PERCENTAGE" type="percentage_type" minOccurs="0" />
+                <xs:element name="MAX_UNIQUE_PERCENTAGE" type="percentage_type" minOccurs="0" />
                 <xs:element ref="VALUES" minOccurs="0" />
             </xs:all>
         </xs:complexType>
     </xs:element>
     
     
-    <xs:simpleType name="TYPE">
+    <xs:simpleType name="data_type">
         <xs:restriction base="xs:string">
             <xs:enumeration value="INTEGER"/>
             <xs:enumeration value="FLOAT"/>
             <xs:enumeration value="STRING"/>
             <xs:enumeration value="DATE"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:simpleType name="percentage_type">
+        <xs:restriction base="xs:float">
+            <xs:minInclusive value="0" />
+            <xs:maxInclusive value="100" />
         </xs:restriction>
     </xs:simpleType>
 
