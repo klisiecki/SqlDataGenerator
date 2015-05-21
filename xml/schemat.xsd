@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    elementFormDefault="qualified" attributeFormDefault="unqualified"
+    targetNamespace="www.pp.pl/zesp_prac"
+    xmlns="www.pp.pl/zesp_prac"
+    xmlns:zesp="www.pp.pl/zesp"
+    xmlns:prac="www.pp.pl/prac">
+    
+    <xs:import namespace="www.pp.pl/zesp" schemaLocation="zesp.xsd"/>
+    <xs:import namespace="www.pp.pl/prac" schemaLocation="prac.xsd"/>
+    
+    <xs:complexType name="TZespRowNew">
+        <xs:complexContent>
+            <xs:extension base="zesp:TZespRow">
+                <xs:sequence>
+                    <xs:element ref="prac:PRACOWNICY" minOccurs="0"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+   
+   <xs:element name="ROW" type="TZespRowNew"/>
+    
+    <xs:element name="ZESPOLY">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="ROW" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+   
+</xs:schema>
