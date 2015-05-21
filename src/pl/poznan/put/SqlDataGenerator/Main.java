@@ -5,8 +5,10 @@ import net.sf.jsqlparser.parser.CCJSqlParserManager;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.util.TablesNamesFinder;
-import net.sf.jsqlparser.util.deparser.StatementDeParser;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -45,6 +47,30 @@ public class Main {
                 System.out.println("table = " + table);
             }
 
+        }
+        XMLData data = null;
+        try {
+            data = new XMLData("xml/tabele.xml");
+        } catch (XPathExpressionException e) {
+            e.printStackTrace();
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        } catch (SAXException e) {
+            e.printStackTrace();
+        }
+
+        if (data != null) {
+            List<String> tables = data.getTables();
+            System.out.println(tables);
+
+            String table = tables.get(0);
+            System.out.println(data.getRows(table));
+            System.out.println(data.getDistribution(table));
+            System.out.println(data.getMinRowSize(table));
+            System.out.println(data.getAttributes(table));
+
+            System.out.println(data.getNullPercentage(table, data.getAttributes(table).get(0)));
+            System.out.println(data.getValues(table, data.getAttributes(table).get(0)));
         }
     }
 
