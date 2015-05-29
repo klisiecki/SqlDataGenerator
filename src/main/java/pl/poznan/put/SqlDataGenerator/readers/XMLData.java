@@ -1,4 +1,4 @@
-package pl.poznan.put.SqlDataGenerator;
+package pl.poznan.put.SqlDataGenerator.readers;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
@@ -98,39 +98,67 @@ public class XMLData {
         return result;
     }
 
-    private Integer getAttributeProperty(String table, String attribute, String property) {
+    private String getAttributeProperty(String table, String attribute, String property) {
         XPathExpression expr = getXPathExpression(
                 String.format("//TABLE[NAME/text()='%s']//ATTRIBUTE[NAME/text()='%s']/%s/text()", table, attribute, property));
-        Integer result = null;
+        String result = null;
         try {
-            result = Integer.parseInt(expr.evaluate(document));
+            result = expr.evaluate(document);
         } catch (Exception e) {
+            e.printStackTrace();
         }
         return result;
     }
 
-    public Integer getNullPercentage(String table, String attribute) {
-        return getAttributeProperty(table, attribute, "NULL_PERCENTAGE");
+    private Integer getIntegerAttributeProperty(String table, String attribute, String property) {
+        try {
+            return Integer.parseInt(getAttributeProperty(table, attribute, property));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private Float getFloatAttributeProperty(String table, String attribute, String property) {
+        try {
+            return Float.parseFloat(getAttributeProperty(table, attribute, property));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public String getType(String table, String attribute) {
+        try {
+            return getAttributeProperty(table, attribute, "TYPE");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public Float getNullPercentage(String table, String attribute) {
+        return getFloatAttributeProperty(table, attribute, "NULL_PERCENTAGE");
     }
 
     public Integer getMinValue(String table, String attribute) {
-        return getAttributeProperty(table, attribute, "MIN_VALUE");
+        return getIntegerAttributeProperty(table, attribute, "MIN_VALUE");
     }
 
     public Integer getMaxValue(String table, String attribute) {
-        return getAttributeProperty(table, attribute, "MAX_VALUE");
+        return getIntegerAttributeProperty(table, attribute, "MAX_VALUE");
     }
 
-    public Integer getMinUniquePercentage(String table, String attribute) {
-        return getAttributeProperty(table, attribute, "MIN_UNIQUE_PERCENTAGE");
+    public Float getMinUniquePercentage(String table, String attribute) {
+        return getFloatAttributeProperty(table, attribute, "MIN_UNIQUE_PERCENTAGE");
     }
 
-    public Integer getMaxUniquePercentage(String table, String attribute) {
-        return getAttributeProperty(table, attribute, "MAX_UNIQUE_PERCENTAGE");
+    public Float getMaxUniquePercentage(String table, String attribute) {
+        return getFloatAttributeProperty(table, attribute, "MAX_UNIQUE_PERCENTAGE");
     }
 
     public List<String> getValues(String table, String attribute) {
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
         XPathExpression expr = getXPathExpression(
                 String.format("//TABLE[NAME/text()='%s']//ATTRIBUTE[NAME/text()='%s']//VALUE/text()", table, attribute));
         NodeList nodes = null;
