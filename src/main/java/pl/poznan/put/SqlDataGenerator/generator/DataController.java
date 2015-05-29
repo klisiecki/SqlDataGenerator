@@ -23,7 +23,7 @@ public class DataController {
                 Attribute attribute = initializeAttribute(attributeType, attributeName);
                 table.addAttribute(attribute);
             }
-            System.out.println("table = " + table);
+            tables.add(table);
         }
     }
 
@@ -39,5 +39,12 @@ public class DataController {
         } else {
             throw new RuntimeException("type " + type + " not defined");
         }
+    }
+
+    @Override
+    public String toString() {
+        return "DataController{" +
+                "tables=" + tables +
+                '}';
     }
 }

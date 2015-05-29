@@ -6,14 +6,13 @@ import net.sf.jsqlparser.statement.select.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TestVisitor implements SelectVisitor, SelectItemVisitor {
+public class AttributesNamesFinder implements SelectVisitor, SelectItemVisitor {
     List<String> result = new ArrayList<String>();
 
 
-    public List<String> getSelectItems(Select select) {
+    public List<String> getAttributesList(Select select) {
         result.clear();
         select.getSelectBody().accept(this);
-
         return result;
     }
 
