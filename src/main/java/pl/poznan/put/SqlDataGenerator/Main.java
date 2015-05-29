@@ -1,12 +1,15 @@
 package pl.poznan.put.SqlDataGenerator;
 
-import com.opencsv.CSVReader;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.parser.CCJSqlParserManager;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.util.TablesNamesFinder;
 import org.xml.sax.SAXException;
+import pl.poznan.put.SqlDataGenerator.generator.DataController;
+import pl.poznan.put.SqlDataGenerator.generator.DataTable;
+import pl.poznan.put.SqlDataGenerator.readers.SQLData;
+import pl.poznan.put.SqlDataGenerator.readers.XMLData;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
@@ -73,6 +76,9 @@ public class Main {
             System.out.println(data.getNullPercentage(table, data.getAttributes(table).get(0)));
             System.out.println(data.getValues(table, data.getAttributes(table).get(0)));
         }
+
+        DataController dataController = new DataController();
+        dataController.initTables(data, new SQLData());
     }
 
 
