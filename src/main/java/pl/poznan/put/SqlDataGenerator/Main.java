@@ -1,5 +1,6 @@
 package pl.poznan.put.SqlDataGenerator;
 
+import com.opencsv.CSVReader;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.parser.CCJSqlParserManager;
 import net.sf.jsqlparser.statement.Statement;
