@@ -231,7 +231,10 @@ public class AttributesNamesFinder implements SelectVisitor, SelectItemVisitor, 
     public void visit(Column tableColumn) {
         Table columnTable = tableColumn.getTable();
         if (columnTable.getName().equals(table.getAlias().toString().replaceAll("\\s+", ""))) {
-            result.add(tableColumn.getColumnName());
+            String name = tableColumn.getColumnName();
+            if (!result.contains(name)) {
+                result.add(tableColumn.getColumnName());
+            }
         }
     }
 

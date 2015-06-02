@@ -1,6 +1,7 @@
 package pl.poznan.put.SqlDataGenerator.generator;
 
 
+import net.sf.jsqlparser.schema.Table;
 import pl.poznan.put.SqlDataGenerator.readers.SQLData;
 import pl.poznan.put.SqlDataGenerator.readers.XMLData;
 
@@ -16,14 +17,24 @@ public class DataController {
     }
 
     public void initTables(XMLData xmlData, SQLData sqlData) {
-        for (String tableName: xmlData.getTables()) {
-            DataTable table = new DataTable(tableName, xmlData.getRows(tableName));
-            for (String attributeName: xmlData.getAttributes(tableName)) {
+        List<String> xmlTables = xmlData.getTables();
+
+        for (Table table : sqlData.getTables()) {
+            String tableName = table.getName();
+            if (!xmlTables.contains(tableName)) {
+                throw new RuntimeException("Table " + tableName + " not found in xml file");
+            }
+            DataTable dataTable = new DataTable(tableName, xmlData.getRows(tableName));
+            List<String> xmlAttributes = xmlData.getAttributes(tableName);
+            for (String attributeName : sqlData.getAttributes(table)) {
+                if (!xmlAttributes.contains(attributeName)) {
+                    throw new RuntimeException("Attribute " + tableName + "." + attributeName + " not found in xml file");
+                }
                 String attributeType = xmlData.getType(tableName, attributeName);
                 Attribute attribute = initializeAttribute(attributeType, attributeName);
-                table.addAttribute(attribute);
+                dataTable.addAttribute(attribute);
             }
-            tables.add(table);
+            tables.add(dataTable);
         }
     }
 

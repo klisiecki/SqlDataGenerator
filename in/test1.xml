@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<TABLES xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="pl.poznan.put.SqlDataGenerator ../xml/schemat.xsd"
+        xmlns="pl.poznan.put.SqlDataGenerator">
+    <TABLE>
+        <NAME>TABLE_A</NAME>
+        <ROWS_NUM>5</ROWS_NUM>
+        <ATTRIBUTES>
+            <ATTRIBUTE>
+                <NAME>id</NAME>
+                <TYPE>INTEGER</TYPE>
+                <PRIMARY_KEY>true</PRIMARY_KEY>
+            </ATTRIBUTE>
+
+            <ATTRIBUTE>
+                <NAME>x</NAME>
+                <TYPE>STRING</TYPE>
+            </ATTRIBUTE>
+
+            <ATTRIBUTE>
+                <NAME>m</NAME>
+                <TYPE>INTEGER</TYPE>
+            </ATTRIBUTE>
+
+            <ATTRIBUTE>
+                <NAME>n</NAME>
+                <TYPE>INTEGER</TYPE>
+            </ATTRIBUTE>
+        </ATTRIBUTES>
+    </TABLE>
+
+    <TABLE>
+        <NAME>TABLE_B</NAME>
+        <ROWS_NUM>30</ROWS_NUM>
+        <ATTRIBUTES>
+            <ATTRIBUTE>
+                <NAME>id</NAME>
+                <TYPE>INTEGER</TYPE>
+                <PRIMARY_KEY>true</PRIMARY_KEY>
+            </ATTRIBUTE>
+
+            <ATTRIBUTE>
+                <NAME>a_id</NAME>
+                <TYPE>INTEGER</TYPE>
+            </ATTRIBUTE>
+
+            <ATTRIBUTE>
+                <NAME>z</NAME>
+                <TYPE>STRING</TYPE>
+            </ATTRIBUTE>
+
+            <ATTRIBUTE>
+                <NAME>i</NAME>
+                <TYPE>INTEGER</TYPE>
+            </ATTRIBUTE>
+        </ATTRIBUTES>
+    </TABLE>
+</TABLES>
