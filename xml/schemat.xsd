@@ -36,16 +36,29 @@
     <xs:element name="ATTRIBUTE">
         <xs:complexType>
             <xs:all>
-                <xs:element name="NAME" type="xs:string" />
+                <xs:element name="NAME" type="xs:string"/>
                 <xs:element name="NULL_PERCENTAGE" type="percentage_type" minOccurs="0" />
                 <xs:element name="TYPE" type="data_type" minOccurs="0" />
                 <xs:element name="MIN_VALUE" type="xs:integer" minOccurs="0" />
                 <xs:element name="MAX_VALUE" type="xs:integer" minOccurs="0" />
-                <xs:element name="MIN_UNIQUE_PERCENTAGE" type="percentage_type" minOccurs="0" />
-                <xs:element name="MAX_UNIQUE_PERCENTAGE" type="percentage_type" minOccurs="0" />
+                <xs:element ref="unique_group" minOccurs="0" maxOccurs="1"/>
                 <xs:element ref="VALUES" minOccurs="0" />
             </xs:all>
         </xs:complexType>
+    </xs:element>
+
+    <xs:element name="unique_group" abstract="true"/>
+
+    <xs:element name="UNIQUE_PERCENTAGE" substitutionGroup="unique_group">
+        <xs:complexType>
+            <xs:all>
+                <xs:element name="MIN" type="percentage_type" minOccurs="0" />
+                <xs:element name="MAX" type="percentage_type" minOccurs="0" />
+            </xs:all>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="PRIMARY_KEY" substitutionGroup="unique_group"  type="xs:boolean">
     </xs:element>
     
     
