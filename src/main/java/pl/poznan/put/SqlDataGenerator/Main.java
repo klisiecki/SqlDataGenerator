@@ -2,6 +2,7 @@ package pl.poznan.put.SqlDataGenerator;
 
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.parser.CCJSqlParserManager;
+import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.Select;
 import pl.poznan.put.SqlDataGenerator.generator.DataController;
@@ -33,16 +34,16 @@ public class Main {
 
         if (statement instanceof Select) {
             Select selectStatement = (Select) statement;
-
+            System.out.println(selectStatement);
             DataController dataController = new DataController();
             SQLData sqlData = new SQLData(selectStatement);
             dataController.initTables(xmlData, sqlData);
 
             System.out.println("dataController = " + dataController);
 
-            for (String tableName: sqlData.getTables()) {
-                System.out.println("Table: " + tableName);
-                System.out.println(sqlData.getAttributes(tableName));
+            for (Table table: sqlData.getTables()) {
+                System.out.println("Table: " + table);
+                System.out.println(sqlData.getAttributes(table));
             }
         }
     }
