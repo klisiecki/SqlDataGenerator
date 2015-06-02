@@ -1,23 +1,23 @@
 package pl.poznan.put.SqlDataGenerator.generator;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class DataTable {
     private String name;
     private int dataCount;
     private int maxDataCount;
-    private List<Attribute> attributes;
+    private Map<String, Attribute> attributeMap;
 
     public DataTable(String name, int maxDataCount) {
         this.name = name;
         this.maxDataCount = maxDataCount;
         this.dataCount = 0;
-        this.attributes = new ArrayList<>();
+        this.attributeMap = new HashMap<>();
     }
 
     public void addAttribute(Attribute attribute) {
-        attributes.add(attribute);
+        attributeMap.put(attribute.getName(), attribute);
     }
 
     public int getFill() {
@@ -25,8 +25,8 @@ public class DataTable {
     }
 
     public void clear() {
-        for (Attribute a: attributes) {
-            a.clear();
+        for (Map.Entry<String, Attribute> e: attributeMap.entrySet()) {
+            e.getValue().clear();
         }
     }
 
@@ -36,7 +36,7 @@ public class DataTable {
                 "name='" + name + '\'' +
                 ", dataCount=" + dataCount +
                 ", maxDataCount=" + maxDataCount +
-                ", attributes=" + attributes +
+                ", attributes=" + attributeMap +
                 '}';
     }
 }

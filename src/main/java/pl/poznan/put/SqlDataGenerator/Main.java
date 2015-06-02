@@ -26,7 +26,8 @@ public class Main {
         try {
             xmlData = new XMLData("in/test1.xml");
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println(e.getMessage());
+            return;
         }
 
 

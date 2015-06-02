@@ -4,10 +4,17 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Source;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import javax.xml.validation.Validator;
 import javax.xml.xpath.*;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,13 +22,24 @@ import java.util.List;
 public class XMLData {
     private XPathFactory xPathfactory = XPathFactory.newInstance();
     private Document document;
+    private final static String schemaLocation = "xml/schemat.xsd";
 
     public XMLData(String fileName) throws XPathExpressionException, ParserConfigurationException, IOException, SAXException {
+        validate(fileName);
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
         document = builder.parse(fileName);
+    }
 
-
+    private void validate(String fileName) throws IOException, SAXException {
+        File schemaFile = new File(schemaLocation);
+        Source xmlFile = new StreamSource(new File(fileName));
+        SchemaFactory schemaFactory = SchemaFactory
+                .newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+        Schema schema = schemaFactory.newSchema(schemaFile);
+        Validator validator = schema.newValidator();
+        validator.validate(xmlFile);
+        System.out.println(xmlFile.getSystemId() + " is valid");
     }
 
     public XPathExpression getXPathExpression(String expr) {
@@ -137,6 +155,10 @@ public class XMLData {
         }
     }
 
+    public boolean isPrimaryKey(String table, String attribute) {
+        return getAttributeProperty(table, attribute, "PRIMARY_KEY").equals("true");
+    }
+
     public Float getNullPercentage(String table, String attribute) {
         return getFloatAttributeProperty(table, attribute, "NULL_PERCENTAGE");
     }
@@ -150,11 +172,11 @@ public class XMLData {
     }
 
     public Float getMinUniquePercentage(String table, String attribute) {
-        return getFloatAttributeProperty(table, attribute, "MIN_UNIQUE_PERCENTAGE");
+        return getFloatAttributeProperty(table, attribute, "UNIQUE_PERCENTAGE/MIN");
     }
 
     public Float getMaxUniquePercentage(String table, String attribute) {
-        return getFloatAttributeProperty(table, attribute, "MAX_UNIQUE_PERCENTAGE");
+        return getFloatAttributeProperty(table, attribute, "UNIQUE_PERCENTAGE/MAX");
     }
 
     public List<String> getValues(String table, String attribute) {
@@ -173,7 +195,6 @@ public class XMLData {
 
         return result;
     }
-
 
 
 }
