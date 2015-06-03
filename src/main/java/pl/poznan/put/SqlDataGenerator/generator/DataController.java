@@ -74,8 +74,8 @@ public class DataController {
 
             restriction.setMinValue(minValue == null ? null: Integer.parseInt(minValue));
             negativeRestriction.setMinValue(minValue == null ? null: Integer.parseInt(minValue));
-            restriction.setMinValue(maxValue == null ? null: Integer.parseInt(maxValue));
-            negativeRestriction.setMinValue(maxValue == null ? null: Integer.parseInt(maxValue));
+            restriction.setMaxValue(maxValue == null ? null : Integer.parseInt(maxValue));
+            negativeRestriction.setMaxValue(maxValue == null ? null: Integer.parseInt(maxValue));
 
             if (values != null) {
                 List<Integer> integerValues = new ArrayList<>();

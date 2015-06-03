@@ -30,7 +30,7 @@ public class IntegerAttribute extends Attribute {
                 break;
             }
         }
-        if (foundClear) {
+        if (foundClear || dependentAttributes.size() == 0) {
             generateFromRestriction();
             return true;
         } else {
@@ -41,7 +41,10 @@ public class IntegerAttribute extends Attribute {
 
     @Override
     protected void generateFromRestriction() {
-        setValue(5);
+        NumberRestriction<Integer> integerRestriction = (NumberRestriction<Integer>) getRestriction();
+        if (integerRestriction.getValues() == null) {
+            setValue(RandomGenerator.getInteger(integerRestriction.getMinValue(), integerRestriction.getMaxValue()));
+        }
     }
 
     @Override
