@@ -3,23 +3,23 @@ package pl.poznan.put.SqlDataGenerator.restriction;
 import java.util.List;
 
 public class StringRestriction extends Restriction {
-    private int minLength;
-    private int maxLength;
+    private Integer minLength;
+    private Integer maxLength;
     private List<String> values;
 
-    public int getMinLength() {
+    public Integer getMinLength() {
         return minLength;
     }
 
-    public void setMinLength(int minLength) {
+    public void setMinLength(Integer minLength) {
         this.minLength = minLength;
     }
 
-    public int getMaxLength() {
+    public Integer getMaxLength() {
         return maxLength;
     }
 
-    public void setMaxLength(int maxLength) {
+    public void setMaxLength(Integer maxLength) {
         this.maxLength = maxLength;
     }
 

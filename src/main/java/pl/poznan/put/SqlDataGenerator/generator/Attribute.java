@@ -5,15 +5,13 @@ import pl.poznan.put.SqlDataGenerator.restriction.Restriction;
 import java.util.ArrayList;
 import java.util.List;
 
-//TODO remove generic, create subclases
-public class Attribute<T> {
+public abstract class Attribute {
 
     private String name;
-    private T value;
     private boolean clear;
     private List<Attribute> dependentAttributes;
-    private Restriction restriction;
-    private Restriction negativeRestriction;
+    protected Restriction restriction;
+    protected Restriction negativeRestriction;
 
     public Attribute(String name) {
         this.name = name;
@@ -21,17 +19,14 @@ public class Attribute<T> {
         clear();
     }
 
+    public void addDependent(Attribute attribute) {
+        if (!dependentAttributes.contains(attribute)) {
+            dependentAttributes.add(attribute);
+        }
+    }
+
     public String getName() {
         return name;
-    }
-
-    public T getValue() {
-        return value;
-    }
-
-    public void setValue(T value) {
-        this.value = value;
-        clear = false;
     }
 
     public boolean isClear() {
@@ -51,12 +46,39 @@ public class Attribute<T> {
         }
     }
 
-    @Override
-    public String toString() {
-        return "Attribute{" +
-                "name='" + name + '\'' +
-                ", value=" + value +
-                ", clear=" + clear +
-                '}';
+    public boolean generateValue() {
+        if (!isClear()) {
+            return true;
+        }
+        boolean foundClear = false;
+        for (Attribute a: dependentAttributes) {
+            if (a.isClear()) {
+                foundClear = true;
+                break;
+            }
+        }
+        if (foundClear) {
+            generateFromRestriction();
+            for (Attribute a: dependentAttributes) {
+                if(!a.generateValue()) {
+                    return false;
+                }
+            }
+            return true;
+        } else {
+            return generateFromRestrictionAndDependent();
+        }
     }
+
+    public Restriction getRestriction() {
+        return restriction;
+    }
+
+    public Restriction getNegativeRestriction() {
+        return negativeRestriction;
+    }
+
+    protected abstract boolean generateFromRestrictionAndDependent();
+
+    protected abstract void generateFromRestriction();
 }

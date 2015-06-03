@@ -125,14 +125,13 @@ public class XMLData {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return result;
+        return result.equals("") ? null : result;
     }
 
     private Integer getIntegerAttributeProperty(String table, String attribute, String property) {
         try {
             return Integer.parseInt(getAttributeProperty(table, attribute, property));
         } catch (Exception e) {
-            e.printStackTrace();
             return null;
         }
     }
@@ -141,7 +140,6 @@ public class XMLData {
         try {
             return Float.parseFloat(getAttributeProperty(table, attribute, property));
         } catch (Exception e) {
-            e.printStackTrace();
             return null;
         }
     }
@@ -163,12 +161,12 @@ public class XMLData {
         return getFloatAttributeProperty(table, attribute, "NULL_PERCENTAGE");
     }
 
-    public Integer getMinValue(String table, String attribute) {
-        return getIntegerAttributeProperty(table, attribute, "MIN_VALUE");
+    public String getMinValue(String table, String attribute) {
+        return getAttributeProperty(table, attribute, "MIN_VALUE");
     }
 
-    public Integer getMaxValue(String table, String attribute) {
-        return getIntegerAttributeProperty(table, attribute, "MAX_VALUE");
+    public String getMaxValue(String table, String attribute) {
+        return getAttributeProperty(table, attribute, "MAX_VALUE");
     }
 
     public Float getMinUniquePercentage(String table, String attribute) {
@@ -193,7 +191,7 @@ public class XMLData {
             e.printStackTrace();
         }
 
-        return result;
+        return result.size() == 0 ? null : result;
     }
 
 

@@ -16,6 +16,10 @@ public class DataTable {
         this.attributeMap = new HashMap<>();
     }
 
+    public Attribute getAttribute(String name) {
+        return attributeMap.get(name);
+    }
+
     public void addAttribute(Attribute attribute) {
         attributeMap.put(attribute.getName(), attribute);
     }
@@ -28,6 +32,10 @@ public class DataTable {
         for (Map.Entry<String, Attribute> e: attributeMap.entrySet()) {
             e.getValue().clear();
         }
+    }
+
+    public String getName() {
+        return name;
     }
 
     @Override
