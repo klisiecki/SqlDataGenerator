@@ -46,6 +46,9 @@ public class Main {
                 System.out.println("Table: " + table);
                 System.out.println(sqlData.getAttributes(table));
             }
+
+            dataController.generate();
+            dataController.print();
         }
     }
 }

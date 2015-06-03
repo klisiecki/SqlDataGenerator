@@ -42,6 +42,28 @@ public class DataController {
         }
     }
 
+    public void generate() {
+        for (Map.Entry<String, DataTable> e: tableMap.entrySet()) {
+            DataTable table = e.getValue();
+            for (Map.Entry<String, Attribute> e2: table.getAttributeMap().entrySet()) {
+                Attribute attribute = e2.getValue();
+                attribute.generateValue();
+            }
+        }
+    }
+
+    public void print() {
+        for (Map.Entry<String, DataTable> e: tableMap.entrySet()) {
+            DataTable table = e.getValue();
+            System.out.print(table.getName() + ": ");
+            for (Map.Entry<String, Attribute> e2: table.getAttributeMap().entrySet()) {
+                Attribute attribute = e2.getValue();
+                System.out.print(attribute + ", ");
+            }
+            System.out.println();
+        }
+    }
+
     private void addRestrictions(String tableName, Attribute attribute, XMLData xmlData) {
         String minValue = xmlData.getMinValue(tableName, attribute.getName());
         String maxValue = xmlData.getMaxValue(tableName, attribute.getName());

@@ -17,6 +17,7 @@ public class StringAttribute extends Attribute {
     }
 
     public void setValue(String value) {
+        setClear(false);
         this.value = value;
     }
 
@@ -29,5 +30,15 @@ public class StringAttribute extends Attribute {
     @Override
     protected void generateFromRestriction() {
         this.value = "restriction";
+    }
+
+    @Override
+    protected Object getObjectValue() {
+        return getValue();
+    }
+
+    @Override
+    protected void setObjectValue(Object value) {
+        setValue((String) value);
     }
 }

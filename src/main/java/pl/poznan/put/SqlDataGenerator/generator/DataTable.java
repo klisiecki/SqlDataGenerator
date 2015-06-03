@@ -30,12 +30,16 @@ public class DataTable {
 
     public void clear() {
         for (Map.Entry<String, Attribute> e: attributeMap.entrySet()) {
-            e.getValue().clear();
+            e.getValue().setClear(true);
         }
     }
 
     public String getName() {
         return name;
+    }
+
+    public Map<String, Attribute> getAttributeMap() {
+        return attributeMap;
     }
 
     @Override

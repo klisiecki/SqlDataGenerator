@@ -17,17 +17,40 @@ public class IntegerAttribute extends Attribute {
     }
 
     public void setValue(Integer value) {
+        setClear(false);
         this.value = value;
     }
 
     @Override
     protected boolean generateFromRestrictionAndDependent() {
-        this.value = 4;
-        return true;
+        boolean foundClear = false;
+        for (Attribute a : dependentAttributes) {
+            if (a.isClear()) {
+                foundClear = true;
+                break;
+            }
+        }
+        if (foundClear) {
+            generateFromRestriction();
+            return true;
+        } else {
+            setValue(4);
+            return true; //TODO
+        }
     }
 
     @Override
     protected void generateFromRestriction() {
-        this.value = 6;
+        setValue(5);
+    }
+
+    @Override
+    protected Object getObjectValue() {
+        return getValue();
+    }
+
+    @Override
+    protected void setObjectValue(Object value) {
+        setValue((Integer) value);
     }
 }
