@@ -36,6 +36,11 @@ public class AttributesNamesFinder extends AbstractFinder {
     }
 
     @Override
+    public void visit(SignedExpression signedExpression) {
+        signedExpression.getExpression().accept(this);
+    }
+
+    @Override
     public void visit(PlainSelect plainSelect) {
         if (plainSelect.getSelectItems() != null) {
             for (SelectItem item : plainSelect.getSelectItems()) {
