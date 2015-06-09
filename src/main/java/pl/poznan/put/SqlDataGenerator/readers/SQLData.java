@@ -3,21 +3,16 @@ package pl.poznan.put.SqlDataGenerator.readers;
 
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.Select;
-import pl.poznan.put.SqlDataGenerator.sql.AttributesNamesFinder;
-import pl.poznan.put.SqlDataGenerator.sql.ConditionEquals;
-import pl.poznan.put.SqlDataGenerator.sql.RestrictionsFinder;
-import pl.poznan.put.SqlDataGenerator.sql.TablesFinder;
+import pl.poznan.put.SqlDataGenerator.sql.*;
 
 import java.util.List;
 
 public class SQLData {
 
     private Select select;
-    private RestrictionsFinder restrictionsFinder;
 
     public SQLData(Select select) {
         this.select = select;
-        this.restrictionsFinder = new RestrictionsFinder();
     }
 
     public List<Table> getTables() {
@@ -30,7 +25,13 @@ public class SQLData {
         return attributesNamesFinder.getAttributesList(select, table);
     }
 
-    public List<ConditionEquals> getEquals() {
-        return restrictionsFinder.findEquals(select);
+    public List<RestrictionEquals> getJoinEquals() {
+        EqualsFinder equalsFinder = new EqualsFinder();
+        return equalsFinder.findEquals(select);
+    }
+
+    public List<AttributeRestriction> getRestrictions() {
+        SimpleRestrictionFinder restrictionFinder = new SimpleRestrictionFinder();
+        return restrictionFinder.findRestrictions(select);
     }
 }

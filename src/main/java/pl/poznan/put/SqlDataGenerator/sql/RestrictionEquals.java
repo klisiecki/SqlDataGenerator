@@ -2,11 +2,11 @@ package pl.poznan.put.SqlDataGenerator.sql;
 
 import net.sf.jsqlparser.schema.Column;
 
-public class ConditionEquals implements SQLCondition {
+public class RestrictionEquals implements SQLRestriction {
     private Column leftColumn;
     private Column rightColumn;
 
-    public ConditionEquals(Column leftColumn, Column rightColumn) {
+    public RestrictionEquals(Column leftColumn, Column rightColumn) {
         this.leftColumn = leftColumn;
         this.rightColumn = rightColumn;
     }

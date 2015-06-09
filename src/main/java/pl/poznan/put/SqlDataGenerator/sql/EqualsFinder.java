@@ -12,10 +12,10 @@ import net.sf.jsqlparser.statement.select.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RestrictionsFinder implements SelectVisitor, ExpressionVisitor {
-    private List<ConditionEquals> result = new ArrayList<>();
+public class EqualsFinder implements SelectVisitor, ExpressionVisitor {
+    private List<RestrictionEquals> result = new ArrayList<>();
 
-    public List<ConditionEquals> findEquals(Select select) {
+    public List<RestrictionEquals> findEquals(Select select) {
         select.getSelectBody().accept(this);
         return result;
     }
@@ -152,7 +152,7 @@ public class RestrictionsFinder implements SelectVisitor, ExpressionVisitor {
         if (leftExpression instanceof Column && rightExpression instanceof Column) {
             Column leftColumn = (Column) leftExpression;
             Column rightColumn = (Column) rightExpression;
-            result.add(new ConditionEquals(leftColumn, rightColumn));
+            result.add(new RestrictionEquals(leftColumn, rightColumn));
         }
     }
 

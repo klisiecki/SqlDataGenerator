@@ -6,7 +6,8 @@ import pl.poznan.put.SqlDataGenerator.readers.SQLData;
 import pl.poznan.put.SqlDataGenerator.readers.XMLData;
 import pl.poznan.put.SqlDataGenerator.restriction.IntegerRestriction;
 import pl.poznan.put.SqlDataGenerator.restriction.StringRestriction;
-import pl.poznan.put.SqlDataGenerator.sql.ConditionEquals;
+import pl.poznan.put.SqlDataGenerator.sql.AttributeRestriction;
+import pl.poznan.put.SqlDataGenerator.sql.RestrictionEquals;
 
 import java.util.*;
 
@@ -39,6 +40,7 @@ public class DataController {
             tableMap.put(dataTable.getName(), dataTable);
         }
 
+        addSQLJoinEquals(sqlData);
         addSQLRestrictions(sqlData);
         propagateEquals();
     }
@@ -84,8 +86,16 @@ public class DataController {
     }
 
     private void addSQLRestrictions(SQLData sqlData) {
-        List<ConditionEquals> equalsList = sqlData.getEquals();
-        for (ConditionEquals c : equalsList) {
+        List<AttributeRestriction> attributeRestrictions = sqlData.getRestrictions();
+        for (AttributeRestriction a: attributeRestrictions) {
+            Attribute attribute = tableMap.get(a.getTableName()).getAttribute(a.getAttributeName());
+            attribute.getRestriction().merge(a.getRestriction());
+        }
+    }
+
+    private void addSQLJoinEquals(SQLData sqlData) {
+        List<RestrictionEquals> equalsList = sqlData.getJoinEquals();
+        for (RestrictionEquals c : equalsList) {
             DataTable tableA = tableMap.get(c.getLeftColumn().getTable().getName());
             DataTable tableB = tableMap.get(c.getRightColumn().getTable().getName());
             Attribute attributeA = tableA.getAttribute(c.getLeftColumn().getColumnName());

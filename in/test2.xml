@@ -28,6 +28,7 @@
             <ATTRIBUTE>
                 <NAME>n</NAME>
                 <TYPE>INTEGER</TYPE>
+                <MIN_VALUE>-100</MIN_VALUE>
             </ATTRIBUTE>
         </ATTRIBUTES>
     </TABLE>
