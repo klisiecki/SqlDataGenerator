@@ -27,6 +27,13 @@ public abstract class Attribute {
         }
     }
 
+    public void addEquals(Attribute attribute) {
+        if (!equalsAttributes.contains(attribute)) {
+            equalsAttributes.add(attribute);
+            addDependent(attribute);
+        }
+    }
+
     public String getName() {
         return name;
     }
@@ -52,24 +59,6 @@ public abstract class Attribute {
         if (!isClear()) {
             return true;
         }
-//        boolean foundClear = false;
-//        for (Attribute a: dependentAttributes) {
-//            if (a.isClear()) {
-//                foundClear = true;
-//                break;
-//            }
-//        }
-//        if (foundClear) {
-//            generateFromRestriction();
-//            for (Attribute a: dependentAttributes) {
-//                if(!a.generateValue()) {
-//                    return false;
-//                }
-//            }
-//            return true;
-//        } else {
-//            return generateFromRestrictionAndDependent();
-//        }
         if (!generateFromEquals()) {
             if (!generateFromRestrictionAndDependent()) {
                 reset();

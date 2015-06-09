@@ -1,4 +1,4 @@
-package pl.poznan.put.SqlDataGenerator;
+package pl.poznan.put.SqlDataGenerator.sql;
 
 import net.sf.jsqlparser.expression.*;
 import net.sf.jsqlparser.expression.operators.arithmetic.*;
@@ -8,6 +8,7 @@ import net.sf.jsqlparser.expression.operators.relational.*;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.*;
+import pl.poznan.put.SqlDataGenerator.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -230,7 +231,7 @@ public class AttributesNamesFinder implements SelectVisitor, SelectItemVisitor, 
     @Override
     public void visit(Column tableColumn) {
         Table columnTable = tableColumn.getTable();
-        if (columnTable.getName().equals(table.getAlias().toString().replaceAll("\\s+", ""))) {
+        if (columnTable.getName().equals(table.getAlias().getName())) {
             String name = tableColumn.getColumnName();
             if (!result.contains(name)) {
                 result.add(tableColumn.getColumnName());

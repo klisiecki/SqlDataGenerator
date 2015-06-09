@@ -5,11 +5,12 @@ import java.util.Map;
 
 public class DataTable {
     private String name;
+    private String originalName;
     private int dataCount;
     private int maxDataCount;
     private Map<String, Attribute> attributeMap;
 
-    public DataTable(String name, int maxDataCount) {
+    public DataTable(String name, String originalName, int maxDataCount) {
         this.name = name;
         this.maxDataCount = maxDataCount;
         this.dataCount = 0;

@@ -1,4 +1,4 @@
-package pl.poznan.put.SqlDataGenerator;
+package pl.poznan.put.SqlDataGenerator.sql;
 
 import net.sf.jsqlparser.expression.*;
 import net.sf.jsqlparser.expression.operators.arithmetic.*;
