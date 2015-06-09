@@ -2,17 +2,13 @@ package pl.poznan.put.SqlDataGenerator.generator;
 
 
 import net.sf.jsqlparser.schema.Table;
-import pl.poznan.put.SqlDataGenerator.Utils;
 import pl.poznan.put.SqlDataGenerator.readers.SQLData;
 import pl.poznan.put.SqlDataGenerator.readers.XMLData;
-import pl.poznan.put.SqlDataGenerator.restriction.NumberRestriction;
+import pl.poznan.put.SqlDataGenerator.restriction.IntegerRestriction;
 import pl.poznan.put.SqlDataGenerator.restriction.StringRestriction;
 import pl.poznan.put.SqlDataGenerator.sql.ConditionEquals;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class DataController {
     private Map<String, DataTable> tableMap;
@@ -44,6 +40,7 @@ public class DataController {
         }
 
         addSQLRestrictions(sqlData);
+        propagateEquals();
     }
 
     public void generate() {
@@ -65,6 +62,24 @@ public class DataController {
                 System.out.print(attribute + ", ");
             }
             System.out.println();
+        }
+    }
+
+    private void propagateEquals() {
+        Set<Attribute> processed = new HashSet<>();
+        for (Map.Entry<String, DataTable> e: tableMap.entrySet()) {
+            DataTable table = e.getValue();
+            for (Map.Entry<String, Attribute> e2: table.getAttributeMap().entrySet()) {
+                Attribute attribute = e2.getValue();
+                if (!processed.contains(attribute)) {
+                    Set<Attribute> clique = new HashSet<>();
+                    attribute.collectEquals(clique);
+                    for (Attribute a: clique) {
+                        a.addEquals(clique);
+                    }
+                    processed.addAll(clique);
+                }
+            }
         }
     }
 
@@ -90,8 +105,8 @@ public class DataController {
         String maxValue = xmlData.getMaxValue(tableName, attribute.getName());
         List<String> values = xmlData.getValues(tableName, attribute.getName());
         if (attribute instanceof IntegerAttribute) {
-            NumberRestriction<Integer> restriction = (NumberRestriction<Integer>) attribute.getRestriction();
-            NumberRestriction<Integer> negativeRestriction = (NumberRestriction<Integer>) attribute.getNegativeRestriction();
+            IntegerRestriction restriction = (IntegerRestriction) attribute.getRestriction();
+            IntegerRestriction negativeRestriction = (IntegerRestriction) attribute.getNegativeRestriction();
 
             restriction.setMinValue(minValue == null ? null: Integer.parseInt(minValue));
             negativeRestriction.setMinValue(minValue == null ? null: Integer.parseInt(minValue));

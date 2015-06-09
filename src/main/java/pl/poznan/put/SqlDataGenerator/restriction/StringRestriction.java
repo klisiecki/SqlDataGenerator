@@ -30,4 +30,9 @@ public class StringRestriction extends Restriction {
     public void setValues(List<String> values) {
         this.values = values;
     }
+
+    @Override
+    public void merge(Restriction restriction) {
+
+    }
 }

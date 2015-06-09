@@ -9,6 +9,6 @@ public class RandomGenerator {
         int max = to - from;
         Random rand = new Random();
         int randomNum = rand.nextInt(max);
-        return randomNum - from;
+        return randomNum + from;
     }
 }

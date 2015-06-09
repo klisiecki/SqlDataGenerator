@@ -18,13 +18,12 @@ public class Main {
     public static void main(String[] args) throws JSQLParserException, IOException {
         CCJSqlParserManager pm = new CCJSqlParserManager();
 
-//        String sql = readFile("in/simple6TablesJoin.sql");
-//        String sql = readFile("in/ibm2.sql");
-        String sql = Utils.readFile("in/test1.sql");
+        String file = "test2";
+        String sql = Utils.readFile("in/"+file+".sql");
 
         XMLData xmlData = null;
         try {
-            xmlData = new XMLData("in/test1.xml");
+            xmlData = new XMLData("in/"+file+".xml");
         } catch (Exception e) {
             System.err.println(e.getMessage());
             return;

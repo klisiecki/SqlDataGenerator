@@ -2,8 +2,7 @@ package pl.poznan.put.SqlDataGenerator.generator;
 
 import pl.poznan.put.SqlDataGenerator.restriction.Restriction;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public abstract class Attribute {
 
@@ -28,9 +27,29 @@ public abstract class Attribute {
     }
 
     public void addEquals(Attribute attribute) {
-        if (!equalsAttributes.contains(attribute)) {
+        if (!equalsAttributes.contains(attribute) && !attribute.equals(this)) {
             equalsAttributes.add(attribute);
             addDependent(attribute);
+            restriction.merge(attribute.getRestriction());
+        }
+    }
+
+    public void addEquals(Collection<Attribute> attributes) {
+        for (Attribute a: attributes) {
+            addEquals(a);
+        }
+    }
+
+    public List<Attribute> getEqualsAttributes() {
+        return equalsAttributes;
+    }
+
+    public void collectEquals(Set<Attribute> result) {
+        result.add(this);
+        for (Attribute a: equalsAttributes) {
+            if (!result.contains(a)) {
+                a.collectEquals(result);
+            }
         }
     }
 
