@@ -63,7 +63,7 @@
 
     <TABLE>
         <NAME>TABLE_C</NAME>
-        <ROWS_NUM>30</ROWS_NUM>
+        <ROWS_NUM>40</ROWS_NUM>
         <ATTRIBUTES>
             <ATTRIBUTE>
                 <NAME>id</NAME>

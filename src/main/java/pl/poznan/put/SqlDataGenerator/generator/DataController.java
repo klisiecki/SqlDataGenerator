@@ -13,6 +13,7 @@ import java.util.*;
 
 public class DataController {
     private Map<String, DataTable> tableMap;
+    private long maxDataRows = 0;
 
     public DataController() {
         this.tableMap = new HashMap<>();
@@ -21,12 +22,17 @@ public class DataController {
     public void initTables(XMLData xmlData, SQLData sqlData) {
         List<String> xmlTables = xmlData.getTables();
 
+
         for (Table table : sqlData.getTables()) {
             String originalName = table.getName();
             if (!xmlTables.contains(originalName)) {
                 throw new RuntimeException("Table " + originalName + " not found in xml file");
             }
-            DataTable dataTable = new DataTable(table.getAlias().getName(), originalName, xmlData.getRows(originalName));
+            long dataRows = xmlData.getRows(originalName);
+            if (dataRows > maxDataRows) {
+                maxDataRows = dataRows;
+            }
+            DataTable dataTable = new DataTable(table.getAlias().getName(), originalName, dataRows);
             List<String> xmlAttributes = xmlData.getAttributes(originalName);
             for (String attributeName : sqlData.getAttributes(table)) {
                 if (!xmlAttributes.contains(attributeName)) {
@@ -38,6 +44,13 @@ public class DataController {
                 dataTable.addAttribute(attribute);
             }
             tableMap.put(dataTable.getName(), dataTable);
+            dataTable.initTableFile();
+        }
+
+
+        for (Map.Entry<String, DataTable> e: tableMap.entrySet()) {
+            DataTable table = e.getValue();
+            table.calculateResetFactor(maxDataRows);
         }
 
         addSQLJoinEquals(sqlData);
@@ -46,6 +59,31 @@ public class DataController {
     }
 
     public void generate() {
+        for (long iteration = 0; iteration < maxDataRows; iteration++) {
+            for (Map.Entry<String, DataTable> e: tableMap.entrySet()) {
+                DataTable table = e.getValue();
+                if (table.checkIteration(iteration)) {
+                    table.clear();
+                }
+            }
+            generateRow();
+            for (Map.Entry<String, DataTable> e: tableMap.entrySet()) {
+                DataTable table = e.getValue();
+                if (table.checkIteration(iteration)) {
+                    table.print();
+                    table.save();
+                }
+            }
+            System.out.println();
+        }
+
+        for (Map.Entry<String, DataTable> e: tableMap.entrySet()) {
+            DataTable table = e.getValue();
+            table.closeTableFile();
+        }
+    }
+
+    private void generateRow() {
         for (Map.Entry<String, DataTable> e: tableMap.entrySet()) {
             DataTable table = e.getValue();
             for (Map.Entry<String, Attribute> e2: table.getAttributeMap().entrySet()) {

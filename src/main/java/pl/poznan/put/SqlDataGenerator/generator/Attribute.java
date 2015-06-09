@@ -65,11 +65,11 @@ public abstract class Attribute {
         this.clear = isClear;
     }
 
-    public void reset() {
+    private void rollback() {
         setClear(true);
         for (Attribute a : dependentAttributes) {
             if (!a.isClear()) {
-                a.reset();
+                a.rollback();
             }
         }
     }
@@ -80,7 +80,7 @@ public abstract class Attribute {
         }
         if (!generateFromEquals()) {
             if (!generateFromRestrictionAndDependent()) {
-                reset();
+                rollback();
                 return false;
             }
         }
