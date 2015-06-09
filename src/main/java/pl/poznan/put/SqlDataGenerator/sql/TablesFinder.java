@@ -12,12 +12,10 @@ import net.sf.jsqlparser.statement.select.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TablesFinder  implements SelectVisitor, FromItemVisitor, ExpressionVisitor, ItemsListVisitor, SelectItemVisitor {
+public class TablesFinder extends AbstractFinder {
 
     private List<Table> tables;
-
     private List<String> otherItemNames;
-
 
     public List<Table> getTableList(Select select) {
         init();
@@ -30,7 +28,6 @@ public class TablesFinder  implements SelectVisitor, FromItemVisitor, Expression
 
         return tables;
     }
-
 
     @Override
     public void visit(WithItem withItem) {
@@ -92,25 +89,13 @@ public class TablesFinder  implements SelectVisitor, FromItemVisitor, Expression
     }
 
     @Override
-    public void visit(Column tableColumn) {
-    }
-
-    @Override
     public void visit(Division division) {
         visitBinaryExpression(division);
     }
 
     @Override
-    public void visit(DoubleValue doubleValue) {
-    }
-
-    @Override
     public void visit(EqualsTo equalsTo) {
         visitBinaryExpression(equalsTo);
-    }
-
-    @Override
-    public void visit(Function function) {
     }
 
     @Override
@@ -135,14 +120,6 @@ public class TablesFinder  implements SelectVisitor, FromItemVisitor, Expression
     }
 
     @Override
-    public void visit(IsNullExpression isNullExpression) {
-    }
-
-    @Override
-    public void visit(JdbcParameter jdbcParameter) {
-    }
-
-    @Override
     public void visit(LikeExpression likeExpression) {
         visitBinaryExpression(likeExpression);
     }
@@ -150,10 +127,6 @@ public class TablesFinder  implements SelectVisitor, FromItemVisitor, Expression
     @Override
     public void visit(ExistsExpression existsExpression) {
         existsExpression.getRightExpression().accept(this);
-    }
-
-    @Override
-    public void visit(LongValue longValue) {
     }
 
     @Override
@@ -177,10 +150,6 @@ public class TablesFinder  implements SelectVisitor, FromItemVisitor, Expression
     }
 
     @Override
-    public void visit(NullValue nullValue) {
-    }
-
-    @Override
     public void visit(OrExpression orExpression) {
         visitBinaryExpression(orExpression);
     }
@@ -188,10 +157,6 @@ public class TablesFinder  implements SelectVisitor, FromItemVisitor, Expression
     @Override
     public void visit(Parenthesis parenthesis) {
         parenthesis.getExpression().accept(this);
-    }
-
-    @Override
-    public void visit(StringValue stringValue) {
     }
 
     @Override
@@ -209,37 +174,6 @@ public class TablesFinder  implements SelectVisitor, FromItemVisitor, Expression
         for (Expression expression : expressionList.getExpressions()) {
             expression.accept(this);
         }
-
-    }
-
-    @Override
-    public void visit(DateValue dateValue) {
-    }
-
-    @Override
-    public void visit(TimestampValue timestampValue) {
-    }
-
-    @Override
-    public void visit(TimeValue timeValue) {
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see net.sf.jsqlparser.expression.ExpressionVisitor#visit(net.sf.jsqlparser.expression.CaseExpression)
-     */
-    @Override
-    public void visit(CaseExpression caseExpression) {
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see net.sf.jsqlparser.expression.ExpressionVisitor#visit(net.sf.jsqlparser.expression.WhenClause)
-     */
-    @Override
-    public void visit(WhenClause whenClause) {
     }
 
     @Override
@@ -294,18 +228,10 @@ public class TablesFinder  implements SelectVisitor, FromItemVisitor, Expression
     }
 
     @Override
-    public void visit(AnalyticExpression analytic) {
-    }
-
-    @Override
     public void visit(SetOperationList list) {
         for (SelectBody plainSelect : list.getSelects()) {
             plainSelect.accept(this);
         }
-    }
-
-    @Override
-    public void visit(ExtractExpression eexpr) {
     }
 
     @Override
@@ -320,21 +246,9 @@ public class TablesFinder  implements SelectVisitor, FromItemVisitor, Expression
         }
     }
 
-    @Override
-    public void visit(ValuesList valuesList) {
-    }
-
     private void init() {
         otherItemNames = new ArrayList<String>();
         tables = new ArrayList<Table>();
-    }
-
-    @Override
-    public void visit(IntervalExpression iexpr) {
-    }
-
-    @Override
-    public void visit(JdbcNamedParameter jdbcNamedParameter) {
     }
 
     @Override
@@ -359,36 +273,8 @@ public class TablesFinder  implements SelectVisitor, FromItemVisitor, Expression
     }
 
     @Override
-    public void visit(JsonExpression jsonExpr) {
-    }
-
-    @Override
-    public void visit(AllColumns allColumns) {
-    }
-
-    @Override
-    public void visit(AllTableColumns allTableColumns) {
-    }
-
-    @Override
     public void visit(SelectExpressionItem item) {
         item.getExpression().accept(this);
     }
 
-    @Override
-    public void visit(WithinGroupExpression wgexpr) {
-    }
-
-    @Override
-    public void visit(UserVariable var) {
-    }
-
-    @Override
-    public void visit(NumericBind bind) {
-
-    }
-
-    @Override
-    public void visit(KeepExpression aexpr) {
-    }
 }

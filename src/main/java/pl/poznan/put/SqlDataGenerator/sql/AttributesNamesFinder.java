@@ -13,7 +13,7 @@ import pl.poznan.put.SqlDataGenerator.Utils;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AttributesNamesFinder implements SelectVisitor, SelectItemVisitor, FromItemVisitor, ExpressionVisitor {
+public class AttributesNamesFinder extends AbstractFinder {
     private List<String> result = new ArrayList<>();
     private Table table;
 
@@ -27,16 +27,6 @@ public class AttributesNamesFinder implements SelectVisitor, SelectItemVisitor, 
     public void visitBinaryExpression(BinaryExpression binaryExpression) {
         binaryExpression.getLeftExpression().accept(this);
         binaryExpression.getRightExpression().accept(this);
-    }
-
-    @Override
-    public void visit(AllColumns allColumns) {
-
-    }
-
-    @Override
-    public void visit(AllTableColumns allTableColumns) {
-
     }
 
     @Override
@@ -64,79 +54,8 @@ public class AttributesNamesFinder implements SelectVisitor, SelectItemVisitor, 
     }
 
     @Override
-    public void visit(SetOperationList setOpList) {
-
-    }
-
-    @Override
-    public void visit(WithItem withItem) {
-
-    }
-
-    @Override
-    public void visit(Table tableName) {
-
-    }
-
-    @Override
-    public void visit(NullValue nullValue) {
-
-    }
-
-    @Override
-    public void visit(Function function) {
-
-    }
-
-    @Override
-    public void visit(SignedExpression signedExpression) {
-        signedExpression.getExpression().accept(this);
-    }
-
-    @Override
-    public void visit(JdbcParameter jdbcParameter) {
-
-    }
-
-    @Override
-    public void visit(JdbcNamedParameter jdbcNamedParameter) {
-
-    }
-
-    @Override
-    public void visit(DoubleValue doubleValue) {
-
-    }
-
-    @Override
-    public void visit(LongValue longValue) {
-
-    }
-
-    @Override
-    public void visit(DateValue dateValue) {
-
-    }
-
-    @Override
-    public void visit(TimeValue timeValue) {
-
-    }
-
-    @Override
-    public void visit(TimestampValue timestampValue) {
-
-    }
-
-    @Override
     public void visit(Parenthesis parenthesis) {
         parenthesis.getExpression().accept(this);
-    }
-
-
-    @Override
-    public void visit(StringValue stringValue) {
-
     }
 
     @Override
@@ -159,12 +78,10 @@ public class AttributesNamesFinder implements SelectVisitor, SelectItemVisitor, 
         visitBinaryExpression(subtraction);
     }
 
-
     @Override
     public void visit(AndExpression andExpression) {
         visitBinaryExpression(andExpression);
     }
-
 
     @Override
     public void visit(OrExpression orExpression) {
@@ -183,7 +100,6 @@ public class AttributesNamesFinder implements SelectVisitor, SelectItemVisitor, 
         visitBinaryExpression(equalsTo);
     }
 
-
     @Override
     public void visit(GreaterThan greaterThan) {
         visitBinaryExpression(greaterThan);
@@ -201,15 +117,9 @@ public class AttributesNamesFinder implements SelectVisitor, SelectItemVisitor, 
     }
 
     @Override
-    public void visit(IsNullExpression isNullExpression) {
-
-    }
-
-    @Override
     public void visit(LikeExpression likeExpression) {
         visitBinaryExpression(likeExpression);
     }
-
 
     @Override
     public void visit(MinorThan minorThan) {
@@ -220,7 +130,6 @@ public class AttributesNamesFinder implements SelectVisitor, SelectItemVisitor, 
     public void visit(MinorThanEquals minorThanEquals) {
         visitBinaryExpression(minorThanEquals);
     }
-
 
     @Override
     public void visit(NotEqualsTo notEqualsTo) {
@@ -240,34 +149,8 @@ public class AttributesNamesFinder implements SelectVisitor, SelectItemVisitor, 
     }
 
     @Override
-    public void visit(SubSelect subSelect) {
-
-    }
-
-    @Override
-    public void visit(CaseExpression caseExpression) {
-
-    }
-
-    @Override
-    public void visit(WhenClause whenClause) {
-
-    }
-
-    @Override
     public void visit(ExistsExpression existsExpression) {
         existsExpression.getRightExpression().accept(this);
-    }
-
-
-    @Override
-    public void visit(AllComparisonExpression allComparisonExpression) {
-
-    }
-
-    @Override
-    public void visit(AnyComparisonExpression anyComparisonExpression) {
-
     }
 
     @Override
@@ -307,38 +190,8 @@ public class AttributesNamesFinder implements SelectVisitor, SelectItemVisitor, 
     }
 
     @Override
-    public void visit(AnalyticExpression aexpr) {
-
-    }
-
-    @Override
-    public void visit(WithinGroupExpression wgexpr) {
-
-    }
-
-    @Override
-    public void visit(ExtractExpression eexpr) {
-
-    }
-
-    @Override
-    public void visit(IntervalExpression iexpr) {
-
-    }
-
-    @Override
-    public void visit(OracleHierarchicalExpression oexpr) {
-
-    }
-
-    @Override
     public void visit(RegExpMatchOperator rexpr) {
         visitBinaryExpression(rexpr);
-    }
-
-    @Override
-    public void visit(JsonExpression jsonExpr) {
-
     }
 
     @Override
@@ -346,33 +199,4 @@ public class AttributesNamesFinder implements SelectVisitor, SelectItemVisitor, 
         visitBinaryExpression(regExpMySQLOperator);
     }
 
-    @Override
-    public void visit(UserVariable var) {
-
-    }
-
-    @Override
-    public void visit(NumericBind bind) {
-
-    }
-
-    @Override
-    public void visit(KeepExpression aexpr) {
-
-    }
-
-    @Override
-    public void visit(SubJoin subjoin) {
-
-    }
-
-    @Override
-    public void visit(LateralSubSelect lateralSubSelect) {
-
-    }
-
-    @Override
-    public void visit(ValuesList valuesList) {
-
-    }
 }
