@@ -68,7 +68,12 @@ public class DataController {
                     table.clear();
                 }
             }
-            generateRow();
+            if (iteration > maxDataRows/2) { //TODO współczynnik
+                generateRow();
+            } else {
+                generateNegativeRow();
+            }
+
             for (Map.Entry<String, DataTable> e: tableMap.entrySet()) {
                 DataTable table = e.getValue();
                 if (table.checkIteration(iteration)) {
@@ -90,7 +95,17 @@ public class DataController {
             DataTable table = e.getValue();
             for (Map.Entry<String, Attribute> e2: table.getAttributeMap().entrySet()) {
                 Attribute attribute = e2.getValue();
-                attribute.generateValue();
+                attribute.generateValue(false);
+            }
+        }
+    }
+
+    private void generateNegativeRow() {
+        for (Map.Entry<String, DataTable> e: tableMap.entrySet()) {
+            DataTable table = e.getValue();
+            for (Map.Entry<String, Attribute> e2: table.getAttributeMap().entrySet()) {
+                Attribute attribute = e2.getValue();
+                attribute.generateValue(true);
             }
         }
     }
@@ -119,6 +134,13 @@ public class DataController {
             Attribute attribute = tableMap.get(a.getTableName()).getAttribute(a.getAttributeName());
             //TODO obsługa ORów
             attribute.getRestriction().addAndRangeSet(a.getRestriction().getRangeSet());
+            TreeRangeSet complementSet = (TreeRangeSet) a.getRestriction().getRangeSet().complement().subRangeSet(Range.closed(Integer.MIN_VALUE/2, Integer.MAX_VALUE/2));
+            System.out.println("a.getRestriction().getRangeSet() = " + a.getRestriction().getRangeSet());
+            System.out.println("complementSet = " + complementSet);
+            System.out.println();
+            if (!complementSet.isEmpty()) {
+                attribute.getNegativeRestriction().addAndRangeSet(complementSet);
+            }
         }
     }
 
@@ -149,9 +171,11 @@ public class DataController {
 
             if (minValue != null) {
                 restriction.addAndRange(Range.closed(Integer.parseInt(minValue), Integer.MAX_VALUE));
+                negativeRestriction.addAndRange(Range.closed(Integer.parseInt(minValue), Integer.MAX_VALUE));
             }
             if (maxValue != null) {
                 restriction.addAndRange(Range.closed(Integer.MIN_VALUE, Integer.parseInt(maxValue)));
+                negativeRestriction.addAndRange(Range.closed(Integer.MIN_VALUE, Integer.parseInt(maxValue)));
             }
 
 

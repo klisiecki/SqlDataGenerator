@@ -12,14 +12,17 @@ import net.sf.jsqlparser.statement.select.*;
 import pl.poznan.put.SqlDataGenerator.restriction.IntegerRestriction;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class SimpleRestrictionFinder extends AbstractFinder {
-    private List<AttributeRestriction> result = new ArrayList<>();
+//    private List<AttributeRestriction> result = new ArrayList<>();
+    private Map<String, AttributeRestriction> result = new HashMap<>();
 
     public List<AttributeRestriction> findRestrictions(Select select) {
         select.getSelectBody().accept(this);
-        return result;
+        return new ArrayList<AttributeRestriction>(result.values());
     }
 
     public void visitBinaryExpression(BinaryExpression binaryExpression) {
@@ -43,9 +46,11 @@ public class SimpleRestrictionFinder extends AbstractFinder {
     private void createMinRestriction(Expression a, Expression b) {
         Long l = getLong(b);
         if (a instanceof Column && l != null) {
-            IntegerRestriction r = new IntegerRestriction();
-            r.addAndRange(Range.closed(l.intValue(), Integer.MAX_VALUE));
-            result.add(new AttributeRestriction((Column)a, r));
+//            IntegerRestriction r = new IntegerRestriction();
+//            r.addAndRange(Range.closed(l.intValue(), Integer.MAX_VALUE));
+//            result.add(new AttributeRestriction((Column)a, r));
+//            result.put((Column)a, new AttributeRestriction((Column)a, r));
+            putRestriction((Column)a, Range.closed(l.intValue(), Integer.MAX_VALUE));
         }
     }
 
@@ -64,9 +69,11 @@ public class SimpleRestrictionFinder extends AbstractFinder {
     private void createMaxRestriction(Expression a, Expression b) {
         Long l = getLong(b);
         if (a instanceof Column && l != null) {
-            IntegerRestriction r = new IntegerRestriction();
-            r.addAndRange(Range.closed(Integer.MIN_VALUE, l.intValue()));
-            result.add(new AttributeRestriction((Column) a, r));
+//            IntegerRestriction r = new IntegerRestriction();
+//            r.addAndRange(Range.closed(Integer.MIN_VALUE, l.intValue()));
+//            result.add(new AttributeRestriction((Column) a, r));
+//            result.put((Column)a, new AttributeRestriction((Column)a, r));
+            putRestriction((Column)a, Range.closed(Integer.MIN_VALUE, l.intValue()));
         }
     }
 
@@ -101,6 +108,18 @@ public class SimpleRestrictionFinder extends AbstractFinder {
         Expression b = minorThanEquals.getRightExpression();
         createMinRestriction(b, a);
         createMaxRestriction(a, b);
+    }
+
+    private void putRestriction(Column c, Range range) {
+        if (!result.containsKey(c.toString())) {
+            IntegerRestriction r = new IntegerRestriction();
+            r.addAndRange(range);
+            result.put(c.toString(), new AttributeRestriction(c, r));
+        } else {
+            IntegerRestriction r = (IntegerRestriction) result.get(c.toString()).getRestriction();
+            r.addAndRange(range);
+            result.put(c.toString(), new AttributeRestriction(c, r));
+        }
     }
 
 }

@@ -22,7 +22,7 @@ public class IntegerAttribute extends Attribute {
     }
 
     @Override
-    protected boolean generateFromRestrictionAndDependent() {
+    protected boolean generateFromRestrictionAndDependent(boolean negative) {
         boolean foundClear = false;
         for (Attribute a : dependentAttributes) {
             if (a.isClear()) {
@@ -31,7 +31,7 @@ public class IntegerAttribute extends Attribute {
             }
         }
         if (foundClear || dependentAttributes.size() == 0) {
-            generateFromRestriction();
+            generateFromRestriction(negative);
             return true;
         } else {
             setValue(4);
@@ -40,8 +40,8 @@ public class IntegerAttribute extends Attribute {
     }
 
     @Override
-    protected void generateFromRestriction() {
-        IntegerRestriction integerRestriction = (IntegerRestriction) getRestriction();
+    protected void generateFromRestriction(boolean negative) {
+        IntegerRestriction integerRestriction = negative ? (IntegerRestriction) getNegativeRestriction(): (IntegerRestriction) getRestriction();
         setValue(RandomGenerator.getInteger(integerRestriction.getRangeSet()));
     }
 

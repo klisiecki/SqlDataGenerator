@@ -12,6 +12,7 @@ public abstract class Attribute {
     protected List<Attribute> equalsAttributes;
     protected Restriction restriction;
     protected Restriction negativeRestriction;
+    private Boolean canBeNegative;
 
     public Attribute(String name) {
         this.name = name;
@@ -26,6 +27,16 @@ public abstract class Attribute {
         }
     }
 
+    /**
+     * @return czy można użyć atrybutu do wygenerowania wiersza niespełniającego warunktów zapytania
+     */
+    public boolean canBeNegative() {
+        if (canBeNegative == null) {
+            canBeNegative = !restriction.equals(negativeRestriction);
+        }
+        return canBeNegative;
+    }
+
     public void addEquals(Attribute attribute) {
         if (!equalsAttributes.contains(attribute) && !attribute.equals(this)) {
             equalsAttributes.add(attribute);
@@ -35,7 +46,7 @@ public abstract class Attribute {
     }
 
     public void addEquals(Collection<Attribute> attributes) {
-        for (Attribute a: attributes) {
+        for (Attribute a : attributes) {
             addEquals(a);
         }
     }
@@ -46,7 +57,7 @@ public abstract class Attribute {
 
     public void collectEquals(Set<Attribute> result) {
         result.add(this);
-        for (Attribute a: equalsAttributes) {
+        for (Attribute a : equalsAttributes) {
             if (!result.contains(a)) {
                 a.collectEquals(result);
             }
@@ -74,18 +85,18 @@ public abstract class Attribute {
         }
     }
 
-    public boolean generateValue() {
+    public boolean generateValue(boolean negative) {
         if (!isClear()) {
             return true;
         }
         if (!generateFromEquals()) {
-            if (!generateFromRestrictionAndDependent()) {
+            if (!generateFromRestrictionAndDependent(negative && canBeNegative())) {
                 rollback();
                 return false;
             }
         }
         for (Attribute attribute : dependentAttributes) {
-            if (!attribute.generateValue()) {
+            if (!attribute.generateValue(negative)) {
                 return false;
             }
         }
@@ -114,12 +125,12 @@ public abstract class Attribute {
 
     protected abstract void setObjectValue(Object value);
 
-    protected abstract boolean generateFromRestrictionAndDependent();
+    protected abstract boolean generateFromRestrictionAndDependent(boolean negative);
 
-    protected abstract void generateFromRestriction();
+    protected abstract void generateFromRestriction(boolean negative);
 
     @Override
     public String toString() {
-        return "{"+name + ": "+getObjectValue()+"}";
+        return "{" + name + ": " + getObjectValue() + "}";
     }
 }

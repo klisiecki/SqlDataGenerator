@@ -22,13 +22,13 @@ public class StringAttribute extends Attribute {
     }
 
     @Override
-    protected boolean generateFromRestrictionAndDependent() {
+    protected boolean generateFromRestrictionAndDependent(boolean negative) {
         this.value = "all";
         return false;
     }
 
     @Override
-    protected void generateFromRestriction() {
+    protected void generateFromRestriction(boolean negative) {
         this.value = "restriction";
     }
 

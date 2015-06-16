@@ -19,7 +19,7 @@ public class RandomGenerator {
 
     public static Integer getInteger(TreeRangeSet rangeSet) {
         Object[] ranges = rangeSet.asRanges().toArray();
-        int i = ranges.length == 1 ? 0 : getInteger(0, ranges.length-1);
+        int i = ranges.length == 1 ? 0 : getInteger(0, ranges.length);
         Range range = (Range) ranges[i];
         return getInteger((Integer) range.lowerEndpoint(), (Integer) range.upperEndpoint());
     }
