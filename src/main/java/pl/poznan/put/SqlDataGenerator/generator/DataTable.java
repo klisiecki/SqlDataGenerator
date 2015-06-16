@@ -72,7 +72,7 @@ public class DataTable {
     }
 
     public boolean checkIteration(long iteration) {
-        return iteration * 100 / resetFactor != (iteration + 1) * 100 / resetFactor;
+        return iteration == 0 || (iteration * 100 / resetFactor != (iteration - 1) * 100 / resetFactor);
     }
 
     public String getName() {
