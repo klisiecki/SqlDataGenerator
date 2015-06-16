@@ -31,8 +31,4 @@ public class StringRestriction extends Restriction {
         this.values = values;
     }
 
-    @Override
-    public void merge(Restriction restriction) {
-
-    }
 }

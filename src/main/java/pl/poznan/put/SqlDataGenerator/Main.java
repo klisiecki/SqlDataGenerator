@@ -47,7 +47,6 @@ public class Main {
             }
 
             dataController.generate();
-            dataController.print();
         }
     }
 }

@@ -30,7 +30,7 @@ public abstract class Attribute {
         if (!equalsAttributes.contains(attribute) && !attribute.equals(this)) {
             equalsAttributes.add(attribute);
             addDependent(attribute);
-            restriction.merge(attribute.getRestriction());
+            restriction.addAndRangeSet(attribute.getRestriction().getRangeSet());
         }
     }
 

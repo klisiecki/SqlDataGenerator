@@ -1,6 +1,7 @@
 package pl.poznan.put.SqlDataGenerator.sql;
 
 
+import com.google.common.collect.Range;
 import net.sf.jsqlparser.expression.*;
 import net.sf.jsqlparser.expression.operators.arithmetic.*;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
@@ -43,7 +44,7 @@ public class SimpleRestrictionFinder extends AbstractFinder {
         Long l = getLong(b);
         if (a instanceof Column && l != null) {
             IntegerRestriction r = new IntegerRestriction();
-            r.setMinValue(l.intValue());
+            r.addAndRange(Range.closed(l.intValue(), Integer.MAX_VALUE));
             result.add(new AttributeRestriction((Column)a, r));
         }
     }
@@ -64,7 +65,7 @@ public class SimpleRestrictionFinder extends AbstractFinder {
         Long l = getLong(b);
         if (a instanceof Column && l != null) {
             IntegerRestriction r = new IntegerRestriction();
-            r.setMaxValue(l.intValue());
+            r.addAndRange(Range.closed(Integer.MIN_VALUE, l.intValue()));
             result.add(new AttributeRestriction((Column) a, r));
         }
     }

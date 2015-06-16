@@ -1,6 +1,7 @@
 package pl.poznan.put.SqlDataGenerator.generator;
 
 
+import com.google.common.collect.TreeRangeSet;
 import net.sf.jsqlparser.schema.Table;
 import pl.poznan.put.SqlDataGenerator.readers.SQLData;
 import pl.poznan.put.SqlDataGenerator.readers.XMLData;
@@ -93,18 +94,6 @@ public class DataController {
         }
     }
 
-    public void print() {
-        for (Map.Entry<String, DataTable> e: tableMap.entrySet()) {
-            DataTable table = e.getValue();
-            System.out.print(table.getName() + ": ");
-            for (Map.Entry<String, Attribute> e2: table.getAttributeMap().entrySet()) {
-                Attribute attribute = e2.getValue();
-                System.out.print(attribute + ", ");
-            }
-            System.out.println();
-        }
-    }
-
     private void propagateEquals() {
         Set<Attribute> processed = new HashSet<>();
         for (Map.Entry<String, DataTable> e: tableMap.entrySet()) {
@@ -127,7 +116,8 @@ public class DataController {
         List<AttributeRestriction> attributeRestrictions = sqlData.getRestrictions();
         for (AttributeRestriction a: attributeRestrictions) {
             Attribute attribute = tableMap.get(a.getTableName()).getAttribute(a.getAttributeName());
-            attribute.getRestriction().merge(a.getRestriction());
+            //TODO obsługa ORów
+            attribute.getRestriction().addAndRangeSet(a.getRestriction().getRangeSet());
         }
     }
 
@@ -156,10 +146,10 @@ public class DataController {
             IntegerRestriction restriction = (IntegerRestriction) attribute.getRestriction();
             IntegerRestriction negativeRestriction = (IntegerRestriction) attribute.getNegativeRestriction();
 
-            restriction.setMinValue(minValue == null ? null: Integer.parseInt(minValue));
-            negativeRestriction.setMinValue(minValue == null ? null: Integer.parseInt(minValue));
-            restriction.setMaxValue(maxValue == null ? null : Integer.parseInt(maxValue));
-            negativeRestriction.setMaxValue(maxValue == null ? null: Integer.parseInt(maxValue));
+//            restriction.setMinValue(minValue == null ? null: Integer.parseInt(minValue));
+//            negativeRestriction.setMinValue(minValue == null ? null: Integer.parseInt(minValue));
+//            restriction.setMaxValue(maxValue == null ? null : Integer.parseInt(maxValue));
+//            negativeRestriction.setMaxValue(maxValue == null ? null: Integer.parseInt(maxValue));
 
             if (values != null) {
                 List<Integer> integerValues = new ArrayList<>();

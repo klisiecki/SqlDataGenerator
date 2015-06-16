@@ -42,9 +42,7 @@ public class IntegerAttribute extends Attribute {
     @Override
     protected void generateFromRestriction() {
         IntegerRestriction integerRestriction = (IntegerRestriction) getRestriction();
-        if (integerRestriction.getValues() == null) {
-            setValue(RandomGenerator.getInteger(integerRestriction.getMinValue(), integerRestriction.getMaxValue()));
-        }
+        setValue(RandomGenerator.getInteger(integerRestriction.getRangeSet()));
     }
 
     @Override

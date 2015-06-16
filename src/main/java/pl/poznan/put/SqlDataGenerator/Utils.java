@@ -1,11 +1,17 @@
 package pl.poznan.put.SqlDataGenerator;
 
+import com.google.common.collect.Range;
+import com.google.common.collect.RangeSet;
+import com.google.common.collect.TreeRangeSet;
+
+import java.awt.font.NumericShaper;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Set;
 
 public class Utils {
-    static String readFile(String fileName) throws IOException {
+    public static String readFile(String fileName) throws IOException {
         BufferedReader br = new BufferedReader(new FileReader(fileName));
         try {
             StringBuilder sb = new StringBuilder();
@@ -20,5 +26,18 @@ public class Utils {
         } finally {
             br.close();
         }
+    }
+
+    public static TreeRangeSet intersectRangeSets(TreeRangeSet a, TreeRangeSet b) {
+        TreeRangeSet result = TreeRangeSet.create();
+        for (Range aRange: (Set<Range>) a.asRanges()) {
+            for (Range bRange:  (Set<Range>) b.asRanges()) {
+                try {
+                    Range r = bRange.intersection(aRange);
+                    result.add(r);
+                } catch (IllegalArgumentException ignore) {}
+            }
+        }
+        return result;
     }
 }
