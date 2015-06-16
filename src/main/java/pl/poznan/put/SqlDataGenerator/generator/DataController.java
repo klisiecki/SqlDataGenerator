@@ -1,6 +1,7 @@
 package pl.poznan.put.SqlDataGenerator.generator;
 
 
+import com.google.common.collect.Range;
 import com.google.common.collect.TreeRangeSet;
 import net.sf.jsqlparser.schema.Table;
 import pl.poznan.put.SqlDataGenerator.readers.SQLData;
@@ -146,10 +147,13 @@ public class DataController {
             IntegerRestriction restriction = (IntegerRestriction) attribute.getRestriction();
             IntegerRestriction negativeRestriction = (IntegerRestriction) attribute.getNegativeRestriction();
 
-//            restriction.setMinValue(minValue == null ? null: Integer.parseInt(minValue));
-//            negativeRestriction.setMinValue(minValue == null ? null: Integer.parseInt(minValue));
-//            restriction.setMaxValue(maxValue == null ? null : Integer.parseInt(maxValue));
-//            negativeRestriction.setMaxValue(maxValue == null ? null: Integer.parseInt(maxValue));
+            if (minValue != null) {
+                restriction.addAndRange(Range.closed(Integer.parseInt(minValue), Integer.MAX_VALUE));
+            }
+            if (maxValue != null) {
+                restriction.addAndRange(Range.closed(Integer.MIN_VALUE, Integer.parseInt(maxValue)));
+            }
+
 
             if (values != null) {
                 List<Integer> integerValues = new ArrayList<>();
