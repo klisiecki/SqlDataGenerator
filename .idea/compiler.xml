@@ -26,5 +26,8 @@
         <module name="SqlDataGenerator" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="SqlDataGenerator" target="1.8" />
+    </bytecodeTargetLevel>
   </component>
 </project>
