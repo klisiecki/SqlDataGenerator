@@ -154,7 +154,7 @@ public class XMLData {
     }
 
     public boolean isPrimaryKey(String table, String attribute) {
-        return getAttributeProperty(table, attribute, "PRIMARY_KEY").equals("true");
+        return ("true").equals(getAttributeProperty(table, attribute, "PRIMARY_KEY"));
     }
 
     public Float getNullPercentage(String table, String attribute) {

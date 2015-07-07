@@ -18,12 +18,12 @@ public class Main {
     public static void main(String[] args) throws JSQLParserException, IOException {
         CCJSqlParserManager pm = new CCJSqlParserManager();
 
-        String file = "test2";
-        String sql = Utils.readFile("in/"+file+".sql");
+        String file = args[0];
+        String sql = Utils.readFile(file + ".sql");
 
         XMLData xmlData = null;
         try {
-            xmlData = new XMLData("in/"+file+".xml");
+            xmlData = new XMLData(file + ".xml");
         } catch (Exception e) {
             System.err.println(e.getMessage());
             return;
@@ -37,11 +37,11 @@ public class Main {
             System.out.println(selectStatement);
             DataController dataController = new DataController();
             SQLData sqlData = new SQLData(selectStatement);
-            dataController.initTables(xmlData, sqlData);
+            dataController.initTables(xmlData, sqlData, file);
 
             System.out.println("dataController = " + dataController);
 
-            for (Table table: sqlData.getTables()) {
+            for (Table table : sqlData.getTables()) {
                 System.out.println("Table: " + table);
                 System.out.println(sqlData.getAttributes(table));
             }

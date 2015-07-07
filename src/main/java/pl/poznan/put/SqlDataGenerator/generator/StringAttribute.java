@@ -7,7 +7,7 @@ public class StringAttribute extends Attribute {
     private String value;
 
     public StringAttribute(String name) {
-        super(name);
+        super(name, false);
         this.restriction = new StringRestriction();
         this.negativeRestriction = new StringRestriction();
     }

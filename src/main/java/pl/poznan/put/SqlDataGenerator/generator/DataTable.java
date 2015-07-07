@@ -17,6 +17,7 @@ public class DataTable {
     private int resetFactor;
     private Map<String, Attribute> attributeMap;
     private CSVWriter writer;
+    private Attribute primaryKey;
 
     public DataTable(String name, String originalName, long dataCountLimit) {
         this.name = name;
@@ -26,9 +27,13 @@ public class DataTable {
         this.attributeMap = new HashMap<>();
     }
 
-    public void initTableFile() {
+    public Attribute getPrimaryKey() {
+        return primaryKey;
+    }
+
+    public void initTableFile(String path) {
         try {
-            writer = new CSVWriter(new FileWriter("out/"+originalName + ".csv"), ';');
+            writer = new CSVWriter(new FileWriter(path+"/"+originalName + ".csv"), ';');
             List<String> attributes = new ArrayList<>();
             for (Map.Entry<String, Attribute> e2 : attributeMap.entrySet()) {
                 Attribute attribute = e2.getValue();
@@ -54,6 +59,9 @@ public class DataTable {
 
     public void addAttribute(Attribute attribute) {
         attributeMap.put(attribute.getName(), attribute);
+        if (attribute.isPrimaryKey()) {
+            this.primaryKey = attribute;
+        }
     }
 
     public int getFill() {

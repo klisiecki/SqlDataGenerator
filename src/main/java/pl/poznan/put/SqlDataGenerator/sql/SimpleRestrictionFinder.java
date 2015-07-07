@@ -2,6 +2,8 @@ package pl.poznan.put.SqlDataGenerator.sql;
 
 
 import com.google.common.collect.Range;
+import com.google.common.collect.RangeSet;
+import com.google.common.collect.TreeRangeSet;
 import net.sf.jsqlparser.expression.*;
 import net.sf.jsqlparser.expression.operators.arithmetic.*;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
@@ -108,6 +110,43 @@ public class SimpleRestrictionFinder extends AbstractFinder {
         Expression b = minorThanEquals.getRightExpression();
         createMinRestriction(b, a);
         createMaxRestriction(a, b);
+    }
+
+
+    @Override
+    public void visit(Between between) {
+        Expression column = between.getLeftExpression();
+        Expression min = between.getBetweenExpressionStart();
+        Expression max = between.getBetweenExpressionEnd();
+        createMinRestriction(column, min);
+        createMaxRestriction(column, max);
+    }
+
+    @Override
+    public void visit(InExpression inExpression) {
+        Column column = (Column) inExpression.getLeftExpression();
+//        List<Long> itemList = new ArrayList<>();
+        TreeRangeSet rangeSet = TreeRangeSet.create();
+        if (inExpression.getRightItemsList() instanceof ExpressionList) {
+            ExpressionList list = (ExpressionList) inExpression.getRightItemsList();
+            for (Expression e: list.getExpressions()) {
+                Long v = getLong(e);
+                rangeSet.add(Range.closed(v.intValue(),v.intValue()));
+            }
+        }
+        putRestriction(column, rangeSet);
+    }
+
+    private void putRestriction(Column c, TreeRangeSet range) {
+        if (!result.containsKey(c.toString())) {
+            IntegerRestriction r = new IntegerRestriction();
+            r.addAndRangeSet(range);
+            result.put(c.toString(), new AttributeRestriction(c, r));
+        } else {
+            IntegerRestriction r = (IntegerRestriction) result.get(c.toString()).getRestriction();
+            r.addAndRangeSet(range);
+            result.put(c.toString(), new AttributeRestriction(c, r));
+        }
     }
 
     private void putRestriction(Column c, Range range) {

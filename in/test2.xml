@@ -10,7 +10,6 @@
                 <NAME>id</NAME>
                 <TYPE>INTEGER</TYPE>
                 <PRIMARY_KEY>true</PRIMARY_KEY>
-                <MIN_VALUE>0</MIN_VALUE>
             </ATTRIBUTE>
 
             <ATTRIBUTE>
@@ -46,7 +45,6 @@
             <ATTRIBUTE>
                 <NAME>a_id</NAME>
                 <TYPE>INTEGER</TYPE>
-                <MAX_VALUE>100</MAX_VALUE>
             </ATTRIBUTE>
 
             <ATTRIBUTE>
@@ -74,7 +72,6 @@
             <ATTRIBUTE>
                 <NAME>a_id</NAME>
                 <TYPE>INTEGER</TYPE>
-                <MIN_VALUE>70</MIN_VALUE>
             </ATTRIBUTE>
 
             <ATTRIBUTE>

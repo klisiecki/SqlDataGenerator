@@ -6,8 +6,8 @@ public class IntegerAttribute extends Attribute {
 
     private Integer value;
 
-    public IntegerAttribute(String name) {
-        super(name);
+    public IntegerAttribute(String name, boolean isPrimaryKey) {
+        super(name, isPrimaryKey);
         this.restriction = new IntegerRestriction();
         this.negativeRestriction = new IntegerRestriction();
     }
@@ -52,6 +52,10 @@ public class IntegerAttribute extends Attribute {
 
     @Override
     protected void setObjectValue(Object value) {
-        setValue((Integer) value);
+        if (value instanceof Long) {
+            setValue(((Long) value).intValue()); //TODO zmienić wszystko na long?
+        } else {
+            setValue((Integer) value);
+        }
     }
 }

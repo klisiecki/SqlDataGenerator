@@ -11,6 +11,7 @@ import pl.poznan.put.SqlDataGenerator.restriction.StringRestriction;
 import pl.poznan.put.SqlDataGenerator.sql.AttributeRestriction;
 import pl.poznan.put.SqlDataGenerator.sql.RestrictionEquals;
 
+import java.io.File;
 import java.util.*;
 
 public class DataController {
@@ -21,9 +22,9 @@ public class DataController {
         this.tableMap = new HashMap<>();
     }
 
-    public void initTables(XMLData xmlData, SQLData sqlData) {
+    public void initTables(XMLData xmlData, SQLData sqlData, String path) {
         List<String> xmlTables = xmlData.getTables();
-
+        new File(path).mkdir();
 
         for (Table table : sqlData.getTables()) {
             String originalName = table.getName();
@@ -41,12 +42,12 @@ public class DataController {
                     throw new RuntimeException("Attribute " + originalName + "." + attributeName + " not found in xml file");
                 }
                 String attributeType = xmlData.getType(originalName, attributeName);
-                Attribute attribute = initializeAttribute(attributeType, attributeName);
+                Attribute attribute = initializeAttribute(attributeType, attributeName, xmlData.isPrimaryKey(originalName, attributeName));
                 addXMLRestrictions(originalName, attribute, xmlData);
                 dataTable.addAttribute(attribute);
             }
             tableMap.put(dataTable.getName(), dataTable);
-            dataTable.initTableFile();
+            dataTable.initTableFile(path);
         }
 
 
@@ -68,6 +69,7 @@ public class DataController {
                     table.clear();
                 }
             }
+            generatePrimaryKeys();
             if (iteration > maxDataRows/2) { //TODO współczynnik
                 generateRow();
             } else {
@@ -87,6 +89,15 @@ public class DataController {
         for (Map.Entry<String, DataTable> e: tableMap.entrySet()) {
             DataTable table = e.getValue();
             table.closeTableFile();
+        }
+    }
+
+    private void generatePrimaryKeys() {
+        for (Map.Entry<String, DataTable> e: tableMap.entrySet()) {
+            DataTable table = e.getValue();
+            if (table.getPrimaryKey() != null) {
+                table.getPrimaryKey().generateValue(false);
+            }
         }
     }
 
@@ -203,9 +214,9 @@ public class DataController {
         }
     }
 
-    private Attribute initializeAttribute(String type, String name) {
+    private Attribute initializeAttribute(String type, String name, boolean isPrimaryKey) {
         if (type.equals("INTEGER")) {
-            return new IntegerAttribute(name);
+            return new IntegerAttribute(name, isPrimaryKey);
         } else if (type.equals("STRING")) {
             return new StringAttribute(name);
         } else {

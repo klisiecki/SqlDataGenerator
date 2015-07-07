@@ -10,6 +10,7 @@ import java.util.Set;
 
 public class RandomGenerator {
     public static Integer getInteger(int from, int to) {
+        if (from == to) return from;
         int min = 0;
         int max = to - from;
         Random rand = new Random();

@@ -8,14 +8,20 @@ public abstract class Attribute {
 
     private String name;
     private boolean clear;
+    private boolean isPrimaryKey;
+    private KeyGenerator keyGenerator;
     protected List<Attribute> dependentAttributes;
     protected List<Attribute> equalsAttributes;
     protected Restriction restriction;
     protected Restriction negativeRestriction;
     private Boolean canBeNegative;
 
-    public Attribute(String name) {
+    public Attribute(String name, boolean isPrimaryKey) {
         this.name = name;
+        this.isPrimaryKey = isPrimaryKey;
+        if (isPrimaryKey) {
+            keyGenerator = new KeyGenerator(Integer.MAX_VALUE); //brać z góry: przekazać albo odwołanie do tabeli
+        }
         this.dependentAttributes = new ArrayList<>();
         this.equalsAttributes = new ArrayList<>();
         setClear(true);
@@ -25,6 +31,10 @@ public abstract class Attribute {
         if (!dependentAttributes.contains(attribute)) {
             dependentAttributes.add(attribute);
         }
+    }
+
+    public boolean isPrimaryKey() {
+        return isPrimaryKey;
     }
 
     /**
@@ -88,6 +98,9 @@ public abstract class Attribute {
     public boolean generateValue(boolean negative) {
         if (!isClear()) {
             return true;
+        }
+        if (isPrimaryKey) {
+            setObjectValue(keyGenerator.getValue());
         }
         if (!generateFromEquals()) {
             if (!generateFromRestrictionAndDependent(negative && canBeNegative())) {
