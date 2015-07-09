@@ -9,6 +9,8 @@
             <xs:sequence>
                 <xs:element ref="TABLE" minOccurs="0" maxOccurs="unbounded"/>
             </xs:sequence>
+            <xs:attribute name="M" type="xs:integer" />
+            <xs:attribute name="T" type="xs:integer" />
         </xs:complexType>
     </xs:element>
     
