@@ -52,6 +52,28 @@ public class XMLData {
         }
     }
 
+    public Integer getM() {
+        Integer result = null;
+        XPathExpression e = getXPathExpression("/TABLES/@M");
+        try {
+            result = Integer.parseInt(e.evaluate(document));
+        } catch (XPathExpressionException e1) {
+            e1.printStackTrace();
+        } catch (NumberFormatException ignore) {}
+        return result;
+    }
+
+    public Integer getT() {
+        Integer result = null;
+        XPathExpression e = getXPathExpression("/TABLES/@T");
+        try {
+            result = Integer.parseInt(e.evaluate(document));
+        } catch (XPathExpressionException e1) {
+            e1.printStackTrace();
+        } catch (NumberFormatException ignore) {}
+        return result;
+    }
+
     public List<String> getTables() {
         List<String> result = new ArrayList<String>();
         XPathExpression expr = getXPathExpression("//TABLE/NAME/text()");

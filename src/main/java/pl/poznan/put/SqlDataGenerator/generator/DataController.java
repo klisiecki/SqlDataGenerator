@@ -27,12 +27,20 @@ public class DataController {
         List<String> xmlTables = xmlData.getTables();
         new File(path).mkdir();
 
+        int m = xmlData.getM();
+        int t = xmlData.getT();
+        System.out.println("t = " + t);
+        System.out.println("m = " + m);
+
         for (Table table : sqlData.getTables()) {
             String originalName = table.getName();
             if (!xmlTables.contains(originalName)) {
                 throw new RuntimeException("Table " + originalName + " not found in xml file");
             }
             long dataRows = xmlData.getRows(originalName);
+            if (dataRows > m) {
+                dataRows = dataRows * t / 100;
+            }
             if (dataRows > maxDataRows) {
                 maxDataRows = dataRows;
             }
@@ -186,12 +194,14 @@ public class DataController {
 
 
             if (values != null) {
-                List<Integer> integerValues = new ArrayList<>();
+                TreeRangeSet rangeSet = TreeRangeSet.create();
                 for (String value : values) {
-                    integerValues.add(Integer.parseInt(value));
+                    int v = Integer.parseInt(value);
+                    rangeSet.add(Range.closed(v, v));
                 }
-                restriction.setValues(integerValues);
-                negativeRestriction.setValues(integerValues);
+
+                restriction.addAndRangeSet(rangeSet);
+                negativeRestriction.addAndRangeSet(rangeSet);
             }
 //        } else if (attribute instanceof StringAttribute) {
 //            StringRestriction restriction = (StringRestriction) attribute.getRestriction();

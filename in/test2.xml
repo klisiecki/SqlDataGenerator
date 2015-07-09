@@ -2,7 +2,7 @@
 <TABLES xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="pl.poznan.put.SqlDataGenerator ../xml/schemat.xsd"
         xmlns="pl.poznan.put.SqlDataGenerator"
-        M="10000" T="10" >
+        M="20" T="10" >
     <TABLE>
         <NAME>TABLE_A</NAME>
         <ROWS_NUM>5</ROWS_NUM>
