@@ -38,7 +38,7 @@
             <xs:all>
                 <xs:element name="NAME" type="xs:string"/>
                 <xs:element name="NULL_PERCENTAGE" type="percentage_type" minOccurs="0" />
-                <xs:element name="TYPE" type="data_type" minOccurs="0" />
+                <xs:element name="TYPE" type="data_type" />
                 <xs:element name="MIN_VALUE" type="xs:integer" minOccurs="0" />
                 <xs:element name="MAX_VALUE" type="xs:integer" minOccurs="0" />
                 <xs:element ref="unique_group" minOccurs="0" maxOccurs="1"/>

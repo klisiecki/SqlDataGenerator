@@ -13,11 +13,6 @@
             </ATTRIBUTE>
 
             <ATTRIBUTE>
-                <NAME>x</NAME>
-                <TYPE>STRING</TYPE>
-            </ATTRIBUTE>
-
-            <ATTRIBUTE>
                 <NAME>m</NAME>
                 <TYPE>INTEGER</TYPE>
                 <MIN_VALUE>100</MIN_VALUE>
@@ -28,6 +23,13 @@
                 <NAME>n</NAME>
                 <TYPE>INTEGER</TYPE>
                 <MIN_VALUE>-100</MIN_VALUE>
+                <MAX_VALUE>100</MAX_VALUE>
+            </ATTRIBUTE>
+
+            <ATTRIBUTE>
+                <NAME>o</NAME>
+                <TYPE>INTEGER</TYPE>
+                <MIN_VALUE>0</MIN_VALUE>
             </ATTRIBUTE>
         </ATTRIBUTES>
     </TABLE>
@@ -48,13 +50,19 @@
             </ATTRIBUTE>
 
             <ATTRIBUTE>
-                <NAME>z</NAME>
-                <TYPE>STRING</TYPE>
-            </ATTRIBUTE>
-
-            <ATTRIBUTE>
                 <NAME>i</NAME>
                 <TYPE>INTEGER</TYPE>
+                <VALUES>
+                    <VALUE>11</VALUE>
+                    <VALUE>22</VALUE>
+                    <VALUE>33</VALUE>
+                    <VALUE>44</VALUE>
+                    <VALUE>55</VALUE>
+                    <VALUE>66</VALUE>
+                    <VALUE>77</VALUE>
+                    <VALUE>88</VALUE>
+                    <VALUE>99</VALUE>
+                </VALUES>
             </ATTRIBUTE>
         </ATTRIBUTES>
     </TABLE>
@@ -75,12 +83,7 @@
             </ATTRIBUTE>
 
             <ATTRIBUTE>
-                <NAME>cz</NAME>
-                <TYPE>STRING</TYPE>
-            </ATTRIBUTE>
-
-            <ATTRIBUTE>
-                <NAME>ci</NAME>
+                <NAME>x</NAME>
                 <TYPE>INTEGER</TYPE>
             </ATTRIBUTE>
         </ATTRIBUTES>
