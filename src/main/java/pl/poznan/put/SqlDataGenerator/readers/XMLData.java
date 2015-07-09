@@ -39,7 +39,7 @@ public class XMLData {
         Schema schema = schemaFactory.newSchema(schemaFile);
         Validator validator = schema.newValidator();
         validator.validate(xmlFile);
-        System.out.println(xmlFile.getSystemId() + " is valid");
+
     }
 
     public XPathExpression getXPathExpression(String expr) {
