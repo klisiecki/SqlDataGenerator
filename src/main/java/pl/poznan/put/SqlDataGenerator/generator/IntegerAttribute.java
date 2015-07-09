@@ -41,7 +41,7 @@ public class IntegerAttribute extends Attribute {
 
     @Override
     protected void generateFromRestriction(boolean negative) {
-        IntegerRestriction integerRestriction = negative ? (IntegerRestriction) getNegativeRestriction(): (IntegerRestriction) getRestriction();
+        IntegerRestriction integerRestriction = negative ? (IntegerRestriction) getNegativeRestriction() : (IntegerRestriction) getRestriction();
         setValue(RandomGenerator.getInteger(integerRestriction.getRangeSet()));
     }
 

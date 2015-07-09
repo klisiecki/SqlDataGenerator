@@ -52,7 +52,7 @@ public class DataController {
         }
 
 
-        for (Map.Entry<String, DataTable> e: tableMap.entrySet()) {
+        for (Map.Entry<String, DataTable> e : tableMap.entrySet()) {
             DataTable table = e.getValue();
             table.calculateResetFactor(maxDataRows);
         }
@@ -64,20 +64,20 @@ public class DataController {
 
     public void generate() {
         for (long iteration = 0; iteration < maxDataRows; iteration++) {
-            for (Map.Entry<String, DataTable> e: tableMap.entrySet()) {
+            for (Map.Entry<String, DataTable> e : tableMap.entrySet()) {
                 DataTable table = e.getValue();
                 if (table.checkIteration(iteration)) {
                     table.clear();
                 }
             }
             generatePrimaryKeys();
-            if (iteration > maxDataRows/2) { //TODO współczynnik
+            if (iteration > maxDataRows / 2) { //TODO współczynnik
                 generateRow();
             } else {
                 generateNegativeRow();
             }
 
-            for (Map.Entry<String, DataTable> e: tableMap.entrySet()) {
+            for (Map.Entry<String, DataTable> e : tableMap.entrySet()) {
                 DataTable table = e.getValue();
                 if (table.checkIteration(iteration)) {
                     table.save();
@@ -85,14 +85,14 @@ public class DataController {
             }
         }
 
-        for (Map.Entry<String, DataTable> e: tableMap.entrySet()) {
+        for (Map.Entry<String, DataTable> e : tableMap.entrySet()) {
             DataTable table = e.getValue();
             table.closeTableFile();
         }
     }
 
     private void generatePrimaryKeys() {
-        for (Map.Entry<String, DataTable> e: tableMap.entrySet()) {
+        for (Map.Entry<String, DataTable> e : tableMap.entrySet()) {
             DataTable table = e.getValue();
             if (table.getPrimaryKey() != null) {
                 table.getPrimaryKey().generateValue(false);
@@ -101,9 +101,9 @@ public class DataController {
     }
 
     private void generateRow() {
-        for (Map.Entry<String, DataTable> e: tableMap.entrySet()) {
+        for (Map.Entry<String, DataTable> e : tableMap.entrySet()) {
             DataTable table = e.getValue();
-            for (Map.Entry<String, Attribute> e2: table.getAttributeMap().entrySet()) {
+            for (Map.Entry<String, Attribute> e2 : table.getAttributeMap().entrySet()) {
                 Attribute attribute = e2.getValue();
                 attribute.generateValue(false);
             }
@@ -111,9 +111,9 @@ public class DataController {
     }
 
     private void generateNegativeRow() {
-        for (Map.Entry<String, DataTable> e: tableMap.entrySet()) {
+        for (Map.Entry<String, DataTable> e : tableMap.entrySet()) {
             DataTable table = e.getValue();
-            for (Map.Entry<String, Attribute> e2: table.getAttributeMap().entrySet()) {
+            for (Map.Entry<String, Attribute> e2 : table.getAttributeMap().entrySet()) {
                 Attribute attribute = e2.getValue();
                 attribute.generateValue(true);
             }
@@ -122,14 +122,14 @@ public class DataController {
 
     private void propagateEquals() {
         Set<Attribute> processed = new HashSet<>();
-        for (Map.Entry<String, DataTable> e: tableMap.entrySet()) {
+        for (Map.Entry<String, DataTable> e : tableMap.entrySet()) {
             DataTable table = e.getValue();
-            for (Map.Entry<String, Attribute> e2: table.getAttributeMap().entrySet()) {
+            for (Map.Entry<String, Attribute> e2 : table.getAttributeMap().entrySet()) {
                 Attribute attribute = e2.getValue();
                 if (!processed.contains(attribute)) {
                     Set<Attribute> clique = new HashSet<>();
                     attribute.collectEquals(clique);
-                    for (Attribute a: clique) {
+                    for (Attribute a : clique) {
                         a.addEquals(clique);
                     }
                     processed.addAll(clique);
@@ -140,11 +140,11 @@ public class DataController {
 
     private void addSQLRestrictions(SQLData sqlData) {
         List<AttributeRestriction> attributeRestrictions = sqlData.getRestrictions();
-        for (AttributeRestriction a: attributeRestrictions) {
+        for (AttributeRestriction a : attributeRestrictions) {
             Attribute attribute = tableMap.get(a.getTableName()).getAttribute(a.getAttributeName());
             //TODO obsługa ORów
             attribute.getRestriction().addAndRangeSet(a.getRestriction().getRangeSet());
-            TreeRangeSet complementSet = (TreeRangeSet) a.getRestriction().getRangeSet().complement().subRangeSet(Range.closed(Integer.MIN_VALUE/2, Integer.MAX_VALUE/2));
+            TreeRangeSet complementSet = (TreeRangeSet) a.getRestriction().getRangeSet().complement().subRangeSet(Range.closed(Integer.MIN_VALUE / 2, Integer.MAX_VALUE / 2));
             if (!complementSet.isEmpty()) {
                 attribute.getNegativeRestriction().addAndRangeSet(complementSet);
             }
@@ -164,7 +164,6 @@ public class DataController {
             } else {
                 throw new RuntimeException(attributeA + " or " + attributeB + " not found");
             }
-
         }
     }
 

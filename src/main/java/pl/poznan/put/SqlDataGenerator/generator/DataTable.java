@@ -33,7 +33,7 @@ public class DataTable {
 
     public void initTableFile(String path) {
         try {
-            writer = new CSVWriter(new FileWriter(path+"/"+originalName + ".csv"), ';');
+            writer = new CSVWriter(new FileWriter(path + "/" + originalName + ".csv"), ';');
             List<String> attributes = new ArrayList<>();
             for (Map.Entry<String, Attribute> e2 : attributeMap.entrySet()) {
                 Attribute attribute = e2.getValue();

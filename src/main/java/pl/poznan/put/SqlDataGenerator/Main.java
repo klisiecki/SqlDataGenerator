@@ -28,7 +28,7 @@ public class Main {
         XMLData xmlData = null;
         try {
             xmlData = new XMLData(file + ".xml");
-            System.out.println(file+".xml is valid");
+            System.out.println(file + ".xml is valid");
         } catch (Exception e) {
             System.err.println(e.getMessage());
             return;
