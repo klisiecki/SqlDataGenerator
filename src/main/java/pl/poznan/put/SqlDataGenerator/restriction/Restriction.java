@@ -1,7 +1,6 @@
 package pl.poznan.put.SqlDataGenerator.restriction;
 
 import com.google.common.collect.Range;
-import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
 import pl.poznan.put.SqlDataGenerator.Utils;
 

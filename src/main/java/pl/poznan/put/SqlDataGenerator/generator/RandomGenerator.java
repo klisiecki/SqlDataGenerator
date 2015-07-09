@@ -2,11 +2,9 @@ package pl.poznan.put.SqlDataGenerator.generator;
 
 
 import com.google.common.collect.Range;
-import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
 
 import java.util.Random;
-import java.util.Set;
 
 public class RandomGenerator {
     public static Integer getInteger(int from, int to) {

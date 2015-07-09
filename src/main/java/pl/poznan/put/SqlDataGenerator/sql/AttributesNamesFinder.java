@@ -8,7 +8,6 @@ import net.sf.jsqlparser.expression.operators.relational.*;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.*;
-import pl.poznan.put.SqlDataGenerator.Utils;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -16,13 +16,14 @@ import javax.xml.validation.Validator;
 import javax.xml.xpath.*;
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class XMLData {
     private XPathFactory xPathfactory = XPathFactory.newInstance();
     private Document document;
-    private final static String schemaLocation = "xml/schemat.xsd";
+    private final String schemaLocation = "/pl/poznan/put/SqlDataGenerator/schemat.xsd";
 
     public XMLData(String fileName) throws XPathExpressionException, ParserConfigurationException, IOException, SAXException {
         validate(fileName);
@@ -32,11 +33,10 @@ public class XMLData {
     }
 
     private void validate(String fileName) throws IOException, SAXException {
-        File schemaFile = new File(schemaLocation);
         Source xmlFile = new StreamSource(new File(fileName));
         SchemaFactory schemaFactory = SchemaFactory
                 .newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-        Schema schema = schemaFactory.newSchema(schemaFile);
+        Schema schema = schemaFactory.newSchema(getClass().getResource(schemaLocation));
         Validator validator = schema.newValidator();
         validator.validate(xmlFile);
 

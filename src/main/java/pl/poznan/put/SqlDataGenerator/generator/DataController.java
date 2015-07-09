@@ -7,7 +7,6 @@ import net.sf.jsqlparser.schema.Table;
 import pl.poznan.put.SqlDataGenerator.readers.SQLData;
 import pl.poznan.put.SqlDataGenerator.readers.XMLData;
 import pl.poznan.put.SqlDataGenerator.restriction.IntegerRestriction;
-import pl.poznan.put.SqlDataGenerator.restriction.StringRestriction;
 import pl.poznan.put.SqlDataGenerator.sql.AttributeRestriction;
 import pl.poznan.put.SqlDataGenerator.sql.RestrictionEquals;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;

@@ -1,10 +1,8 @@
 package pl.poznan.put.SqlDataGenerator;
 
 import com.google.common.collect.Range;
-import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
 
-import java.awt.font.NumericShaper;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
