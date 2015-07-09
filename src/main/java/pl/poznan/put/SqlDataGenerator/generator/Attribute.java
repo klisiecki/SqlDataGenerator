@@ -87,6 +87,9 @@ public abstract class Attribute {
     }
 
     private void rollback() {
+        if (isPrimaryKey) {
+            throw new RuntimeException("Rollback on primary key");
+        }
         setClear(true);
         for (Attribute a : dependentAttributes) {
             if (!a.isClear()) {
@@ -101,8 +104,7 @@ public abstract class Attribute {
         }
         if (isPrimaryKey) {
             setObjectValue(keyGenerator.getValue());
-        }
-        if (!generateFromEquals()) {
+        } else if (!generateFromEquals()) {
             if (!generateFromRestrictionAndDependent(negative && canBeNegative())) {
                 rollback();
                 return false;
