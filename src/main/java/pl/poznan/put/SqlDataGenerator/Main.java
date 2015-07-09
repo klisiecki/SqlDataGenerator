@@ -39,10 +39,8 @@ public class Main {
             SQLData sqlData = new SQLData(selectStatement);
             dataController.initTables(xmlData, sqlData, file);
 
-            System.out.println("dataController = " + dataController);
-
             for (Table table : sqlData.getTables()) {
-                System.out.println("Table: " + table);
+                System.out.print("Table: " + table + " ");
                 System.out.println(sqlData.getAttributes(table));
             }
 

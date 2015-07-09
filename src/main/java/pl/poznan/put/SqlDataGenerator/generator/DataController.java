@@ -79,11 +79,9 @@ public class DataController {
             for (Map.Entry<String, DataTable> e: tableMap.entrySet()) {
                 DataTable table = e.getValue();
                 if (table.checkIteration(iteration)) {
-                    table.print();
                     table.save();
                 }
             }
-            System.out.println();
         }
 
         for (Map.Entry<String, DataTable> e: tableMap.entrySet()) {
@@ -146,9 +144,6 @@ public class DataController {
             //TODO obsługa ORów
             attribute.getRestriction().addAndRangeSet(a.getRestriction().getRangeSet());
             TreeRangeSet complementSet = (TreeRangeSet) a.getRestriction().getRangeSet().complement().subRangeSet(Range.closed(Integer.MIN_VALUE/2, Integer.MAX_VALUE/2));
-            System.out.println("a.getRestriction().getRangeSet() = " + a.getRestriction().getRangeSet());
-            System.out.println("complementSet = " + complementSet);
-            System.out.println();
             if (!complementSet.isEmpty()) {
                 attribute.getNegativeRestriction().addAndRangeSet(complementSet);
             }
