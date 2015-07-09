@@ -10,6 +10,7 @@ import pl.poznan.put.SqlDataGenerator.restriction.IntegerRestriction;
 import pl.poznan.put.SqlDataGenerator.restriction.StringRestriction;
 import pl.poznan.put.SqlDataGenerator.sql.AttributeRestriction;
 import pl.poznan.put.SqlDataGenerator.sql.RestrictionEquals;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.File;
 import java.util.*;
@@ -193,34 +194,38 @@ public class DataController {
                 restriction.setValues(integerValues);
                 negativeRestriction.setValues(integerValues);
             }
-        } else if (attribute instanceof StringAttribute) {
-            StringRestriction restriction = (StringRestriction) attribute.getRestriction();
-            StringRestriction negativeRestriction = (StringRestriction) attribute.getNegativeRestriction();
-
-            restriction.setMinLength(minValue == null ? null : Integer.parseInt(minValue));
-            negativeRestriction.setMinLength(minValue == null ? null : Integer.parseInt(minValue));
-            restriction.setMaxLength(maxValue == null ? null : Integer.parseInt(maxValue));
-            negativeRestriction.setMaxLength(maxValue == null ? null: Integer.parseInt(maxValue));
-
-            if (values != null) {
-                restriction.setValues(values);
-                negativeRestriction.setValues(values);
-            }
+//        } else if (attribute instanceof StringAttribute) {
+//            StringRestriction restriction = (StringRestriction) attribute.getRestriction();
+//            StringRestriction negativeRestriction = (StringRestriction) attribute.getNegativeRestriction();
+//
+//            restriction.setMinLength(minValue == null ? null : Integer.parseInt(minValue));
+//            negativeRestriction.setMinLength(minValue == null ? null : Integer.parseInt(minValue));
+//            restriction.setMaxLength(maxValue == null ? null : Integer.parseInt(maxValue));
+//            negativeRestriction.setMaxLength(maxValue == null ? null: Integer.parseInt(maxValue));
+//
+//            if (values != null) {
+//                restriction.setValues(values);
+//                negativeRestriction.setValues(values);
+//            }
+//
+//        }
+        } else {
+            throw new NotImplementedException();
         }
     }
 
     private Attribute initializeAttribute(String type, String name, boolean isPrimaryKey) {
         if (type.equals("INTEGER")) {
             return new IntegerAttribute(name, isPrimaryKey);
-        } else if (type.equals("STRING")) {
-            return new StringAttribute(name);
-        } else {
+//        } else if (type.equals("STRING")) {
+//            return new StringAttribute(name);
+//        } else {
 //        if (type.equals("FLOAT")) {
 //            return new Attribute<Float>(name);
 //        } else if (type.equals("DATE")) {
 //            return new Attribute<Date>(name);
-//        } else {
-            throw new RuntimeException("type " + type + " not defined");
+        } else {
+            throw new NotImplementedException();
         }
     }
 
