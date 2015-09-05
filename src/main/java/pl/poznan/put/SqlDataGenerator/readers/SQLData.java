@@ -4,6 +4,8 @@ package pl.poznan.put.SqlDataGenerator.readers;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.Select;
 import pl.poznan.put.SqlDataGenerator.sql.*;
+import pl.poznan.put.SqlDataGenerator.sql.model.AttributeRestriction;
+import pl.poznan.put.SqlDataGenerator.sql.model.RestrictionEquals;
 
 import java.util.List;
 

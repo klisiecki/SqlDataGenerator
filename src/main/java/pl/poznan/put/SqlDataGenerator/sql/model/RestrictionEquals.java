@@ -1,4 +1,4 @@
-package pl.poznan.put.SqlDataGenerator.sql;
+package pl.poznan.put.SqlDataGenerator.sql.model;
 
 import net.sf.jsqlparser.schema.Column;
 

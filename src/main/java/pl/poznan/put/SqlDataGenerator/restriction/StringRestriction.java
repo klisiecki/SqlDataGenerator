@@ -1,34 +1,13 @@
 package pl.poznan.put.SqlDataGenerator.restriction;
 
-import java.util.List;
+import com.google.common.collect.Range;
+import org.apache.commons.lang3.StringUtils;
 
 public class StringRestriction extends Restriction {
-    private Integer minLength;
-    private Integer maxLength;
-    private List<String> values;
-
-    public Integer getMinLength() {
-        return minLength;
+    public StringRestriction(boolean full) {
+        super();
+        if (full) {
+            rangeSet.add(Range.closed(MyString.MIN_VALUE, MyString.MAX_VALUE));
+        }
     }
-
-    public void setMinLength(Integer minLength) {
-        this.minLength = minLength;
-    }
-
-    public Integer getMaxLength() {
-        return maxLength;
-    }
-
-    public void setMaxLength(Integer maxLength) {
-        this.maxLength = maxLength;
-    }
-
-    public List<String> getValues() {
-        return values;
-    }
-
-    public void setValues(List<String> values) {
-        this.values = values;
-    }
-
 }

@@ -8,8 +8,8 @@ public class IntegerAttribute extends Attribute {
 
     public IntegerAttribute(String name, boolean isPrimaryKey) {
         super(name, isPrimaryKey);
-        this.restriction = new IntegerRestriction();
-        this.negativeRestriction = new IntegerRestriction();
+        this.restriction = new IntegerRestriction(true);
+        this.negativeRestriction = new IntegerRestriction(true);
     }
 
     public Integer getValue() {
@@ -22,21 +22,8 @@ public class IntegerAttribute extends Attribute {
     }
 
     @Override
-    protected boolean generateFromRestrictionAndDependent(boolean negative) {
-        boolean foundClear = false;
-        for (Attribute a : dependentAttributes) {
-            if (a.isClear()) {
-                foundClear = true;
-                break;
-            }
-        }
-        if (foundClear || dependentAttributes.size() == 0) {
-            generateFromRestriction(negative);
-            return true;
-        } else {
-            setValue(4);
-            return true; //TODO
-        }
+    protected void calculateValue() {
+        setValue(4);
     }
 
     @Override

@@ -136,11 +136,28 @@ public abstract class Attribute {
         return false;
     }
 
+    protected abstract void calculateValue();
+
     protected abstract Object getObjectValue();
 
     protected abstract void setObjectValue(Object value);
 
-    protected abstract boolean generateFromRestrictionAndDependent(boolean negative);
+    protected boolean generateFromRestrictionAndDependent(boolean negative) {
+        boolean foundClear = false;
+        for (Attribute a : dependentAttributes) {
+            if (a.isClear()) {
+                foundClear = true;
+                break;
+            }
+        }
+        if (foundClear || dependentAttributes.size() == 0) {
+            generateFromRestriction(negative);
+            return true;
+        } else { //ostatni z kliki i trzeba wyliczyć jego wartość
+            calculateValue();
+            return true; //TODO obsługa wyrażeń matematycznych
+        }
+    }
 
     protected abstract void generateFromRestriction(boolean negative);
 

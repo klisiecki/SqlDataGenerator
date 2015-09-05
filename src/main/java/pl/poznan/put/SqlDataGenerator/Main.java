@@ -6,6 +6,7 @@ import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.Select;
 import pl.poznan.put.SqlDataGenerator.generator.DataController;
+import pl.poznan.put.SqlDataGenerator.generator.RandomGenerator;
 import pl.poznan.put.SqlDataGenerator.readers.SQLData;
 import pl.poznan.put.SqlDataGenerator.readers.XMLData;
 

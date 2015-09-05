@@ -7,8 +7,10 @@ import net.sf.jsqlparser.schema.Table;
 import pl.poznan.put.SqlDataGenerator.readers.SQLData;
 import pl.poznan.put.SqlDataGenerator.readers.XMLData;
 import pl.poznan.put.SqlDataGenerator.restriction.IntegerRestriction;
-import pl.poznan.put.SqlDataGenerator.sql.AttributeRestriction;
-import pl.poznan.put.SqlDataGenerator.sql.RestrictionEquals;
+import pl.poznan.put.SqlDataGenerator.restriction.MyString;
+import pl.poznan.put.SqlDataGenerator.restriction.StringRestriction;
+import pl.poznan.put.SqlDataGenerator.sql.model.AttributeRestriction;
+import pl.poznan.put.SqlDataGenerator.sql.model.RestrictionEquals;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.File;
@@ -151,7 +153,15 @@ public class DataController {
             Attribute attribute = tableMap.get(a.getTableName()).getAttribute(a.getAttributeName());
             //TODO obsługa ORów
             attribute.getRestriction().addAndRangeSet(a.getRestriction().getRangeSet());
-            TreeRangeSet complementSet = (TreeRangeSet) a.getRestriction().getRangeSet().complement().subRangeSet(Range.closed(Integer.MIN_VALUE / 2, Integer.MAX_VALUE / 2));
+            TreeRangeSet complementSet = null;
+            if (attribute instanceof IntegerAttribute) {
+                complementSet = (TreeRangeSet) a.getRestriction().getRangeSet().complement().subRangeSet(Range.closed(Integer.MIN_VALUE / 2, Integer.MAX_VALUE / 2));
+            } else if (attribute instanceof StringAttribute) {
+                complementSet = (TreeRangeSet) a.getRestriction().getRangeSet().complement().subRangeSet(Range.closed(MyString.MIN_VALUE, MyString.MAX_VALUE));
+            } else {
+                throw new NotImplementedException();
+            }
+
             if (!complementSet.isEmpty()) {
                 attribute.getNegativeRestriction().addAndRangeSet(complementSet);
             }
@@ -202,21 +212,32 @@ public class DataController {
                 restriction.addAndRangeSet(rangeSet);
                 negativeRestriction.addAndRangeSet(rangeSet);
             }
-//        } else if (attribute instanceof StringAttribute) {
-//            StringRestriction restriction = (StringRestriction) attribute.getRestriction();
-//            StringRestriction negativeRestriction = (StringRestriction) attribute.getNegativeRestriction();
-//
-//            restriction.setMinLength(minValue == null ? null : Integer.parseInt(minValue));
-//            negativeRestriction.setMinLength(minValue == null ? null : Integer.parseInt(minValue));
-//            restriction.setMaxLength(maxValue == null ? null : Integer.parseInt(maxValue));
-//            negativeRestriction.setMaxLength(maxValue == null ? null: Integer.parseInt(maxValue));
-//
-//            if (values != null) {
-//                restriction.setValues(values);
-//                negativeRestriction.setValues(values);
-//            }
-//
-//        }
+
+        } else if (attribute instanceof StringAttribute) {
+            StringRestriction restriction = (StringRestriction) attribute.getRestriction();
+            StringRestriction negativeRestriction = (StringRestriction) attribute.getNegativeRestriction();
+
+            if (minValue != null) {
+                int minIntValue =  Integer.parseInt(minValue);
+                restriction.addAndRange(Range.closed(new MyString('A', minIntValue), MyString.MAX_VALUE));
+                negativeRestriction.addAndRange(Range.closed(new MyString('A', minIntValue), MyString.MAX_VALUE));
+            }
+            if (maxValue != null) {
+                int maxIntValue = Integer.parseInt(maxValue);
+                restriction.addAndRange(Range.closed(MyString.MIN_VALUE, new MyString('z', maxIntValue)));
+                negativeRestriction.addAndRange(Range.closed(MyString.MIN_VALUE, new MyString('z', maxIntValue)));
+            }
+
+
+            if (values != null) {
+                TreeRangeSet rangeSet = TreeRangeSet.create();
+                for (String value : values) {
+                    rangeSet.add(Range.closed(new MyString(value), new MyString(value)));
+                }
+
+                restriction.addAndRangeSet(rangeSet);
+                negativeRestriction.addAndRangeSet(rangeSet);
+            }
         } else {
             throw new NotImplementedException();
         }
@@ -225,10 +246,9 @@ public class DataController {
     private Attribute initializeAttribute(String type, String name, boolean isPrimaryKey) {
         if (type.equals("INTEGER")) {
             return new IntegerAttribute(name, isPrimaryKey);
-//        } else if (type.equals("STRING")) {
-//            return new StringAttribute(name);
-//        } else {
-//        if (type.equals("FLOAT")) {
+        } else if (type.equals("STRING")) {
+            return new StringAttribute(name);
+//        } else if (type.equals("FLOAT")) {
 //            return new Attribute<Float>(name);
 //        } else if (type.equals("DATE")) {
 //            return new Attribute<Date>(name);

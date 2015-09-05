@@ -5,10 +5,15 @@ import com.google.common.collect.Range;
 import com.google.common.collect.TreeRangeSet;
 import net.sf.jsqlparser.expression.*;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
+import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
 import net.sf.jsqlparser.expression.operators.relational.*;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.select.*;
 import pl.poznan.put.SqlDataGenerator.restriction.IntegerRestriction;
+import pl.poznan.put.SqlDataGenerator.restriction.MyString;
+import pl.poznan.put.SqlDataGenerator.restriction.StringRestriction;
+import pl.poznan.put.SqlDataGenerator.sql.model.AttributeRestriction;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 public class SimpleRestrictionFinder extends AbstractFinder {
-//    private List<AttributeRestriction> result = new ArrayList<>();
+    //    private List<AttributeRestriction> result = new ArrayList<>();
     private Map<String, AttributeRestriction> result = new HashMap<>();
 
     public List<AttributeRestriction> findRestrictions(Select select) {
@@ -37,19 +42,30 @@ public class SimpleRestrictionFinder extends AbstractFinder {
         }
     }
 
+    private boolean isAndExpr;
+
     @Override
     public void visit(AndExpression andExpression) {
+        isAndExpr = true;
         visitBinaryExpression(andExpression);
     }
 
+    @Override
+    public void visit(OrExpression orExpression) {
+        isAndExpr = false;
+        visitBinaryExpression(orExpression);
+    }
+
     private void createMinRestriction(Expression a, Expression b) {
-        Long l = getLong(b);
-        if (a instanceof Column && l != null) {
-//            IntegerRestriction r = new IntegerRestriction();
-//            r.addAndRange(Range.closed(l.intValue(), Integer.MAX_VALUE));
-//            result.add(new AttributeRestriction((Column)a, r));
-//            result.put((Column)a, new AttributeRestriction((Column)a, r));
-            putRestriction((Column)a, Range.closed(l.intValue(), Integer.MAX_VALUE));
+        if (a instanceof Column) {
+            if (b instanceof LongValue || b instanceof SignedExpression) {
+                Long l = getLong(b);
+                putIntegerRestriction((Column) a, Range.closed(l.intValue(), Integer.MAX_VALUE));
+            } else if (b instanceof StringValue) {
+                putStringRestriction((Column) a, Range.closed(new MyString(getString(b)), MyString.MAX_VALUE));
+            } else {
+                throw new NotImplementedException();
+            }
         }
     }
 
@@ -65,14 +81,24 @@ public class SimpleRestrictionFinder extends AbstractFinder {
         }
     }
 
+    private String getString(Expression e) {
+        if (e instanceof StringValue) {
+            return ((StringValue) e).getValue();
+        } else {
+            return null;
+        }
+    }
+
     private void createMaxRestriction(Expression a, Expression b) {
-        Long l = getLong(b);
-        if (a instanceof Column && l != null) {
-//            IntegerRestriction r = new IntegerRestriction();
-//            r.addAndRange(Range.closed(Integer.MIN_VALUE, l.intValue()));
-//            result.add(new AttributeRestriction((Column) a, r));
-//            result.put((Column)a, new AttributeRestriction((Column)a, r));
-            putRestriction((Column)a, Range.closed(Integer.MIN_VALUE, l.intValue()));
+        if (a instanceof Column) {
+            if (b instanceof LongValue || b instanceof SignedExpression) {
+                Long l = getLong(b);
+                putIntegerRestriction((Column) a, Range.closed(Integer.MIN_VALUE, l.intValue()));
+            } else if (b instanceof StringValue) {
+                putStringRestriction((Column) a, Range.closed(MyString.MIN_VALUE, new MyString(getString(b))));
+            } else {
+                throw new NotImplementedException();
+            }
         }
     }
 
@@ -119,24 +145,87 @@ public class SimpleRestrictionFinder extends AbstractFinder {
         createMaxRestriction(column, max);
     }
 
+
+
     @Override
     public void visit(InExpression inExpression) {
         Column column = (Column) inExpression.getLeftExpression();
-//        List<Long> itemList = new ArrayList<>();
         TreeRangeSet rangeSet = TreeRangeSet.create();
         if (inExpression.getRightItemsList() instanceof ExpressionList) {
             ExpressionList list = (ExpressionList) inExpression.getRightItemsList();
-            for (Expression e: list.getExpressions()) {
-                Long v = getLong(e);
-                rangeSet.add(Range.closed(v.intValue(),v.intValue()));
+            Expression first = list.getExpressions().get(0);
+            if (first instanceof LongValue || first instanceof SignedExpression) {
+                for (Expression e : list.getExpressions()) {
+                    Long v = getLong(e);
+                    rangeSet.add(Range.closed(v.intValue(), v.intValue()));
+                }
+                putIntegerRestriction(column, rangeSet);
+            } else if (first instanceof StringValue) {
+                for (Expression e : list.getExpressions()) {
+                    rangeSet.add(Range.closed(new MyString(getString(e)), new MyString(getString(e))));
+                }
+                putStringRestriction(column, rangeSet);
+            } else {
+                throw new NotImplementedException();
             }
         }
-        putRestriction(column, rangeSet);
     }
 
-    private void putRestriction(Column c, TreeRangeSet range) {
+    private void createEqualsRestriction(Expression a, Expression b) {
+        if (!(a instanceof Column)) {
+            return;
+        }
+        if (b instanceof SignedExpression || b instanceof LongValue) {
+            Long l = getLong(b);
+            if (l != null) {
+                putIntegerRestriction((Column) a, Range.closed(l.intValue(), l.intValue()));
+            }
+        } else if (b instanceof StringValue) {
+            putStringRestriction((Column) a, Range.closed(new MyString(((StringValue) b).getValue()), new MyString(getString(b))));
+        } else {
+            throw new NotImplementedException();
+        }
+    }
+
+    private void createNotEqualsRestriction(Expression a, Expression b) {
+        if (!(a instanceof Column)) {
+            return;
+        }
+        if (b instanceof SignedExpression || b instanceof LongValue) {
+            Long l = getLong(b);
+            if (l != null) {
+                TreeRangeSet rangeSet = TreeRangeSet.create();
+                rangeSet.add(Range.closed(l.intValue(), l.intValue()));
+                putIntegerRestriction((Column) a, (TreeRangeSet) rangeSet.complement().subRangeSet(Range.closed(Integer.MIN_VALUE / 2, Integer.MAX_VALUE / 2)));
+            }
+        } else if (b instanceof StringValue) {
+            TreeRangeSet rangeSet = TreeRangeSet.create();
+            rangeSet.add(Range.closed(new MyString(((StringValue) b).getValue()), new MyString(getString(b))));
+            putStringRestriction((Column) a, (TreeRangeSet) rangeSet.complement().subRangeSet(Range.closed(MyString.MIN_VALUE, MyString.MAX_VALUE)));
+        } else {
+            throw new NotImplementedException();
+        }
+    }
+
+    @Override
+    public void visit(EqualsTo equalsTo) {
+        Expression a = equalsTo.getLeftExpression();
+        Expression b = equalsTo.getRightExpression();
+        createEqualsRestriction(a, b);
+        createEqualsRestriction(b, a);
+    }
+
+    @Override
+    public void visit(NotEqualsTo notEqualsTo) {
+        Expression a = notEqualsTo.getLeftExpression();
+        Expression b = notEqualsTo.getRightExpression();
+        createNotEqualsRestriction(a, b);
+        createNotEqualsRestriction(b, a);
+    }
+
+    private void putIntegerRestriction(Column c, TreeRangeSet range) {
         if (!result.containsKey(c.toString())) {
-            IntegerRestriction r = new IntegerRestriction();
+            IntegerRestriction r = new IntegerRestriction(isAndExpr);
             r.addAndRangeSet(range);
             result.put(c.toString(), new AttributeRestriction(c, r));
         } else {
@@ -146,14 +235,55 @@ public class SimpleRestrictionFinder extends AbstractFinder {
         }
     }
 
-    private void putRestriction(Column c, Range range) {
+    private void putIntegerRestriction(Column c, Range range) {
         if (!result.containsKey(c.toString())) {
-            IntegerRestriction r = new IntegerRestriction();
+            IntegerRestriction r = new IntegerRestriction(isAndExpr);
             r.addAndRange(range);
             result.put(c.toString(), new AttributeRestriction(c, r));
         } else {
             IntegerRestriction r = (IntegerRestriction) result.get(c.toString()).getRestriction();
             r.addAndRange(range);
+            result.put(c.toString(), new AttributeRestriction(c, r));
+        }
+    }
+
+    private void putStringRestriction(Column c, TreeRangeSet range) {
+        if (!result.containsKey(c.toString())) {
+            StringRestriction r = new StringRestriction(isAndExpr);
+            if (isAndExpr) {
+                r.addAndRangeSet(range);
+            } else {
+                r.addOrRangeSet(range);
+            }
+            result.put(c.toString(), new AttributeRestriction(c, r));
+        } else {
+            StringRestriction r = (StringRestriction) result.get(c.toString()).getRestriction();
+            if (isAndExpr) {
+                r.addAndRangeSet(range);
+            } else {
+                r.addOrRangeSet(range);
+            }
+            result.put(c.toString(), new AttributeRestriction(c, r));
+        }
+
+    }
+
+    private void putStringRestriction(Column c, Range range) {
+        if (!result.containsKey(c.toString())) {
+            StringRestriction r = new StringRestriction(isAndExpr);
+            if (isAndExpr) {
+                r.addAndRange(range);
+            } else {
+                r.addOrRange(range);
+            }
+            result.put(c.toString(), new AttributeRestriction(c, r));
+        } else {
+            StringRestriction r = (StringRestriction) result.get(c.toString()).getRestriction();
+            if (isAndExpr) {
+                r.addAndRange(range);
+            } else {
+                r.addOrRange(range);
+            }
             result.put(c.toString(), new AttributeRestriction(c, r));
         }
     }

@@ -8,8 +8,8 @@ public class StringAttribute extends Attribute {
 
     public StringAttribute(String name) {
         super(name, false);
-        this.restriction = new StringRestriction();
-        this.negativeRestriction = new StringRestriction();
+        this.restriction = new StringRestriction(true);
+        this.negativeRestriction = new StringRestriction(true);
     }
 
     public String getValue() {
@@ -22,14 +22,14 @@ public class StringAttribute extends Attribute {
     }
 
     @Override
-    protected boolean generateFromRestrictionAndDependent(boolean negative) {
-        this.value = "all";
-        return false;
+    protected void calculateValue() {
+        setValue("string");
     }
 
     @Override
     protected void generateFromRestriction(boolean negative) {
-        this.value = "restriction";
+        StringRestriction stringRestriction = negative ? (StringRestriction) getNegativeRestriction() : (StringRestriction) getRestriction();
+        setValue(RandomGenerator.getString(stringRestriction.getRangeSet()));
     }
 
     @Override
