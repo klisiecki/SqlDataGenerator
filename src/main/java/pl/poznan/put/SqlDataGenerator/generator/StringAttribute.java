@@ -23,7 +23,8 @@ public class StringAttribute extends Attribute {
 
     @Override
     protected void calculateValue() {
-        setValue("string");
+        //TODO obsługa na podstawie wyrażeń stringowych, ew. regexp itp.
+        setValue("random string");
     }
 
     @Override

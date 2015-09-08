@@ -3,7 +3,7 @@ package pl.poznan.put.SqlDataGenerator.generator;
 
 import com.google.common.collect.Range;
 import com.google.common.collect.TreeRangeSet;
-import pl.poznan.put.SqlDataGenerator.restriction.MyString;
+import pl.poznan.put.SqlDataGenerator.restriction.CustomString;
 
 import java.util.Random;
 
@@ -49,7 +49,7 @@ public class RandomGenerator {
         Object[] ranges = rangeSet.asRanges().toArray();
         int i = ranges.length == 1 ? 0 : getInteger(0, ranges.length);
         Range range = (Range) ranges[i];
-        return getString(((MyString) range.lowerEndpoint()).toString(), ((MyString) range.upperEndpoint()).toString());
+        return getString(((CustomString) range.lowerEndpoint()).toString(), ((CustomString) range.upperEndpoint()).toString());
 
     }
 }

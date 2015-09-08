@@ -5,7 +5,6 @@ import pl.poznan.put.SqlDataGenerator.restriction.Restriction;
 import java.util.*;
 
 public abstract class Attribute {
-
     private String name;
     private boolean clear;
     private boolean isPrimaryKey;
@@ -19,12 +18,16 @@ public abstract class Attribute {
     public Attribute(String name, boolean isPrimaryKey) {
         this.name = name;
         this.isPrimaryKey = isPrimaryKey;
-        if (isPrimaryKey) {
-            keyGenerator = new KeyGenerator(Integer.MAX_VALUE); //brać z góry: przekazać albo odwołanie do tabeli
-        }
         this.dependentAttributes = new ArrayList<>();
         this.equalsAttributes = new ArrayList<>();
         setClear(true);
+    }
+
+    public Attribute(String name, boolean isPrimaryKey, long dataRows) {
+        this(name, isPrimaryKey);
+        if (isPrimaryKey) {
+            keyGenerator = new KeyGenerator(dataRows);
+        }
     }
 
     public void addDependent(Attribute attribute) {
@@ -155,7 +158,7 @@ public abstract class Attribute {
             return true;
         } else { //ostatni z kliki i trzeba wyliczyć jego wartość
             calculateValue();
-            return true; //TODO obsługa wyrażeń matematycznych
+            return true;
         }
     }
 

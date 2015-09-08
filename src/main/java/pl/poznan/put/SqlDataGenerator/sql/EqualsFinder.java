@@ -11,6 +11,7 @@ import pl.poznan.put.SqlDataGenerator.sql.model.RestrictionEquals;
 import java.util.ArrayList;
 import java.util.List;
 
+//TODO na razie działa, ale trzeba przenieść do SimpleRestrictionFinder, żeby działały ORy
 public class EqualsFinder extends AbstractFinder {
     private List<RestrictionEquals> result = new ArrayList<>();
 

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <TABLES xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="pl.poznan.put.SqlDataGenerator ../src/main/resources/pl/poznan/put/SqlDataGenerator/schemat.xsd"
-        xmlns="pl.poznan.put.SqlDataGenerator">
+        xmlns="pl.poznan.put.SqlDataGenerator" M="200" T="100">
     <TABLE>
         <NAME>TABLE_A</NAME>
         <ROWS_NUM>5</ROWS_NUM>

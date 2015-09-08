@@ -3,11 +3,10 @@ package pl.poznan.put.SqlDataGenerator.generator;
 import pl.poznan.put.SqlDataGenerator.restriction.IntegerRestriction;
 
 public class IntegerAttribute extends Attribute {
-
     private Integer value;
 
-    public IntegerAttribute(String name, boolean isPrimaryKey) {
-        super(name, isPrimaryKey);
+    public IntegerAttribute(String name, boolean isPrimaryKey, long dataRows) {
+        super(name, isPrimaryKey, dataRows);
         this.restriction = new IntegerRestriction(true);
         this.negativeRestriction = new IntegerRestriction(true);
     }
@@ -23,7 +22,8 @@ public class IntegerAttribute extends Attribute {
 
     @Override
     protected void calculateValue() {
-        setValue(4);
+        //TODO obsługa wyrażeń matematycznych
+        setValue(4); //na podstawie rzutu kostką
     }
 
     @Override

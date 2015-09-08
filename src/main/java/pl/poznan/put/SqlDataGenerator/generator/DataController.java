@@ -7,7 +7,7 @@ import net.sf.jsqlparser.schema.Table;
 import pl.poznan.put.SqlDataGenerator.readers.SQLData;
 import pl.poznan.put.SqlDataGenerator.readers.XMLData;
 import pl.poznan.put.SqlDataGenerator.restriction.IntegerRestriction;
-import pl.poznan.put.SqlDataGenerator.restriction.MyString;
+import pl.poznan.put.SqlDataGenerator.restriction.CustomString;
 import pl.poznan.put.SqlDataGenerator.restriction.StringRestriction;
 import pl.poznan.put.SqlDataGenerator.sql.model.AttributeRestriction;
 import pl.poznan.put.SqlDataGenerator.sql.model.RestrictionEquals;
@@ -52,14 +52,13 @@ public class DataController {
                     throw new RuntimeException("Attribute " + originalName + "." + attributeName + " not found in xml file");
                 }
                 String attributeType = xmlData.getType(originalName, attributeName);
-                Attribute attribute = initializeAttribute(attributeType, attributeName, xmlData.isPrimaryKey(originalName, attributeName));
+                Attribute attribute = initializeAttribute(attributeType, attributeName, xmlData.isPrimaryKey(originalName, attributeName), dataRows);
                 addXMLRestrictions(originalName, attribute, xmlData);
                 dataTable.addAttribute(attribute);
             }
             tableMap.put(dataTable.getName(), dataTable);
             dataTable.initTableFile(path);
         }
-
 
         for (Map.Entry<String, DataTable> e : tableMap.entrySet()) {
             DataTable table = e.getValue();
@@ -151,13 +150,13 @@ public class DataController {
         List<AttributeRestriction> attributeRestrictions = sqlData.getRestrictions();
         for (AttributeRestriction a : attributeRestrictions) {
             Attribute attribute = tableMap.get(a.getTableName()).getAttribute(a.getAttributeName());
-            //TODO obsługa ORów
             attribute.getRestriction().addAndRangeSet(a.getRestriction().getRangeSet());
+            // wartości niepoprawne dla danego arumentu, do generowania danych nie spełniających warunków zapytania
             TreeRangeSet complementSet = null;
             if (attribute instanceof IntegerAttribute) {
                 complementSet = (TreeRangeSet) a.getRestriction().getRangeSet().complement().subRangeSet(Range.closed(Integer.MIN_VALUE / 2, Integer.MAX_VALUE / 2));
             } else if (attribute instanceof StringAttribute) {
-                complementSet = (TreeRangeSet) a.getRestriction().getRangeSet().complement().subRangeSet(Range.closed(MyString.MIN_VALUE, MyString.MAX_VALUE));
+                complementSet = (TreeRangeSet) a.getRestriction().getRangeSet().complement().subRangeSet(Range.closed(CustomString.MIN_VALUE, CustomString.MAX_VALUE));
             } else {
                 throw new NotImplementedException();
             }
@@ -179,7 +178,7 @@ public class DataController {
                 attributeA.addEquals(attributeB);
                 attributeB.addEquals(attributeA);
             } else {
-                throw new RuntimeException(attributeA + " or " + attributeB + " not found");
+                throw new RuntimeException("Attribute " + attributeA + " or " + attributeB + " not found");
             }
         }
     }
@@ -201,7 +200,6 @@ public class DataController {
                 negativeRestriction.addAndRange(Range.closed(Integer.MIN_VALUE, Integer.parseInt(maxValue)));
             }
 
-
             if (values != null) {
                 TreeRangeSet rangeSet = TreeRangeSet.create();
                 for (String value : values) {
@@ -219,20 +217,19 @@ public class DataController {
 
             if (minValue != null) {
                 int minIntValue =  Integer.parseInt(minValue);
-                restriction.addAndRange(Range.closed(new MyString('A', minIntValue), MyString.MAX_VALUE));
-                negativeRestriction.addAndRange(Range.closed(new MyString('A', minIntValue), MyString.MAX_VALUE));
+                restriction.addAndRange(Range.closed(new CustomString('A', minIntValue), CustomString.MAX_VALUE));
+                negativeRestriction.addAndRange(Range.closed(new CustomString('A', minIntValue), CustomString.MAX_VALUE));
             }
             if (maxValue != null) {
                 int maxIntValue = Integer.parseInt(maxValue);
-                restriction.addAndRange(Range.closed(MyString.MIN_VALUE, new MyString('z', maxIntValue)));
-                negativeRestriction.addAndRange(Range.closed(MyString.MIN_VALUE, new MyString('z', maxIntValue)));
+                restriction.addAndRange(Range.closed(CustomString.MIN_VALUE, new CustomString('z', maxIntValue)));
+                negativeRestriction.addAndRange(Range.closed(CustomString.MIN_VALUE, new CustomString('z', maxIntValue)));
             }
-
 
             if (values != null) {
                 TreeRangeSet rangeSet = TreeRangeSet.create();
                 for (String value : values) {
-                    rangeSet.add(Range.closed(new MyString(value), new MyString(value)));
+                    rangeSet.add(Range.closed(new CustomString(value), new CustomString(value)));
                 }
 
                 restriction.addAndRangeSet(rangeSet);
@@ -243,15 +240,11 @@ public class DataController {
         }
     }
 
-    private Attribute initializeAttribute(String type, String name, boolean isPrimaryKey) {
+    private Attribute initializeAttribute(String type, String name, boolean isPrimaryKey, long dataRows) {
         if (type.equals("INTEGER")) {
-            return new IntegerAttribute(name, isPrimaryKey);
+            return new IntegerAttribute(name, isPrimaryKey, dataRows);
         } else if (type.equals("STRING")) {
             return new StringAttribute(name);
-//        } else if (type.equals("FLOAT")) {
-//            return new Attribute<Float>(name);
-//        } else if (type.equals("DATE")) {
-//            return new Attribute<Date>(name);
         } else {
             throw new NotImplementedException();
         }
