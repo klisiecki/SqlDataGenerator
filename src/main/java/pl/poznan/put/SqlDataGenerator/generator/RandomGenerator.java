@@ -49,7 +49,7 @@ public class RandomGenerator {
         Object[] ranges = rangeSet.asRanges().toArray();
         int i = ranges.length == 1 ? 0 : getInteger(0, ranges.length);
         Range range = (Range) ranges[i];
-        return getString(((CustomString) range.lowerEndpoint()).toString(), ((CustomString) range.upperEndpoint()).toString());
+        return getString(range.lowerEndpoint().toString(), range.upperEndpoint().toString());
 
     }
 }

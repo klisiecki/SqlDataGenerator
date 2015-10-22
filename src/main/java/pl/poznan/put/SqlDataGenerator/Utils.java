@@ -11,8 +11,7 @@ import java.util.Set;
 
 public class Utils {
     public static String readFile(String fileName) throws IOException {
-        BufferedReader br = new BufferedReader(new FileReader(fileName));
-        try {
+        try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
             StringBuilder sb = new StringBuilder();
             String line = br.readLine();
 
@@ -22,8 +21,6 @@ public class Utils {
                 line = br.readLine();
             }
             return sb.toString();
-        } finally {
-            br.close();
         }
     }
 

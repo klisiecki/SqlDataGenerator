@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AttributesNamesFinder extends AbstractFinder {
-    private List<String> result = new ArrayList<>();
+    private final List<String> result = new ArrayList<>();
     private Table table;
 
     public List<String> getAttributesList(Select select, Table table) {
@@ -24,7 +24,7 @@ public class AttributesNamesFinder extends AbstractFinder {
         return result;
     }
 
-    public void visitBinaryExpression(BinaryExpression binaryExpression) {
+    private void visitBinaryExpression(BinaryExpression binaryExpression) {
         binaryExpression.getLeftExpression().accept(this);
         binaryExpression.getRightExpression().accept(this);
     }

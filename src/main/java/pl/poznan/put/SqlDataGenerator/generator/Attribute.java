@@ -5,12 +5,12 @@ import pl.poznan.put.SqlDataGenerator.restriction.Restriction;
 import java.util.*;
 
 public abstract class Attribute {
-    private String name;
+    private final String name;
     private boolean clear;
-    private boolean isPrimaryKey;
+    private final boolean isPrimaryKey;
     private KeyGenerator keyGenerator;
-    protected List<Attribute> dependentAttributes;
-    protected List<Attribute> equalsAttributes;
+    protected final List<Attribute> dependentAttributes;
+    protected final List<Attribute> equalsAttributes;
     protected Restriction restriction;
     protected Restriction negativeRestriction;
     private Boolean canBeNegative;
@@ -59,9 +59,7 @@ public abstract class Attribute {
     }
 
     public void addEquals(Collection<Attribute> attributes) {
-        for (Attribute a : attributes) {
-            addEquals(a);
-        }
+        attributes.forEach(this::addEquals);
     }
 
     public List<Attribute> getEqualsAttributes() {
@@ -70,11 +68,8 @@ public abstract class Attribute {
 
     public void collectEquals(Set<Attribute> result) {
         result.add(this);
-        for (Attribute a : equalsAttributes) {
-            if (!result.contains(a)) {
-                a.collectEquals(result);
-            }
-        }
+        equalsAttributes.stream().filter(a -> !result.contains(a))
+                .forEach(a -> a.collectEquals(result));
     }
 
     public String getName() {
@@ -94,11 +89,7 @@ public abstract class Attribute {
             throw new RuntimeException("Rollback on primary key");
         }
         setClear(true);
-        for (Attribute a : dependentAttributes) {
-            if (!a.isClear()) {
-                a.rollback();
-            }
-        }
+        dependentAttributes.stream().filter(a -> !a.isClear()).forEach(Attribute::rollback);
     }
 
     public boolean generateValue(boolean negative) {

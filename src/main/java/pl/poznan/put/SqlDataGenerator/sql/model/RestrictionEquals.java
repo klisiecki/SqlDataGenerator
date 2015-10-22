@@ -3,8 +3,8 @@ package pl.poznan.put.SqlDataGenerator.sql.model;
 import net.sf.jsqlparser.schema.Column;
 
 public class RestrictionEquals implements SQLRestriction {
-    private Column leftColumn;
-    private Column rightColumn;
+    private final Column leftColumn;
+    private final Column rightColumn;
 
     public RestrictionEquals(Column leftColumn, Column rightColumn) {
         this.leftColumn = leftColumn;

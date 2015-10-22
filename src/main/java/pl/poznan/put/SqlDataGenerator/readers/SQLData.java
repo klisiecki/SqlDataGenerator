@@ -11,7 +11,7 @@ import java.util.List;
 
 public class SQLData {
 
-    private Select select;
+    private final Select select;
 
     public SQLData(Select select) {
         this.select = select;

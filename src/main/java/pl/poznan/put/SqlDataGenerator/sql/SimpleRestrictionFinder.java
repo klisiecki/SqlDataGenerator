@@ -21,12 +21,12 @@ import java.util.List;
 import java.util.Map;
 
 public class SimpleRestrictionFinder extends AbstractFinder {
-    private Map<String, AttributeRestriction> result = new HashMap<>();
+    private final Map<String, AttributeRestriction> result = new HashMap<>();
     private boolean isAndExpr;
 
     public List<AttributeRestriction> findRestrictions(Select select) {
         select.getSelectBody().accept(this);
-        return new ArrayList<AttributeRestriction>(result.values());
+        return new ArrayList<>(result.values());
     }
 
     public void visitBinaryExpression(BinaryExpression binaryExpression) {

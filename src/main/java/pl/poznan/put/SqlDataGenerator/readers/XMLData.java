@@ -21,9 +21,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class XMLData {
-    private XPathFactory xPathfactory = XPathFactory.newInstance();
+    private final XPathFactory xPathfactory = XPathFactory.newInstance();
     private Document document;
-    private final String schemaLocation = "/pl/poznan/put/SqlDataGenerator/schemat.xsd";
+    private final static String schemaLocation = "/pl/poznan/put/SqlDataGenerator/schemat.xsd";
 
     public XMLData(String fileName) throws XPathExpressionException, ParserConfigurationException, IOException, SAXException {
         validate(fileName);
@@ -75,12 +75,13 @@ public class XMLData {
     }
 
     public List<String> getTables() {
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
         XPathExpression expr = getXPathExpression("//TABLE/NAME/text()");
-        NodeList nodes = null;
+        NodeList nodes;
         try {
             nodes = (NodeList) expr.evaluate(document, XPathConstants.NODESET);
         } catch (Exception e) {
+            return null;
         }
         for (int i = 0; i < nodes.getLength(); i++) {
             result.add(nodes.item(i).getNodeValue());
@@ -91,10 +92,11 @@ public class XMLData {
     public Integer getRows(String table) {
         XPathExpression expr = getXPathExpression(
                 String.format("//TABLE[NAME/text()='%s']/ROWS_NUM/text()", table));
-        Integer result = null;
+        Integer result;
         try {
             result = Integer.parseInt(expr.evaluate(document));
         } catch (Exception e) {
+            return null;
         }
         return result;
     }
@@ -102,10 +104,11 @@ public class XMLData {
     public String getDistribution(String table) {
         XPathExpression expr = getXPathExpression(
                 String.format("//TABLE[NAME/text()='%s']/DISTRIBUTION/text()", table));
-        String result = null;
+        String result;
         try {
             result = expr.evaluate(document);
         } catch (Exception e) {
+            return null;
         }
         return result;
     }
@@ -113,19 +116,20 @@ public class XMLData {
     public Integer getMinRowSize(String table) {
         XPathExpression expr = getXPathExpression(
                 String.format("//TABLE[NAME/text()='%s']/MIN_ROW_SIZE/text()", table));
-        Integer result = null;
+        Integer result;
         try {
             result = Integer.parseInt(expr.evaluate(document));
         } catch (Exception e) {
+            return null;
         }
         return result;
     }
 
     public List<String> getAttributes(String table) {
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
         XPathExpression expr = getXPathExpression(
                 String.format("//TABLE[NAME/text()='%s']//ATTRIBUTE/NAME/text()", table));
-        NodeList nodes = null;
+        NodeList nodes;
         try {
             nodes = (NodeList) expr.evaluate(document, XPathConstants.NODESET);
             for (int i = 0; i < nodes.getLength(); i++) {
@@ -141,11 +145,11 @@ public class XMLData {
     private String getAttributeProperty(String table, String attribute, String property) {
         XPathExpression expr = getXPathExpression(
                 String.format("//TABLE[NAME/text()='%s']//ATTRIBUTE[NAME/text()='%s']/%s/text()", table, attribute, property));
-        String result = null;
+        String result;
         try {
             result = expr.evaluate(document);
         } catch (Exception e) {
-            e.printStackTrace();
+            return null;
         }
         return result.equals("") ? null : result;
     }
@@ -203,7 +207,7 @@ public class XMLData {
         List<String> result = new ArrayList<>();
         XPathExpression expr = getXPathExpression(
                 String.format("//TABLE[NAME/text()='%s']//ATTRIBUTE[NAME/text()='%s']//VALUE/text()", table, attribute));
-        NodeList nodes = null;
+        NodeList nodes;
         try {
             nodes = (NodeList) expr.evaluate(document, XPathConstants.NODESET);
             for (int i = 0; i < nodes.getLength(); i++) {

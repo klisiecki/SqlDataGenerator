@@ -1,7 +1,7 @@
 package pl.poznan.put.SqlDataGenerator.generator;
 
 public class KeyGenerator {
-    private long max;
+    private final long max;
     private long current;
 
     public KeyGenerator(long max) {

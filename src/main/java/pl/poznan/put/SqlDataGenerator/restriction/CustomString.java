@@ -6,7 +6,7 @@ public class CustomString implements Comparable<CustomString> {
     public static final CustomString MIN_VALUE = new CustomString("A");
     public static final CustomString MAX_VALUE = new CustomString(StringUtils.repeat('z', 128));
 
-    private String string;
+    private final String string;
 
     public CustomString(String string) {
         this.string = string;

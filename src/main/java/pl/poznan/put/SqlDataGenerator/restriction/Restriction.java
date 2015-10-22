@@ -22,7 +22,7 @@ public abstract class Restriction {
     public void addAndRange(Range range) {
         TreeRangeSet t = TreeRangeSet.create();
         t.add(range);
-        rangeSet = Utils.intersectRangeSets((TreeRangeSet) rangeSet, t);
+        rangeSet = Utils.intersectRangeSets(rangeSet, t);
     }
 
     public void addOrRangeSet(TreeRangeSet set) {
@@ -30,6 +30,6 @@ public abstract class Restriction {
     }
 
     public void addAndRangeSet(TreeRangeSet set) {
-        rangeSet = Utils.intersectRangeSets((TreeRangeSet) rangeSet, set);
+        rangeSet = Utils.intersectRangeSets(rangeSet, set);
     }
 }

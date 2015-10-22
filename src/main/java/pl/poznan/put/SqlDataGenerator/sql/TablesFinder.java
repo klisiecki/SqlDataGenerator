@@ -163,7 +163,7 @@ public class TablesFinder extends AbstractFinder {
         visitBinaryExpression(subtraction);
     }
 
-    public void visitBinaryExpression(BinaryExpression binaryExpression) {
+    private void visitBinaryExpression(BinaryExpression binaryExpression) {
         binaryExpression.getLeftExpression().accept(this);
         binaryExpression.getRightExpression().accept(this);
     }
@@ -246,8 +246,8 @@ public class TablesFinder extends AbstractFinder {
     }
 
     private void init() {
-        otherItemNames = new ArrayList<String>();
-        tables = new ArrayList<Table>();
+        otherItemNames = new ArrayList<>();
+        tables = new ArrayList<>();
     }
 
     @Override

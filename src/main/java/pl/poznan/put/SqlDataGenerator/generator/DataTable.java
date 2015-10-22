@@ -10,12 +10,12 @@ import java.util.List;
 import java.util.Map;
 
 public class DataTable {
-    private String name;
-    private String originalName;
+    private final String name;
+    private final String originalName;
     private long dataCount;
-    private long dataCountLimit;
+    private final long dataCountLimit;
     private int resetFactor;
-    private Map<String, Attribute> attributeMap;
+    private final Map<String, Attribute> attributeMap;
     private CSVWriter writer;
     private Attribute primaryKey;
 
@@ -89,15 +89,6 @@ public class DataTable {
 
     public Map<String, Attribute> getAttributeMap() {
         return attributeMap;
-    }
-
-    public void print() {
-        System.out.println();
-        System.out.print(originalName + " ");
-        for (Map.Entry<String, Attribute> e2 : attributeMap.entrySet()) {
-            Attribute attribute = e2.getValue();
-            System.out.print(attribute + ", ");
-        }
     }
 
     public void save() {

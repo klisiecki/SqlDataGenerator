@@ -17,7 +17,7 @@ import java.io.File;
 import java.util.*;
 
 public class DataController {
-    private Map<String, DataTable> tableMap;
+    private final Map<String, DataTable> tableMap;
     private long maxDataRows = 0;
 
     public DataController() {
@@ -26,7 +26,9 @@ public class DataController {
 
     public void initTables(XMLData xmlData, SQLData sqlData, String path) {
         List<String> xmlTables = xmlData.getTables();
-        new File(path).mkdir();
+        if(!new File(path).mkdir()) {
+            System.err.println("Unable to create file " + path);
+        }
 
         int m = xmlData.getM();
         int t = xmlData.getT();
@@ -152,7 +154,7 @@ public class DataController {
             Attribute attribute = tableMap.get(a.getTableName()).getAttribute(a.getAttributeName());
             attribute.getRestriction().addAndRangeSet(a.getRestriction().getRangeSet());
             // wartości niepoprawne dla danego arumentu, do generowania danych nie spełniających warunków zapytania
-            TreeRangeSet complementSet = null;
+            TreeRangeSet complementSet;
             if (attribute instanceof IntegerAttribute) {
                 complementSet = (TreeRangeSet) a.getRestriction().getRangeSet().complement().subRangeSet(Range.closed(Integer.MIN_VALUE / 2, Integer.MAX_VALUE / 2));
             } else if (attribute instanceof StringAttribute) {
@@ -241,12 +243,13 @@ public class DataController {
     }
 
     private Attribute initializeAttribute(String type, String name, boolean isPrimaryKey, long dataRows) {
-        if (type.equals("INTEGER")) {
-            return new IntegerAttribute(name, isPrimaryKey, dataRows);
-        } else if (type.equals("STRING")) {
-            return new StringAttribute(name);
-        } else {
-            throw new NotImplementedException();
+        switch (type) {
+            case "INTEGER":
+                return new IntegerAttribute(name, isPrimaryKey, dataRows);
+            case "STRING":
+                return new StringAttribute(name);
+            default:
+                throw new NotImplementedException();
         }
     }
 

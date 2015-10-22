@@ -26,7 +26,7 @@ public class Main {
         String file = args[0];
         String sql = Utils.readFile(file + ".sql");
 
-        XMLData xmlData = null;
+        XMLData xmlData;
         try {
             xmlData = new XMLData(file + ".xml");
             System.out.println(file + ".xml is valid");
@@ -39,24 +39,27 @@ public class Main {
         Statement statement = pm.parse(new StringReader(sql));
 
         if (statement instanceof Select) {
-            Select selectStatement = (Select) statement;
-            System.out.println("Parsed statement: " + selectStatement);
-            DataController dataController = new DataController();
-            SQLData sqlData = new SQLData(selectStatement);
-            dataController.initTables(xmlData, sqlData, file);
-
-            System.out.println();
-            System.out.println("Tables (name, synonim, columns):");
-            for (Table table : sqlData.getTables()) {
-                System.out.println(table + " " + sqlData.getAttributes(table));
-            }
-            System.out.println();
-
-            System.out.println("Generating...");
-            dataController.generate();
-            System.out.println("Done.");
+            generateDataForSelect(file, xmlData, (Select) statement);
         } else {
             System.out.println("Incorrect statement, must be SELECT");
         }
+    }
+
+    private static void generateDataForSelect(String file, XMLData xmlData, Select selectStatement) {
+        System.out.println("Parsed statement: " + selectStatement);
+        DataController dataController = new DataController();
+        SQLData sqlData = new SQLData(selectStatement);
+        dataController.initTables(xmlData, sqlData, file);
+
+        System.out.println();
+        System.out.println("Tables (name, synonim, columns):");
+        for (Table table : sqlData.getTables()) {
+            System.out.println(table + " " + sqlData.getAttributes(table));
+        }
+        System.out.println();
+
+        System.out.println("Generating...");
+        dataController.generate();
+        System.out.println("Done.");
     }
 }
