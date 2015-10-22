@@ -152,7 +152,7 @@ public class AbstractFinder implements SelectVisitor, SelectItemVisitor, FromIte
     }
 
     @Override
-    public void visit(Column tableColumn) {
+    public void visit(Column column) {
 
     }
 

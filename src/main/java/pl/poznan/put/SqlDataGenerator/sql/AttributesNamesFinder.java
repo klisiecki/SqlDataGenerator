@@ -8,6 +8,7 @@ import net.sf.jsqlparser.expression.operators.relational.*;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.*;
+import pl.poznan.put.SqlDataGenerator.exception.SQLSyntaxNotImplementedException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -142,12 +143,15 @@ public class AttributesNamesFinder extends AbstractFinder {
 
 
     @Override
-    public void visit(Column tableColumn) {
-        Table columnTable = tableColumn.getTable();
+    public void visit(Column column) {
+        Table columnTable = column.getTable();
+        if(columnTable.getName() == null) {
+            throw new SQLSyntaxNotImplementedException("Missing table name for column " + column.getColumnName());
+        }
         if (columnTable.getName().equals(table.getAlias().getName())) {
-            String name = tableColumn.getColumnName();
+            String name = column.getColumnName();
             if (!result.contains(name)) {
-                result.add(tableColumn.getColumnName());
+                result.add(column.getColumnName());
             }
         }
     }
