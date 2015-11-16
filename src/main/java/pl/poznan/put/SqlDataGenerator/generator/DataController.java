@@ -24,13 +24,8 @@ public class DataController {
         this.tableMap = new HashMap<>();
     }
 
-    public void initTables(XMLData xmlData, SQLData sqlData, String path) {
+    public void initTables(XMLData xmlData, SQLData sqlData) {
         List<String> xmlTables = xmlData.getTables();
-
-        File file = new File(path);
-        if(!file.exists() && !file.mkdir()) {
-            System.err.println("Unable to create dir " + path);
-        }
 
         int m = xmlData.getM();
         int t = xmlData.getT();
@@ -61,7 +56,6 @@ public class DataController {
                 dataTable.addAttribute(attribute);
             }
             tableMap.put(dataTable.getName(), dataTable);
-            dataTable.initTableFile(path);
         }
 
         for (Map.Entry<String, DataTable> e : tableMap.entrySet()) {

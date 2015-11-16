@@ -9,11 +9,14 @@ import pl.poznan.put.SqlDataGenerator.generator.DataController;
 import pl.poznan.put.SqlDataGenerator.readers.SQLData;
 import pl.poznan.put.SqlDataGenerator.readers.XMLData;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 
 
 public class Main {
+
+    private static Configuration configuration = Configuration.getInstance();
 
     public static void main(String[] args) throws JSQLParserException, IOException {
 
@@ -23,33 +26,46 @@ public class Main {
         }
 
         CCJSqlParserManager pm = new CCJSqlParserManager();
-        String file = args[0];
-        String sql = Utils.readFile(file + ".sql");
+        String instanceName = args[0];
+        configuration.setInstanceName(instanceName);
+        String sql = Utils.readFile(instanceName + ".sql");
+
+        if (args.length > 1) {
+            try {
+                configuration.setRowsPerFile(Integer.parseInt(args[1]));
+            } catch (NumberFormatException e) {
+                System.out.println(args[1] + " is not valid integer");
+            }
+        }
 
         XMLData xmlData;
         try {
-            xmlData = new XMLData(file + ".xml");
-            System.out.println(file + ".xml is valid");
+            xmlData = new XMLData(instanceName + ".xml");
+            System.out.println(instanceName + ".xml is valid");
         } catch (Exception e) {
             System.err.println(e.getMessage());
             return;
         }
 
+        File file = new File(instanceName);
+        if(!file.exists() && !file.mkdir()) {
+            System.err.println("Unable to create dir " + instanceName);
+        }
 
         Statement statement = pm.parse(new StringReader(sql));
 
         if (statement instanceof Select) {
-            generateDataForSelect(file, xmlData, (Select) statement);
+            generateDataForSelect(xmlData, (Select) statement);
         } else {
             System.out.println("Incorrect statement, must be SELECT");
         }
     }
 
-    private static void generateDataForSelect(String file, XMLData xmlData, Select selectStatement) {
+    private static void generateDataForSelect(XMLData xmlData, Select selectStatement) {
         System.out.println("Parsed statement: " + selectStatement);
         DataController dataController = new DataController();
         SQLData sqlData = new SQLData(selectStatement);
-        dataController.initTables(xmlData, sqlData, file);
+        dataController.initTables(xmlData, sqlData);
 
         System.out.println();
         System.out.println("Tables (name, synonim, columns):");
