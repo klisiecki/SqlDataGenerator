@@ -6,8 +6,8 @@ import com.google.common.collect.TreeRangeSet;
 import net.sf.jsqlparser.schema.Table;
 import pl.poznan.put.SqlDataGenerator.readers.SQLData;
 import pl.poznan.put.SqlDataGenerator.readers.XMLData;
-import pl.poznan.put.SqlDataGenerator.restriction.IntegerRestriction;
 import pl.poznan.put.SqlDataGenerator.restriction.CustomString;
+import pl.poznan.put.SqlDataGenerator.restriction.IntegerRestriction;
 import pl.poznan.put.SqlDataGenerator.restriction.StringRestriction;
 import pl.poznan.put.SqlDataGenerator.sql.model.AttributeRestriction;
 import pl.poznan.put.SqlDataGenerator.sql.model.RestrictionEquals;
@@ -26,8 +26,10 @@ public class DataController {
 
     public void initTables(XMLData xmlData, SQLData sqlData, String path) {
         List<String> xmlTables = xmlData.getTables();
-        if(!new File(path).mkdir()) {
-            System.err.println("Unable to create file " + path);
+
+        File file = new File(path);
+        if(!file.exists() && !file.mkdir()) {
+            System.err.println("Unable to create dir " + path);
         }
 
         int m = xmlData.getM();
