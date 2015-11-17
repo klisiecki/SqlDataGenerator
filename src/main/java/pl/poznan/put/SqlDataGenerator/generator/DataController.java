@@ -77,11 +77,7 @@ public class DataController {
                 }
             }
             generatePrimaryKeys();
-            if (iteration > maxDataRows / 2) { //TODO współczynnik
-                generateRow();
-            } else {
-                generateNegativeRow();
-            }
+            generateRow(iteration > maxDataRows / 2); //TODO współczynnik
 
             for (Map.Entry<String, DataTable> e : tableMap.entrySet()) {
                 DataTable table = e.getValue();
@@ -106,22 +102,12 @@ public class DataController {
         }
     }
 
-    private void generateRow() {
+    private void generateRow(boolean isNegative) {
         for (Map.Entry<String, DataTable> e : tableMap.entrySet()) {
             DataTable table = e.getValue();
             for (Map.Entry<String, Attribute> e2 : table.getAttributeMap().entrySet()) {
                 Attribute attribute = e2.getValue();
-                attribute.generateValue(false);
-            }
-        }
-    }
-
-    private void generateNegativeRow() {
-        for (Map.Entry<String, DataTable> e : tableMap.entrySet()) {
-            DataTable table = e.getValue();
-            for (Map.Entry<String, Attribute> e2 : table.getAttributeMap().entrySet()) {
-                Attribute attribute = e2.getValue();
-                attribute.generateValue(true);
+                attribute.generateValue(isNegative);
             }
         }
     }
@@ -214,7 +200,7 @@ public class DataController {
             StringRestriction negativeRestriction = (StringRestriction) attribute.getNegativeRestriction();
 
             if (minValue != null) {
-                int minIntValue =  Integer.parseInt(minValue);
+                int minIntValue = Integer.parseInt(minValue);
                 restriction.addAndRange(Range.closed(new CustomString('A', minIntValue), CustomString.MAX_VALUE));
                 negativeRestriction.addAndRange(Range.closed(new CustomString('A', minIntValue), CustomString.MAX_VALUE));
             }

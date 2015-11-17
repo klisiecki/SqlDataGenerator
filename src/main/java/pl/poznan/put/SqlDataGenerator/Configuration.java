@@ -3,7 +3,7 @@ package pl.poznan.put.SqlDataGenerator;
 
 public class Configuration {
 
-    private int rowsPerFile = 1000;
+    private int rowsPerFile = 10000;
     private String instanceName;
 
     private static Configuration instance;
