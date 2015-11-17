@@ -13,7 +13,6 @@ import pl.poznan.put.SqlDataGenerator.sql.model.AttributeRestriction;
 import pl.poznan.put.SqlDataGenerator.sql.model.RestrictionEquals;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
-import java.io.File;
 import java.util.*;
 
 public class DataController {
@@ -70,26 +69,21 @@ public class DataController {
 
     public void generate() {
         for (long iteration = 0; iteration < maxDataRows; iteration++) {
-            for (Map.Entry<String, DataTable> e : tableMap.entrySet()) {
-                DataTable table = e.getValue();
-                if (table.checkIteration(iteration)) {
-                    table.clear();
-                }
-            }
+            clearTables(iteration);
             generatePrimaryKeys();
             generateRow(iteration > maxDataRows / 2); //TODO współczynnik
-
-            for (Map.Entry<String, DataTable> e : tableMap.entrySet()) {
-                DataTable table = e.getValue();
-                if (table.checkIteration(iteration)) {
-                    table.save();
-                }
-            }
+            saveTables(iteration);
         }
 
+        closeTableFiles();
+    }
+
+    private void clearTables(long iteration) {
         for (Map.Entry<String, DataTable> e : tableMap.entrySet()) {
             DataTable table = e.getValue();
-            table.closeTableFile();
+            if (table.shouldBeGenerated(iteration)) {
+                table.clear();
+            }
         }
     }
 
@@ -109,6 +103,22 @@ public class DataController {
                 Attribute attribute = e2.getValue();
                 attribute.generateValue(isNegative);
             }
+        }
+    }
+
+    private void saveTables(long iteration) {
+        for (Map.Entry<String, DataTable> e : tableMap.entrySet()) {
+            DataTable table = e.getValue();
+            if (table.shouldBeGenerated(iteration)) {
+                table.save();
+            }
+        }
+    }
+
+    private void closeTableFiles() {
+        for (Map.Entry<String, DataTable> e : tableMap.entrySet()) {
+            DataTable table = e.getValue();
+            table.closeTableFile();
         }
     }
 

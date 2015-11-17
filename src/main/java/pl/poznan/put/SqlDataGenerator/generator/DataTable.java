@@ -41,11 +41,7 @@ public class DataTable {
     private void initTableFile() {
         String path = configuration.getInstanceName();
         if (writer != null) {
-            try {
-                writer.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            closeTableFile();
         }
         try {
             writer = new CSVWriter(new FileWriter(path + "/" + originalName + "_" + fileNum + ".csv"), ';');
@@ -94,8 +90,9 @@ public class DataTable {
         this.resetFactor = (int) (100 * maxDataRows / dataCountLimit);
     }
 
-    public boolean checkIteration(long iteration) {
-        return iteration == 0 || (iteration * 100 / resetFactor != (iteration - 1) * 100 / resetFactor);
+    public boolean shouldBeGenerated(long iteration) {
+        return iteration == 0 ||    (iteration * 100 / resetFactor !=
+                                    (iteration - 1) * 100 / resetFactor);
     }
 
     public String getName() {
