@@ -54,6 +54,7 @@ public class DataController {
                 addXMLRestrictions(originalName, attribute, xmlData);
                 dataTable.addAttribute(attribute);
             }
+            dataTable.initTableFile();
             tableMap.put(dataTable.getName(), dataTable);
         }
 

@@ -31,14 +31,13 @@ public class DataTable {
         this.dataCount = 0;
         this.fileNum = 1;
         this.attributeMap = new HashMap<>();
-        initTableFile();
     }
 
     public Attribute getPrimaryKey() {
         return primaryKey;
     }
 
-    private void initTableFile() {
+    public void initTableFile() {
         String path = configuration.getInstanceName();
         if (writer != null) {
             closeTableFile();
