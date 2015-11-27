@@ -70,13 +70,16 @@ public class DataController {
 
     public void generate() {
         for (long iteration = 0; iteration < maxDataRows; iteration++) {
+            if ((iteration + 1) % 100000 == 0) {
+                System.out.print((int) ((double) iteration / maxDataRows * 100) + "% ");
+            }
             clearTables(iteration);
             generatePrimaryKeys();
             generateRow(iteration > maxDataRows / 2); //TODO współczynnik
             saveTables(iteration);
         }
-
         closeTableFiles();
+        System.out.println();
     }
 
     private void clearTables(long iteration) {
