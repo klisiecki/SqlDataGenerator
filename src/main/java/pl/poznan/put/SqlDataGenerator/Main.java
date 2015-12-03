@@ -16,7 +16,7 @@ import java.io.StringReader;
 
 public class Main {
 
-    private static Configuration configuration = Configuration.getInstance();
+    private static final Configuration configuration = Configuration.getInstance();
 
     public static void main(String[] args) throws JSQLParserException, IOException {
 

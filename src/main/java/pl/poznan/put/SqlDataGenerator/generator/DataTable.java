@@ -2,7 +2,6 @@ package pl.poznan.put.SqlDataGenerator.generator;
 
 import com.opencsv.CSVWriter;
 import pl.poznan.put.SqlDataGenerator.Configuration;
-import pl.poznan.put.SqlDataGenerator.restriction.StringRestriction;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -12,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 public class DataTable {
-    private Configuration configuration = Configuration.getInstance();
+    private final Configuration configuration = Configuration.getInstance();
 
     private final String name;
     private final String originalName;

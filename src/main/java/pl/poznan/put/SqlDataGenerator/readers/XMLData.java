@@ -16,7 +16,6 @@ import javax.xml.validation.Validator;
 import javax.xml.xpath.*;
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -89,7 +88,7 @@ public class XMLData {
         return result;
     }
 
-    public Integer getRows(String table) {
+    public Integer getRowsNum(String table) {
         XPathExpression expr = getXPathExpression(
                 String.format("//TABLE[NAME/text()='%s']/ROWS_NUM/text()", table));
         Integer result;

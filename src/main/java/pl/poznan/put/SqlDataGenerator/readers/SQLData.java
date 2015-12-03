@@ -11,29 +11,29 @@ import java.util.List;
 
 public class SQLData {
 
-    private final Select select;
+    private final Select selectStatement;
 
-    public SQLData(Select select) {
-        this.select = select;
+    public SQLData(Select selectStatement) {
+        this.selectStatement = selectStatement;
     }
 
     public List<Table> getTables() {
         TablesFinder tablesFinder = new TablesFinder();
-        return tablesFinder.getTableList(select);
+        return tablesFinder.getTableList(selectStatement);
     }
 
     public List<String> getAttributes(Table table) {
         AttributesNamesFinder attributesNamesFinder = new AttributesNamesFinder();
-        return attributesNamesFinder.getAttributesList(select, table);
+        return attributesNamesFinder.getAttributesList(selectStatement, table);
     }
 
     public List<RestrictionEquals> getJoinEquals() {
         EqualsFinder equalsFinder = new EqualsFinder();
-        return equalsFinder.findEquals(select);
+        return equalsFinder.findEquals(selectStatement);
     }
 
     public List<AttributeRestriction> getRestrictions() {
         SimpleRestrictionFinder restrictionFinder = new SimpleRestrictionFinder();
-        return restrictionFinder.findRestrictions(select);
+        return restrictionFinder.findRestrictions(selectStatement);
     }
 }

@@ -36,6 +36,10 @@ public abstract class Attribute {
         }
     }
 
+    public void addEquals(Collection<Attribute> attributes) {
+        attributes.forEach(this::addEquals);
+    }
+
     public boolean isPrimaryKey() {
         return isPrimaryKey;
     }
@@ -56,10 +60,6 @@ public abstract class Attribute {
             addDependent(attribute);
             restriction.addAndRangeSet(attribute.getRestriction().getRangeSet());
         }
-    }
-
-    public void addEquals(Collection<Attribute> attributes) {
-        attributes.forEach(this::addEquals);
     }
 
     public List<Attribute> getEqualsAttributes() {

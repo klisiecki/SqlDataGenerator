@@ -36,7 +36,7 @@ public class DataController {
             if (!xmlTables.contains(originalName)) {
                 throw new RuntimeException("Table " + originalName + " not found in xml file");
             }
-            long dataRows = xmlData.getRows(originalName);
+            long dataRows = xmlData.getRowsNum(originalName);
             if (dataRows > m) {
                 dataRows = dataRows * t / 100;
             }

@@ -3,7 +3,6 @@ package pl.poznan.put.SqlDataGenerator.generator;
 
 import com.google.common.collect.Range;
 import com.google.common.collect.TreeRangeSet;
-import pl.poznan.put.SqlDataGenerator.restriction.CustomString;
 
 import java.util.Random;
 
