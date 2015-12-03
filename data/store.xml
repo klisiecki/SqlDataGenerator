@@ -1,0 +1,98 @@
+<?xml version="1.0"?>
+<TABLES xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="pl.poznan.put.SqlDataGenerator ../src/main/resources/pl/poznan/put/SqlDataGenerator/schemat.xsd"
+        xmlns="pl.poznan.put.SqlDataGenerator" M="200" T="100">
+    <TABLE>
+        <NAME>PRODUCTS</NAME>
+        <ROWS_NUM>50</ROWS_NUM>
+        <ATTRIBUTES>
+            <ATTRIBUTE>
+                <NAME>ID</NAME>
+                <TYPE>INTEGER</TYPE>
+                <PRIMARY_KEY>true</PRIMARY_KEY>
+            </ATTRIBUTE>
+
+            <ATTRIBUTE>
+                <NAME>NAME</NAME>
+                <TYPE>STRING</TYPE>
+                <MIN_VALUE>3</MIN_VALUE>
+                <MAX_VALUE>10</MAX_VALUE>
+            </ATTRIBUTE>
+
+            <ATTRIBUTE>
+                <NAME>DESCRIPTION</NAME>
+                <TYPE>STRING</TYPE>
+                <MIN_VALUE>20</MIN_VALUE>
+                <MAX_VALUE>50</MAX_VALUE>
+            </ATTRIBUTE>
+
+            <ATTRIBUTE>
+                <NAME>PRICE</NAME>
+                <TYPE>INTEGER</TYPE>
+                <MIN_VALUE>1</MIN_VALUE>
+                <MAX_VALUE>10000</MAX_VALUE>
+            </ATTRIBUTE>
+
+            <ATTRIBUTE>
+                <NAME>CATEGORY</NAME>
+                <TYPE>STRING</TYPE>
+                <VALUES>
+                    <VALUE>AGD</VALUE>
+                    <VALUE>RTV</VALUE>
+                    <VALUE>COMPUTERS</VALUE>
+                    <VALUE>ELECTRONICS</VALUE>
+                </VALUES>
+            </ATTRIBUTE>
+            
+        </ATTRIBUTES>
+    </TABLE>
+
+    <TABLE>
+        <NAME>CLIENTS</NAME>
+        <ROWS_NUM>100</ROWS_NUM>
+        <ATTRIBUTES>
+            <ATTRIBUTE>
+                <NAME>ID</NAME>
+                <TYPE>INTEGER</TYPE>
+                <PRIMARY_KEY>true</PRIMARY_KEY>
+            </ATTRIBUTE>
+
+            <ATTRIBUTE>
+                <NAME>FIRST_NAME</NAME>
+                <TYPE>STRING</TYPE>
+                <MIN_VALUE>2</MIN_VALUE>
+                <MAX_VALUE>15</MAX_VALUE>
+            </ATTRIBUTE>
+
+            <ATTRIBUTE>
+                <NAME>LAST_NAME</NAME>
+                <TYPE>STRING</TYPE>
+                <MIN_VALUE>2</MIN_VALUE>
+                <MAX_VALUE>15</MAX_VALUE>
+            </ATTRIBUTE>
+
+        </ATTRIBUTES>
+    </TABLE>
+
+    <TABLE>
+        <NAME>ORDERS</NAME>
+        <ROWS_NUM>1000</ROWS_NUM>
+        <ATTRIBUTES>
+            <ATTRIBUTE>
+                <NAME>ID</NAME>
+                <TYPE>INTEGER</TYPE>
+                <PRIMARY_KEY>true</PRIMARY_KEY>
+            </ATTRIBUTE>
+
+            <ATTRIBUTE>
+                <NAME>PRODUCT_ID</NAME>
+                <TYPE>INTEGER</TYPE>
+            </ATTRIBUTE>
+
+            <ATTRIBUTE>
+                <NAME>CLIENT_ID</NAME>
+                <TYPE>INTEGER</TYPE>
+            </ATTRIBUTE>
+        </ATTRIBUTES>
+    </TABLE>
+</TABLES>
