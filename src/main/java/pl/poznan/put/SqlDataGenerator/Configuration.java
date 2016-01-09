@@ -5,6 +5,7 @@ public class Configuration {
 
     private int rowsPerFile = 10000;
     private String instanceName;
+    private double selectivity = 0.5;
 
     private static Configuration instance;
 
@@ -32,5 +33,13 @@ public class Configuration {
 
     public void setInstanceName(String instanceName) {
         this.instanceName = instanceName;
+    }
+
+    public double getSelectivity() {
+        return selectivity;
+    }
+
+    public void setSelectivity(double selectivity) {
+        this.selectivity = selectivity;
     }
 }

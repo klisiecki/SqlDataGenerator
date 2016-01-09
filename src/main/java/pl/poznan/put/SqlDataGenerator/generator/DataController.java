@@ -4,6 +4,7 @@ package pl.poznan.put.SqlDataGenerator.generator;
 import com.google.common.collect.Range;
 import com.google.common.collect.TreeRangeSet;
 import net.sf.jsqlparser.schema.Table;
+import pl.poznan.put.SqlDataGenerator.Configuration;
 import pl.poznan.put.SqlDataGenerator.readers.SQLData;
 import pl.poznan.put.SqlDataGenerator.readers.XMLData;
 import pl.poznan.put.SqlDataGenerator.restriction.CustomString;
@@ -16,6 +17,8 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import java.util.*;
 
 public class DataController {
+
+    private static final Configuration configuration = Configuration.getInstance();
     private final Map<String, DataTable> tableMap;
     private long maxDataRows = 0;
 
@@ -69,13 +72,14 @@ public class DataController {
     }
 
     public void generate() {
+        int positiveRows = (int) (configuration.getSelectivity() * maxDataRows);
         for (long iteration = 0; iteration < maxDataRows; iteration++) {
             if ((iteration + 1) % 100000 == 0) {
                 System.out.print((int) ((double) iteration / maxDataRows * 100) + "% ");
             }
             clearTables(iteration);
             generatePrimaryKeys();
-            generateRow(iteration > maxDataRows / 2); //TODO współczynnik
+            generateRow(iteration >= positiveRows);
             saveTables(iteration);
         }
         closeTableFiles();

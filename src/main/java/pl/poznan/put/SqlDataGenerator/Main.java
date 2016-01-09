@@ -30,7 +30,15 @@ public class Main {
         configuration.setInstanceName(instanceName);
         String sql = Utils.readFile(instanceName + ".sql");
 
-        if (args.length > 1) {
+        if (args.length == 2) {
+            try {
+                configuration.setSelectivity(Double.parseDouble(args[2]));
+            } catch (NumberFormatException e) {
+                System.out.println(args[1] + " is not valid number");
+            }
+        }
+
+        if (args.length == 3) {
             try {
                 configuration.setRowsPerFile(Integer.parseInt(args[1]));
             } catch (NumberFormatException e) {
@@ -68,7 +76,7 @@ public class Main {
         dataController.initTables(xmlData, sqlData);
 
         System.out.println();
-        System.out.println("Tables (name, synonim, columns):");
+        System.out.println("Tables (name, synonym, columns):");
         for (Table table : sqlData.getTables()) {
             System.out.println(table + " " + sqlData.getAttributes(table));
         }
