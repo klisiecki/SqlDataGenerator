@@ -20,8 +20,8 @@ public class Main {
 
     public static void main(String[] args) throws JSQLParserException, IOException {
 
-        if (args.length < 1) {
-            System.out.println("Required parameter: name for .sql and .xml file");
+        if (args.length != 3) {
+            System.out.println("Required parameters: "); //TODO print usage
             return;
         }
 
@@ -30,20 +30,16 @@ public class Main {
         configuration.setInstanceName(instanceName);
         String sql = Utils.readFile(instanceName + ".sql");
 
-        if (args.length == 2) {
-            try {
-                configuration.setSelectivity(Double.parseDouble(args[2]));
-            } catch (NumberFormatException e) {
-                System.out.println(args[1] + " is not valid number");
-            }
+        try {
+            configuration.setSelectivity(Double.parseDouble(args[1]));
+        } catch (NumberFormatException e) {
+            System.out.println(args[1] + " is not valid number");
         }
 
-        if (args.length == 3) {
-            try {
-                configuration.setRowsPerFile(Integer.parseInt(args[1]));
-            } catch (NumberFormatException e) {
-                System.out.println(args[1] + " is not valid integer");
-            }
+        try {
+            configuration.setRowsPerFile(Integer.parseInt(args[2]));
+        } catch (NumberFormatException e) {
+            System.out.println(args[1] + " is not valid integer");
         }
 
         XMLData xmlData;
