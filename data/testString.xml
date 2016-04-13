@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <TABLES xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="pl.poznan.put.SqlDataGenerator  ../src/main/resources/pl/poznan/put/SqlDataGenerator/schemat.xsd"
+        xsi:schemaLocation="pl.poznan.put.SqlDataGenerator  schema.xsd"
         xmlns="pl.poznan.put.SqlDataGenerator"
         M="200" T="10" >
     <TABLE>

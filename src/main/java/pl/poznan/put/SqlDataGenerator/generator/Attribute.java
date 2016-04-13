@@ -47,7 +47,7 @@ public abstract class Attribute {
     }
 
     /**
-     * @return czy można użyć atrybutu do wygenerowania wiersza niespełniającego warunktów zapytania
+     * @return true if attribute can be used to generate non-matching query row
      */
     public boolean canBeNegative() {
         if (canBeNegative == null) {
@@ -149,7 +149,7 @@ public abstract class Attribute {
         if (foundClear || dependentAttributes.size() == 0) {
             generateFromRestriction(negative);
             return true;
-        } else { //ostatni z kliki i trzeba wyliczyć jego wartość
+        } else { //last attribute from clique
             calculateValue();
             return true;
         }

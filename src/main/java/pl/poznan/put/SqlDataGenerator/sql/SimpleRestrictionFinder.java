@@ -102,7 +102,7 @@ public class SimpleRestrictionFinder extends AbstractFinder {
 
     @Override
     public void visit(GreaterThan greaterThan) {
-        //TODO na razie tak samo jak GreaterThanEquals
+        //TODO change it - temporarily the same as GreaterThanEquals
         Expression a = greaterThan.getLeftExpression();
         Expression b = greaterThan.getRightExpression();
         createMinRestriction(a, b);

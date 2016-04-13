@@ -153,7 +153,7 @@ public class DataController {
         for (AttributeRestriction a : attributeRestrictions) {
             Attribute attribute = tableMap.get(a.getTableName()).getAttribute(a.getAttributeName());
             attribute.getRestriction().addAndRangeSet(a.getRestriction().getRangeSet());
-            // wartości niepoprawne dla danego arumentu, do generowania danych nie spełniających warunków zapytania
+            // ranges complementary to restriction's range, for generating rows non-matching sql query
             TreeRangeSet complementSet;
             if (attribute instanceof IntegerAttribute) {
                 complementSet = (TreeRangeSet) a.getRestriction().getRangeSet().complement().subRangeSet(Range.closed(Integer.MIN_VALUE / 2, Integer.MAX_VALUE / 2));

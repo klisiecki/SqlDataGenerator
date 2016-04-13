@@ -22,7 +22,7 @@ import java.util.List;
 public class XMLData {
     private final XPathFactory xPathfactory = XPathFactory.newInstance();
     private Document document;
-    private final static String schemaLocation = "/pl/poznan/put/SqlDataGenerator/schemat.xsd";
+    private final static String schemaLocation = "/pl/poznan/put/SqlDataGenerator/schema.xsd";
 
     public XMLData(String fileName) throws XPathExpressionException, ParserConfigurationException, IOException, SAXException {
         validate(fileName);

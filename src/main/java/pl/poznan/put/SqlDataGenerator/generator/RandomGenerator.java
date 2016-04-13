@@ -35,10 +35,10 @@ public class RandomGenerator {
 
     public static String getString(String from, String to) {
         if (from.equals(to)) return from;
-        int lenght = getInteger(from.length(), to.length());
-        StringBuilder stringBuilder = new StringBuilder(lenght);
-        for (int i = 0; i < lenght; i++) {
-            stringBuilder.append(getChar('A', 'z')); //TODO właściwe przedziały
+        int length = getInteger(from.length(), to.length());
+        StringBuilder stringBuilder = new StringBuilder(length);
+        for (int i = 0; i < length; i++) {
+            stringBuilder.append(getChar('A', 'z')); //TODO change to length ranges
         }
 
         return stringBuilder.toString();

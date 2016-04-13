@@ -22,8 +22,8 @@ public class IntegerAttribute extends Attribute {
 
     @Override
     protected void calculateValue() {
-        //TODO obsługa wyrażeń matematycznych
-        setValue(4); //na podstawie rzutu kostką
+        //TODO handle calculating integer values
+        setValue(4); //chosen by dice roll
     }
 
     @Override
@@ -40,7 +40,7 @@ public class IntegerAttribute extends Attribute {
     @Override
     protected void setObjectValue(Object value) {
         if (value instanceof Long) {
-            setValue(((Long) value).intValue()); //TODO zmienić wszystko na long?
+            setValue(((Long) value).intValue()); //TODO consider changing to long?
         } else {
             setValue((Integer) value);
         }

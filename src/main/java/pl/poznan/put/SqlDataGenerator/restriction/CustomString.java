@@ -16,7 +16,7 @@ public class CustomString implements Comparable<CustomString> {
         this.string = StringUtils.repeat(c, length);
     }
 
-    public int lenght() {
+    public int length() {
         return string.length();
     }
 
@@ -27,10 +27,10 @@ public class CustomString implements Comparable<CustomString> {
 
     @Override
     public int compareTo(CustomString o) {
-        if (lenght() == o.lenght()) {
+        if (length() == o.length()) {
             return string.compareTo(o.toString());
         } else {
-            return string.length() < o.lenght() ? -1 : 1;
+            return string.length() < o.length() ? -1 : 1;
         }
     }
 }
