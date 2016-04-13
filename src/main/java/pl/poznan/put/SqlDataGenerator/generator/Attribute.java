@@ -1,5 +1,7 @@
 package pl.poznan.put.SqlDataGenerator.generator;
 
+import pl.poznan.put.SqlDataGenerator.generator.key.KeyGenerator;
+import pl.poznan.put.SqlDataGenerator.generator.key.SimpleKeyGenerator;
 import pl.poznan.put.SqlDataGenerator.restriction.Restriction;
 
 import java.util.*;
@@ -26,7 +28,7 @@ public abstract class Attribute {
     public Attribute(String name, boolean isPrimaryKey, long dataRows) {
         this(name, isPrimaryKey);
         if (isPrimaryKey) {
-            keyGenerator = new KeyGenerator(dataRows);
+            keyGenerator = new SimpleKeyGenerator(dataRows);
         }
     }
 
@@ -97,7 +99,7 @@ public abstract class Attribute {
             return true;
         }
         if (isPrimaryKey) {
-            setObjectValue(keyGenerator.getValue());
+            setObjectValue(keyGenerator.getNextValue());
         } else if (!generateFromEquals()) {
             if (!generateFromRestrictionAndDependent(negative && canBeNegative())) {
                 rollback();
