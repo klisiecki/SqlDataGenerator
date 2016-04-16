@@ -5,6 +5,7 @@ import net.sf.jsqlparser.parser.CCJSqlParserManager;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.Select;
+import org.apache.log4j.Logger;
 import pl.poznan.put.SqlDataGenerator.generator.DataController;
 import pl.poznan.put.SqlDataGenerator.readers.SQLData;
 import pl.poznan.put.SqlDataGenerator.readers.XMLData;
@@ -15,6 +16,8 @@ import java.io.StringReader;
 
 
 public class Main {
+
+    private static final Logger logger = Logger.getLogger(Main.class);
 
     private static final Configuration configuration = Configuration.getInstance();
 
