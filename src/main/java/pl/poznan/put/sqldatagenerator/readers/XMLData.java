@@ -3,6 +3,7 @@ package pl.poznan.put.sqldatagenerator.readers;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+import pl.poznan.put.sqldatagenerator.restriction.Restrictions;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
@@ -17,6 +18,7 @@ import javax.xml.xpath.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class XMLData {
@@ -29,6 +31,10 @@ public class XMLData {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
         document = builder.parse(fileName);
+    }
+
+    public Restrictions getConstraints() {
+        return new Restrictions(Collections.emptyList());
     }
 
     private void validate(String fileName) throws IOException, SAXException {

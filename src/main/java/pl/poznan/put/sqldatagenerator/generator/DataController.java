@@ -10,6 +10,7 @@ import pl.poznan.put.sqldatagenerator.readers.SQLData;
 import pl.poznan.put.sqldatagenerator.readers.XMLData;
 import pl.poznan.put.sqldatagenerator.restriction.CustomString;
 import pl.poznan.put.sqldatagenerator.restriction.IntegerOldRestriction;
+import pl.poznan.put.sqldatagenerator.restriction.RestrictionsManager;
 import pl.poznan.put.sqldatagenerator.restriction.StringOldRestriction;
 import pl.poznan.put.sqldatagenerator.sql.model.OldAttributeRestriction;
 import pl.poznan.put.sqldatagenerator.sql.model.RestrictionEquals;
@@ -26,8 +27,11 @@ public class DataController {
     private final Map<String, DataTable> tableMap;
     private long maxDataRows = 0;
 
+    private RestrictionsManager restrictionsManager;
+
     public DataController() {
         this.tableMap = new HashMap<>();
+        this.restrictionsManager = new RestrictionsManager();
     }
 
     public void initTables(XMLData xmlData, SQLData sqlData) {
@@ -58,7 +62,7 @@ public class DataController {
                 }
                 String attributeType = xmlData.getType(originalName, attributeName);
                 Attribute attribute = initializeAttribute(attributeType, attributeName, xmlData.isPrimaryKey(originalName, attributeName), dataRows);
-                addXMLRestrictions(originalName, attribute, xmlData);
+                //addXMLRestrictions(originalName, attribute, xmlData);
                 dataTable.addAttribute(attribute);
             }
             dataTable.initTableFile();
@@ -70,9 +74,12 @@ public class DataController {
             table.calculateResetFactor(maxDataRows);
         }
 
-        addSQLJoinEquals(sqlData);
-        addSQLRestrictions(sqlData);
-        propagateEquals();
+        restrictionsManager.setSQLCriteria(sqlData.getCriteria());
+        restrictionsManager.setXMLConstraints(xmlData.getConstraints());
+
+//        addSQLJoinEquals(sqlData);
+//        addSQLRestrictions(sqlData);
+//        propagateEquals();
     }
 
     public void generate() {
@@ -152,6 +159,7 @@ public class DataController {
         }
     }
 
+    @Deprecated
     private void addSQLRestrictions(SQLData sqlData) {
         List<OldAttributeRestriction> attributeRestrictions = sqlData.getOldRestrictions();
         for (OldAttributeRestriction a : attributeRestrictions) {
@@ -173,6 +181,7 @@ public class DataController {
         }
     }
 
+    @Deprecated
     private void addSQLJoinEquals(SQLData sqlData) {
         List<RestrictionEquals> equalsList = sqlData.getJoinEquals();
         for (RestrictionEquals c : equalsList) {
@@ -189,6 +198,7 @@ public class DataController {
         }
     }
 
+    @Deprecated
     private void addXMLRestrictions(String tableName, Attribute attribute, XMLData xmlData) {
         String minValue = xmlData.getMinValue(tableName, attribute.getName());
         String maxValue = xmlData.getMaxValue(tableName, attribute.getName());

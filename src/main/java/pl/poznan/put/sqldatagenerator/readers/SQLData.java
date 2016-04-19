@@ -1,12 +1,11 @@
 package pl.poznan.put.sqldatagenerator.readers;
 
 
+import com.bpodgursky.jbool_expressions.Expression;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.Select;
-import pl.poznan.put.sqldatagenerator.sql.AttributesNamesFinder;
-import pl.poznan.put.sqldatagenerator.sql.EqualsFinder;
-import pl.poznan.put.sqldatagenerator.sql.OldRestrictionFinder;
-import pl.poznan.put.sqldatagenerator.sql.TablesFinder;
+import pl.poznan.put.sqldatagenerator.restriction.Restriction;
+import pl.poznan.put.sqldatagenerator.sql.*;
 import pl.poznan.put.sqldatagenerator.sql.model.OldAttributeRestriction;
 import pl.poznan.put.sqldatagenerator.sql.model.RestrictionEquals;
 
@@ -33,6 +32,11 @@ public class SQLData {
     public List<RestrictionEquals> getJoinEquals() {
         EqualsFinder equalsFinder = new EqualsFinder();
         return equalsFinder.findEquals(selectStatement);
+    }
+
+    public Expression<Restriction> getCriteria() {
+        RestrictionFinder restrictionFinder = new RestrictionFinder(selectStatement);
+        return restrictionFinder.getResult();
     }
 
     @Deprecated
