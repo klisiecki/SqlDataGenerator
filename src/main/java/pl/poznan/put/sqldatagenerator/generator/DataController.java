@@ -9,9 +9,9 @@ import pl.poznan.put.sqldatagenerator.Configuration;
 import pl.poznan.put.sqldatagenerator.readers.SQLData;
 import pl.poznan.put.sqldatagenerator.readers.XMLData;
 import pl.poznan.put.sqldatagenerator.restriction.CustomString;
-import pl.poznan.put.sqldatagenerator.restriction.IntegerRestriction;
-import pl.poznan.put.sqldatagenerator.restriction.StringRestriction;
-import pl.poznan.put.sqldatagenerator.sql.model.AttributeRestriction;
+import pl.poznan.put.sqldatagenerator.restriction.IntegerOldRestriction;
+import pl.poznan.put.sqldatagenerator.restriction.StringOldRestriction;
+import pl.poznan.put.sqldatagenerator.sql.model.OldAttributeRestriction;
 import pl.poznan.put.sqldatagenerator.sql.model.RestrictionEquals;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
@@ -153,8 +153,8 @@ public class DataController {
     }
 
     private void addSQLRestrictions(SQLData sqlData) {
-        List<AttributeRestriction> attributeRestrictions = sqlData.getRestrictions();
-        for (AttributeRestriction a : attributeRestrictions) {
+        List<OldAttributeRestriction> attributeRestrictions = sqlData.getOldRestrictions();
+        for (OldAttributeRestriction a : attributeRestrictions) {
             Attribute attribute = tableMap.get(a.getTableName()).getAttribute(a.getAttributeName());
             attribute.getRestriction().addAndRangeSet(a.getRestriction().getRangeSet());
             // ranges complementary to restriction's range, for generating rows non-matching sql query
@@ -194,9 +194,8 @@ public class DataController {
         String maxValue = xmlData.getMaxValue(tableName, attribute.getName());
         List<String> values = xmlData.getValues(tableName, attribute.getName());
         if (attribute instanceof IntegerAttribute) {
-            IntegerRestriction restriction = (IntegerRestriction) attribute.getRestriction();
-            IntegerRestriction negativeRestriction = (IntegerRestriction) attribute.getNegativeRestriction();
-
+            IntegerOldRestriction restriction = (IntegerOldRestriction) attribute.getRestriction();
+            IntegerOldRestriction negativeRestriction = (IntegerOldRestriction) attribute.getNegativeRestriction();
             if (minValue != null) {
                 restriction.addAndRange(Range.closed(Integer.parseInt(minValue), Integer.MAX_VALUE));
                 negativeRestriction.addAndRange(Range.closed(Integer.parseInt(minValue), Integer.MAX_VALUE));
@@ -218,8 +217,8 @@ public class DataController {
             }
 
         } else if (attribute instanceof StringAttribute) {
-            StringRestriction restriction = (StringRestriction) attribute.getRestriction();
-            StringRestriction negativeRestriction = (StringRestriction) attribute.getNegativeRestriction();
+            StringOldRestriction restriction = (StringOldRestriction) attribute.getRestriction();
+            StringOldRestriction negativeRestriction = (StringOldRestriction) attribute.getNegativeRestriction();
 
             if (minValue != null) {
                 int minIntValue = Integer.parseInt(minValue);

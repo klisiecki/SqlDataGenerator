@@ -11,9 +11,9 @@ import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 import pl.poznan.put.sqldatagenerator.restriction.CustomString;
-import pl.poznan.put.sqldatagenerator.restriction.IntegerRestriction;
-import pl.poznan.put.sqldatagenerator.restriction.StringRestriction;
-import pl.poznan.put.sqldatagenerator.sql.model.AttributeRestriction;
+import pl.poznan.put.sqldatagenerator.restriction.IntegerOldRestriction;
+import pl.poznan.put.sqldatagenerator.restriction.StringOldRestriction;
+import pl.poznan.put.sqldatagenerator.sql.model.OldAttributeRestriction;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.ArrayList;
@@ -21,11 +21,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class SimpleRestrictionFinder extends AbstractFinder {
-    private final Map<String, AttributeRestriction> result = new HashMap<>();
+@Deprecated
+public class OldRestrictionFinder extends AbstractFinder {
+    private final Map<String, OldAttributeRestriction> result = new HashMap<>();
     private boolean isAndExpr;
 
-    public List<AttributeRestriction> findRestrictions(Select select) {
+    public List<OldAttributeRestriction> findRestrictions(Select select) {
         select.getSelectBody().accept(this);
         return new ArrayList<>(result.values());
     }
@@ -230,66 +231,66 @@ public class SimpleRestrictionFinder extends AbstractFinder {
 
     private void putIntegerRestriction(Column c, TreeRangeSet range) {
         if (!result.containsKey(c.toString())) {
-            IntegerRestriction r = new IntegerRestriction(isAndExpr);
+            IntegerOldRestriction r = new IntegerOldRestriction(isAndExpr);
             r.addAndRangeSet(range);
-            result.put(c.toString(), new AttributeRestriction(c, r));
+            result.put(c.toString(), new OldAttributeRestriction(c, r));
         } else {
-            IntegerRestriction r = (IntegerRestriction) result.get(c.toString()).getRestriction();
+            IntegerOldRestriction r = (IntegerOldRestriction) result.get(c.toString()).getRestriction();
             r.addAndRangeSet(range);
-            result.put(c.toString(), new AttributeRestriction(c, r));
+            result.put(c.toString(), new OldAttributeRestriction(c, r));
         }
     }
 
     private void putIntegerRestriction(Column c, Range range) {
         if (!result.containsKey(c.toString())) {
-            IntegerRestriction r = new IntegerRestriction(isAndExpr);
+            IntegerOldRestriction r = new IntegerOldRestriction(isAndExpr);
             r.addAndRange(range);
-            result.put(c.toString(), new AttributeRestriction(c, r));
+            result.put(c.toString(), new OldAttributeRestriction(c, r));
         } else {
-            IntegerRestriction r = (IntegerRestriction) result.get(c.toString()).getRestriction();
+            IntegerOldRestriction r = (IntegerOldRestriction) result.get(c.toString()).getRestriction();
             r.addAndRange(range);
-            result.put(c.toString(), new AttributeRestriction(c, r));
+            result.put(c.toString(), new OldAttributeRestriction(c, r));
         }
     }
 
     private void putStringRestriction(Column c, TreeRangeSet range) {
         if (!result.containsKey(c.toString())) {
-            StringRestriction r = new StringRestriction(isAndExpr);
+            StringOldRestriction r = new StringOldRestriction(isAndExpr);
             if (isAndExpr) {
                 r.addAndRangeSet(range);
             } else {
                 r.addOrRangeSet(range);
             }
-            result.put(c.toString(), new AttributeRestriction(c, r));
+            result.put(c.toString(), new OldAttributeRestriction(c, r));
         } else {
-            StringRestriction r = (StringRestriction) result.get(c.toString()).getRestriction();
+            StringOldRestriction r = (StringOldRestriction) result.get(c.toString()).getRestriction();
             if (isAndExpr) {
                 r.addAndRangeSet(range);
             } else {
                 r.addOrRangeSet(range);
             }
-            result.put(c.toString(), new AttributeRestriction(c, r));
+            result.put(c.toString(), new OldAttributeRestriction(c, r));
         }
 
     }
 
     private void putStringRestriction(Column c, Range range) {
         if (!result.containsKey(c.toString())) {
-            StringRestriction r = new StringRestriction(isAndExpr);
+            StringOldRestriction r = new StringOldRestriction(isAndExpr);
             if (isAndExpr) {
                 r.addAndRange(range);
             } else {
                 r.addOrRange(range);
             }
-            result.put(c.toString(), new AttributeRestriction(c, r));
+            result.put(c.toString(), new OldAttributeRestriction(c, r));
         } else {
-            StringRestriction r = (StringRestriction) result.get(c.toString()).getRestriction();
+            StringOldRestriction r = (StringOldRestriction) result.get(c.toString()).getRestriction();
             if (isAndExpr) {
                 r.addAndRange(range);
             } else {
                 r.addOrRange(range);
             }
-            result.put(c.toString(), new AttributeRestriction(c, r));
+            result.put(c.toString(), new OldAttributeRestriction(c, r));
         }
     }
 

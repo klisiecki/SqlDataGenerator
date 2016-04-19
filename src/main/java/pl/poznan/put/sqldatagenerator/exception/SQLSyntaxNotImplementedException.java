@@ -5,4 +5,8 @@ public class SQLSyntaxNotImplementedException extends RuntimeException {
     public SQLSyntaxNotImplementedException(String message) {
         super(message);
     }
+
+    public SQLSyntaxNotImplementedException() {
+        super();
+    }
 }

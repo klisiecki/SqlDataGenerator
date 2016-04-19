@@ -1,13 +1,14 @@
 package pl.poznan.put.sqldatagenerator.sql.model;
 
 import net.sf.jsqlparser.schema.Column;
-import pl.poznan.put.sqldatagenerator.restriction.Restriction;
+import pl.poznan.put.sqldatagenerator.restriction.OldRestriction;
 
-public class AttributeRestriction implements SQLRestriction {
+@Deprecated
+public class OldAttributeRestriction implements SQLRestriction {
     private final Column column;
-    private final Restriction restriction;
+    private final OldRestriction restriction;
 
-    public AttributeRestriction(Column column, Restriction restriction) {
+    public OldAttributeRestriction(Column column, OldRestriction restriction) {
         this.column = column;
         this.restriction = restriction;
     }
@@ -20,7 +21,7 @@ public class AttributeRestriction implements SQLRestriction {
         return column.getColumnName();
     }
 
-    public Restriction getRestriction() {
+    public OldRestriction getRestriction() {
         return restriction;
     }
 }

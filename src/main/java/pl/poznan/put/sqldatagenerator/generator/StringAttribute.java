@@ -1,15 +1,15 @@
 package pl.poznan.put.sqldatagenerator.generator;
 
 
-import pl.poznan.put.sqldatagenerator.restriction.StringRestriction;
+import pl.poznan.put.sqldatagenerator.restriction.StringOldRestriction;
 
 public class StringAttribute extends Attribute {
     private String value;
 
     public StringAttribute(String name) {
         super(name, false);
-        this.restriction = new StringRestriction(true);
-        this.negativeRestriction = new StringRestriction(true);
+        this.restriction = new StringOldRestriction(true);
+        this.negativeRestriction = new StringOldRestriction(true);
     }
 
     public String getValue() {
@@ -29,7 +29,7 @@ public class StringAttribute extends Attribute {
 
     @Override
     protected void generateFromRestriction(boolean negative) {
-        StringRestriction stringRestriction = negative ? (StringRestriction) getNegativeRestriction() : (StringRestriction) getRestriction();
+        StringOldRestriction stringRestriction = negative ? (StringOldRestriction) getNegativeRestriction() : (StringOldRestriction) getRestriction();
         setValue(RandomGenerator.getString(stringRestriction.getRangeSet()));
     }
 

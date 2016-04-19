@@ -4,14 +4,15 @@ import com.google.common.collect.Range;
 import com.google.common.collect.TreeRangeSet;
 import pl.poznan.put.sqldatagenerator.Utils;
 
-public abstract class Restriction {
+@Deprecated
+public abstract class OldRestriction {
     protected TreeRangeSet rangeSet;
 
     public TreeRangeSet getRangeSet() {
         return rangeSet;
     }
 
-    public Restriction() {
+    public OldRestriction() {
         rangeSet = TreeRangeSet.create();
     }
 

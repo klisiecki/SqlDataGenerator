@@ -2,7 +2,7 @@ package pl.poznan.put.sqldatagenerator.generator;
 
 import pl.poznan.put.sqldatagenerator.generator.key.KeyGenerator;
 import pl.poznan.put.sqldatagenerator.generator.key.SimpleKeyGenerator;
-import pl.poznan.put.sqldatagenerator.restriction.Restriction;
+import pl.poznan.put.sqldatagenerator.restriction.OldRestriction;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -16,8 +16,8 @@ public abstract class Attribute {
     private KeyGenerator keyGenerator;
     protected final List<Attribute> dependentAttributes;
     protected final List<Attribute> equalsAttributes;
-    protected Restriction restriction;
-    protected Restriction negativeRestriction;
+    protected OldRestriction restriction;
+    protected OldRestriction negativeRestriction;
     private Boolean canBeNegative;
 
     public Attribute(String name, boolean isPrimaryKey) {
@@ -117,11 +117,11 @@ public abstract class Attribute {
         return true;
     }
 
-    public Restriction getRestriction() {
+    public OldRestriction getRestriction() {
         return restriction;
     }
 
-    public Restriction getNegativeRestriction() {
+    public OldRestriction getNegativeRestriction() {
         return negativeRestriction;
     }
 

@@ -1,14 +1,14 @@
 package pl.poznan.put.sqldatagenerator.generator;
 
-import pl.poznan.put.sqldatagenerator.restriction.IntegerRestriction;
+import pl.poznan.put.sqldatagenerator.restriction.IntegerOldRestriction;
 
 public class IntegerAttribute extends Attribute {
     private Integer value;
 
     public IntegerAttribute(String name, boolean isPrimaryKey, long dataRows) {
         super(name, isPrimaryKey, dataRows);
-        this.restriction = new IntegerRestriction(true);
-        this.negativeRestriction = new IntegerRestriction(true);
+        this.restriction = new IntegerOldRestriction(true);
+        this.negativeRestriction = new IntegerOldRestriction(true);
     }
 
     public Integer getValue() {
@@ -28,7 +28,7 @@ public class IntegerAttribute extends Attribute {
 
     @Override
     protected void generateFromRestriction(boolean negative) {
-        IntegerRestriction integerRestriction = negative ? (IntegerRestriction) getNegativeRestriction() : (IntegerRestriction) getRestriction();
+        IntegerOldRestriction integerRestriction = negative ? (IntegerOldRestriction) getNegativeRestriction() : (IntegerOldRestriction) getRestriction();
         setValue(RandomGenerator.getInteger(integerRestriction.getRangeSet()));
     }
 
