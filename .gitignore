@@ -16,5 +16,6 @@ hs_err_pid*
 
 
 .idea/*
+!.idea/inspectionProfiles/
 target
 *.iml
