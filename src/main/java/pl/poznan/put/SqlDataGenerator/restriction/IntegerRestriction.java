@@ -3,8 +3,6 @@ package pl.poznan.put.SqlDataGenerator.restriction;
 
 import com.google.common.collect.Range;
 
-import java.util.List;
-
 public class IntegerRestriction extends Restriction {
 
     public IntegerRestriction(boolean full) {

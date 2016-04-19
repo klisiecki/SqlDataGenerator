@@ -4,6 +4,7 @@ package pl.poznan.put.SqlDataGenerator.generator;
 import com.google.common.collect.Range;
 import com.google.common.collect.TreeRangeSet;
 import net.sf.jsqlparser.schema.Table;
+import org.apache.log4j.Logger;
 import pl.poznan.put.SqlDataGenerator.Configuration;
 import pl.poznan.put.SqlDataGenerator.readers.SQLData;
 import pl.poznan.put.SqlDataGenerator.readers.XMLData;
@@ -18,6 +19,9 @@ import java.util.*;
 
 public class DataController {
 
+    private static final Logger logger = Logger.getLogger(DataController.class);
+
+
     private static final Configuration configuration = Configuration.getInstance();
     private final Map<String, DataTable> tableMap;
     private long maxDataRows = 0;
@@ -31,8 +35,8 @@ public class DataController {
 
         int m = xmlData.getM();
         int t = xmlData.getT();
-        System.out.println("t = " + t);
-        System.out.println("m = " + m);
+        logger.info("t = " + t);
+        logger.info("m = " + m);
 
         for (Table table : sqlData.getTables()) {
             String originalName = table.getName();
@@ -75,7 +79,8 @@ public class DataController {
         int positiveRows = (int) (configuration.getSelectivity() * maxDataRows);
         for (long iteration = 0; iteration < maxDataRows; iteration++) {
             if ((iteration + 1) % 100000 == 0) {
-                System.out.print((int) ((double) iteration / maxDataRows * 100) + "% ");
+                //TODO consider logging progress in time periods
+                logger.debug((int) ((double) iteration / maxDataRows * 100) + "%");
             }
             clearTables(iteration);
             generatePrimaryKeys();
@@ -83,7 +88,6 @@ public class DataController {
             saveTables(iteration);
         }
         closeTableFiles();
-        System.out.println();
     }
 
     private void clearTables(long iteration) {
