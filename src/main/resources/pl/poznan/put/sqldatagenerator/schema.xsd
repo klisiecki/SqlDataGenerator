@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    elementFormDefault="qualified" attributeFormDefault="unqualified"
+    targetNamespace="pl.poznan.put.sqldatagenerator"
+    xmlns="pl.poznan.put.sqldatagenerator" >
+        
+    <xs:element name="TABLES">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="TABLE" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+            <xs:attribute name="M" type="xs:integer" />
+            <xs:attribute name="T" type="xs:integer" />
+        </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="TABLE">
+        <xs:complexType>
+            <xs:all>
+                <xs:element name="NAME" type="xs:string" />
+                <xs:element name="ROWS_NUM" type="xs:integer" />
+                <xs:element name="DISTRIBUTION" type="xs:string" minOccurs="0" />
+                <xs:element name="MIN_ROW_SIZE" type="xs:integer" minOccurs="0" />
+                <xs:element ref="ATTRIBUTES" minOccurs="1"/>
+            </xs:all>
+        </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="ATTRIBUTES">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="ATTRIBUTE" minOccurs="0" maxOccurs="unbounded" />
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    
+    
+    <xs:element name="ATTRIBUTE">
+        <xs:complexType>
+            <xs:all>
+                <xs:element name="NAME" type="xs:string"/>
+                <xs:element name="NULL_PERCENTAGE" type="percentage_type" minOccurs="0" />
+                <xs:element name="TYPE" type="data_type" />
+                <xs:element name="MIN_VALUE" type="xs:integer" minOccurs="0" />
+                <xs:element name="MAX_VALUE" type="xs:integer" minOccurs="0" />
+                <xs:element ref="unique_group" minOccurs="0" maxOccurs="1"/>
+                <xs:element ref="VALUES" minOccurs="0" />
+            </xs:all>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="unique_group" abstract="true"/>
+
+    <xs:element name="UNIQUE_PERCENTAGE" substitutionGroup="unique_group">
+        <xs:complexType>
+            <xs:all>
+                <xs:element name="MIN" type="percentage_type" minOccurs="0" />
+                <xs:element name="MAX" type="percentage_type" minOccurs="0" />
+            </xs:all>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="PRIMARY_KEY" substitutionGroup="unique_group"  type="xs:boolean">
+    </xs:element>
+    
+    
+    <xs:simpleType name="data_type">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="INTEGER"/>
+            <xs:enumeration value="FLOAT"/>
+            <xs:enumeration value="STRING"/>
+            <xs:enumeration value="DATE"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:simpleType name="percentage_type">
+        <xs:restriction base="xs:float">
+            <xs:minInclusive value="0" />
+            <xs:maxInclusive value="100" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:element name="VALUES">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="VALUE" type="xs:string" maxOccurs="unbounded" />
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+   
+</xsd:schema>

@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>groupId</groupId>
-    <artifactId>SqlDataGenerator</artifactId>
+    <groupId>pl.poznan.put.sqldatagenerator</groupId>
+    <artifactId>sqldatagenerator</artifactId>
     <version>0.1</version>
 
     <properties>
@@ -20,7 +20,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>pl.poznan.put.SqlDataGenerator.Main</mainClass>
+                            <mainClass>pl.poznan.put.sqldatagenerator.Main</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
