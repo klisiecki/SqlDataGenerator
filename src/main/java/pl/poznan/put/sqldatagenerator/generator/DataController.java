@@ -19,18 +19,23 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import java.util.*;
 
 public class DataController {
-
+    private static final Configuration configuration = Configuration.getInstance();
     private static final Logger logger = Logger.getLogger(DataController.class);
 
+    @Deprecated
+    private final Map<String, OldDataTable> tableMap;
 
-    private static final Configuration configuration = Configuration.getInstance();
-    private final Map<String, DataTable> tableMap;
+    private final Map<String, TableBase> tableBaseMap;
+    private final Map<String, TableInstance> tableInstanceMap;
+
     private long maxDataRows = 0;
 
     private RestrictionsManager restrictionsManager;
 
     public DataController() {
         this.tableMap = new HashMap<>();
+        this.tableBaseMap = new HashMap<>();
+        this.tableInstanceMap = new HashMap<>();
         this.restrictionsManager = new RestrictionsManager();
     }
 
@@ -42,35 +47,41 @@ public class DataController {
         logger.info("t = " + t);
         logger.info("m = " + m);
 
+        // może przyjąć, że w XMLu są zawsze opisane dokładnie te same tabele co w SQL i uprościć pętle?
         for (Table table : sqlData.getTables()) {
-            String originalName = table.getName();
-            if (!xmlTables.contains(originalName)) {
-                throw new RuntimeException("Table " + originalName + " not found in xml file");
+            String tableName = table.getName();
+            String aliasName = table.getAlias().getName();
+            if (!xmlTables.contains(tableName)) {
+                throw new RuntimeException("Table " + tableName + " not found in xml file");
             }
-            long dataRows = xmlData.getRowsNum(originalName);
+            long dataRows = xmlData.getRowsNum(tableName);
             if (dataRows > m) {
                 dataRows = dataRows * t / 100;
             }
             if (dataRows > maxDataRows) {
                 maxDataRows = dataRows;
             }
-            DataTable dataTable = new DataTable(table.getAlias().getName(), originalName, dataRows);
-            List<String> xmlAttributes = xmlData.getAttributes(originalName);
+
+            TableBase tableBase =  tableBaseMap.getOrDefault(tableName, new TableBase(tableName, dataRows));
+            tableBaseMap.computeIfAbsent(tableName, x -> new TableBase(tableName,dataRows));
+            TableInstance tableInstance = new TableInstance(tableBase, aliasName);
+
+            List<String> xmlAttributes = xmlData.getAttributes(tableName);
             for (String attributeName : sqlData.getAttributes(table)) {
                 if (!xmlAttributes.contains(attributeName)) {
-                    throw new RuntimeException("Attribute " + originalName + "." + attributeName + " not found in xml file");
+                    throw new RuntimeException("Attribute " + tableName + "." + attributeName + " not found in xml file");
                 }
-                String attributeType = xmlData.getType(originalName, attributeName);
-                Attribute attribute = initializeAttribute(attributeType, attributeName, xmlData.isPrimaryKey(originalName, attributeName), dataRows);
-                //addXMLRestrictions(originalName, attribute, xmlData);
-                dataTable.addAttribute(attribute);
+                String attributeType = xmlData.getType(tableName, attributeName);
+                Attribute attribute = initializeAttribute(attributeType, attributeName, xmlData.isPrimaryKey(tableName, attributeName), dataRows);
+                //addXMLRestrictions(tableName, attribute, xmlData);
+                tableInstance.addAttribute(attribute);
             }
-            dataTable.initTableFile();
-            tableMap.put(dataTable.getName(), dataTable);
+//            oldDataTable.initTableFile();
+            tableInstanceMap.put(aliasName,tableInstance);
         }
 
-        for (Map.Entry<String, DataTable> e : tableMap.entrySet()) {
-            DataTable table = e.getValue();
+        for (Map.Entry<String, OldDataTable> e : tableMap.entrySet()) {
+            OldDataTable table = e.getValue();
             table.calculateResetFactor(maxDataRows);
         }
 
@@ -98,8 +109,8 @@ public class DataController {
     }
 
     private void clearTables(long iteration) {
-        for (Map.Entry<String, DataTable> e : tableMap.entrySet()) {
-            DataTable table = e.getValue();
+        for (Map.Entry<String, OldDataTable> e : tableMap.entrySet()) {
+            OldDataTable table = e.getValue();
             if (table.shouldBeGenerated(iteration)) {
                 table.clear();
             }
@@ -107,8 +118,8 @@ public class DataController {
     }
 
     private void generatePrimaryKeys() {
-        for (Map.Entry<String, DataTable> e : tableMap.entrySet()) {
-            DataTable table = e.getValue();
+        for (Map.Entry<String, OldDataTable> e : tableMap.entrySet()) {
+            OldDataTable table = e.getValue();
             if (table.getPrimaryKey() != null) {
                 table.getPrimaryKey().generateValue(false);
             }
@@ -116,8 +127,8 @@ public class DataController {
     }
 
     private void generateRow(boolean isNegative) {
-        for (Map.Entry<String, DataTable> e : tableMap.entrySet()) {
-            DataTable table = e.getValue();
+        for (Map.Entry<String, OldDataTable> e : tableMap.entrySet()) {
+            OldDataTable table = e.getValue();
             for (Map.Entry<String, Attribute> e2 : table.getAttributeMap().entrySet()) {
                 Attribute attribute = e2.getValue();
                 attribute.generateValue(isNegative);
@@ -126,8 +137,8 @@ public class DataController {
     }
 
     private void saveTables(long iteration) {
-        for (Map.Entry<String, DataTable> e : tableMap.entrySet()) {
-            DataTable table = e.getValue();
+        for (Map.Entry<String, OldDataTable> e : tableMap.entrySet()) {
+            OldDataTable table = e.getValue();
             if (table.shouldBeGenerated(iteration)) {
                 table.save();
             }
@@ -135,16 +146,16 @@ public class DataController {
     }
 
     private void closeTableFiles() {
-        for (Map.Entry<String, DataTable> e : tableMap.entrySet()) {
-            DataTable table = e.getValue();
+        for (Map.Entry<String, OldDataTable> e : tableMap.entrySet()) {
+            OldDataTable table = e.getValue();
             table.closeTableFile();
         }
     }
 
     private void propagateEquals() {
         Set<Attribute> processed = new HashSet<>();
-        for (Map.Entry<String, DataTable> e : tableMap.entrySet()) {
-            DataTable table = e.getValue();
+        for (Map.Entry<String, OldDataTable> e : tableMap.entrySet()) {
+            OldDataTable table = e.getValue();
             for (Map.Entry<String, Attribute> e2 : table.getAttributeMap().entrySet()) {
                 Attribute attribute = e2.getValue();
                 if (!processed.contains(attribute)) {
@@ -185,8 +196,8 @@ public class DataController {
     private void addSQLJoinEquals(SQLData sqlData) {
         List<RestrictionEquals> equalsList = sqlData.getJoinEquals();
         for (RestrictionEquals c : equalsList) {
-            DataTable tableA = tableMap.get(c.getLeftColumn().getTable().getName());
-            DataTable tableB = tableMap.get(c.getRightColumn().getTable().getName());
+            OldDataTable tableA = tableMap.get(c.getLeftColumn().getTable().getName());
+            OldDataTable tableB = tableMap.get(c.getRightColumn().getTable().getName());
             Attribute attributeA = tableA.getAttribute(c.getLeftColumn().getColumnName());
             Attribute attributeB = tableB.getAttribute(c.getRightColumn().getColumnName());
             if (attributeA != null && attributeB != null) {

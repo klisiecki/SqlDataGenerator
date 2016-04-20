@@ -3,6 +3,7 @@ package pl.poznan.put.sqldatagenerator.restriction;
 
 import com.google.common.collect.Range;
 
+@Deprecated
 public class IntegerOldRestriction extends OldRestriction {
 
     public IntegerOldRestriction(boolean full) {

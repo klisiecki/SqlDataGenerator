@@ -10,7 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class DataTable {
+@Deprecated
+public class OldDataTable {
     private final Configuration configuration = Configuration.getInstance();
 
     private final String name;
@@ -23,7 +24,7 @@ public class DataTable {
     private CSVWriter writer;
     private Attribute primaryKey;
 
-    public DataTable(String name, String originalName, long dataCountLimit) {
+    public OldDataTable(String name, String originalName, long dataCountLimit) {
         this.name = name;
         this.originalName = originalName;
         this.dataCountLimit = dataCountLimit;
@@ -116,7 +117,7 @@ public class DataTable {
 
     @Override
     public String toString() {
-        return "DataTable{" +
+        return "OldDataTable{" +
                 "name='" + name + '\'' +
                 ", dataCount=" + dataCount +
                 ", dataCountLimit=" + dataCountLimit +

@@ -26,6 +26,8 @@ public class Test {
 
         System.out.println(e);
 
+        assert false;
 
+        System.out.println("DUPA");
     }
 }
