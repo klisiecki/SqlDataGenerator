@@ -107,7 +107,7 @@ public class XMLData {
     }
 
     public Integer getMaxRowsNum() {
-        XPathExpression expr = getXPathExpression("max(//TABLE/ROWS_NUM/text())");
+        XPathExpression expr = getXPathExpression("//TABLE/ROWS_NUM/text()[not(. < //TABLE/ROWS_NUM/text())][1]");
         Integer result;
         try {
             result = Integer.parseInt(expr.evaluate(document));

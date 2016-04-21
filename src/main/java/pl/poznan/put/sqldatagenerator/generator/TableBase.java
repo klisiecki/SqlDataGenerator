@@ -2,6 +2,8 @@ package pl.poznan.put.sqldatagenerator.generator;
 
 import com.opencsv.CSVWriter;
 import pl.poznan.put.sqldatagenerator.Configuration;
+import pl.poznan.put.sqldatagenerator.generator.key.KeyGenerator;
+import pl.poznan.put.sqldatagenerator.generator.key.SimpleKeyGenerator;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -12,7 +14,6 @@ public class TableBase {
     private final Configuration configuration = Configuration.getInstance();
 
     private final String name;
-    private OldAttribute primaryKey;
     private long dataCount;
     private long dataCountLimit;
     private int resetFactor;
@@ -22,17 +23,21 @@ public class TableBase {
 
     private List<TableInstance> instanceList;
 
-    public TableBase(String name, long dataCountLimit) {
+    public TableBase(String name, List<String> attributesNames, long dataCountLimit) {
         this.name = name;
         this.dataCountLimit = dataCountLimit;
         this.dataCount = 0;
         this.fileNum = 1;
-
-        instanceList = new ArrayList<>();
+        this.instanceList = new ArrayList<>();
+        this.attributesNames = attributesNames;
     }
 
     public void addInstance(TableInstance instance) {
         instanceList.add(instance);
+    }
+
+    public void setAttributesNames(List<String> attributesNames) {
+        this.attributesNames = attributesNames;
     }
 
     public void calculateResetFactor(long maxDataRows) {
@@ -40,15 +45,11 @@ public class TableBase {
     }
 
     public boolean shouldBeGenerated(long iteration) {
-        return iteration == 0 ||    (iteration * 100 / resetFactor !=
+        return iteration == 0 || (iteration * 100 / resetFactor !=
                 (iteration - 1) * 100 / resetFactor);
     }
 
-    public OldAttribute getPrimaryKey() {
-        return primaryKey;
-    }
-
-    public void initFile() {
+    private void initFile() {
         String path = configuration.getInstanceName();
         if (writer != null) {
             closeTableFile();
@@ -74,9 +75,7 @@ public class TableBase {
     }
 
     public void saveAll() {
-        for (TableInstance instance : instanceList) {
-            saveInstance(instance);
-        }
+        instanceList.forEach(this::saveInstance);
     }
 
     private void saveInstance(TableInstance table) {

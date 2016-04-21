@@ -1,16 +1,12 @@
 package pl.poznan.put.sqldatagenerator.generator;
 
-import pl.poznan.put.sqldatagenerator.generator.key.KeyGenerator;
-
 public class AttributeBase {
-    // Czy wystarczy wspólny jeden typ?
+
     private String value;
-    private AttributeTypes type;
+    private AttributeType type;
+    private boolean isClear;
 
-    private boolean isPrimaryKey;
-
-    private KeyGenerator keyGenerator;
-    public AttributeBase(AttributeTypes type) {
+    public AttributeBase(AttributeType type) {
         this.type = type;
     }
 
@@ -22,7 +18,15 @@ public class AttributeBase {
         this.value = value;
     }
 
-    public AttributeTypes getType() {
+    public AttributeType getType() {
         return type;
+    }
+
+    public boolean isClear() {
+        return isClear;
+    }
+
+    public void clear() {
+        isClear = true;
     }
 }

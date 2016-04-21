@@ -17,4 +17,8 @@ public class AttributeInstance {
     public String getValue() {
         return base.getValue();
     }
+
+    public void clear() {
+        base.clear();
+    }
 }

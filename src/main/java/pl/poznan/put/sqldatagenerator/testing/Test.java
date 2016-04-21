@@ -5,7 +5,7 @@ import com.bpodgursky.jbool_expressions.Expression;
 import com.bpodgursky.jbool_expressions.Variable;
 import com.bpodgursky.jbool_expressions.parsers.ExprParser;
 import com.bpodgursky.jbool_expressions.rules.RuleSet;
-import pl.poznan.put.sqldatagenerator.generator.AttributeTypes;
+import pl.poznan.put.sqldatagenerator.generator.AttributeType;
 
 
 public class Test {
@@ -31,6 +31,6 @@ public class Test {
 
         System.out.println("DUPA");
 
-        AttributeTypes.valueOf("Integer");
+        AttributeType.valueOf("INTEGER");
     }
 }

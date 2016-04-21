@@ -50,95 +50,80 @@ public class DataController {
             }
 
             TableInstance tableInstance = new TableInstance(tableBaseMap.get(tableName), aliasName);
-
-            initAttributes(xmlData, sqlData, table, tableName, tableInstance);
-
-            tableInstanceMap.put(aliasName,tableInstance);
+            initAttributes(xmlData, sqlData, table, tableInstance);
+            tableInstanceMap.put(aliasName, tableInstance);
         }
 
-        int maxDataCount = xmlData.getMaxRowsNum();
+        maxDataRows = xmlData.getMaxRowsNum();
         for (Map.Entry<String, TableBase> table : tableBaseMap.entrySet()) {
-            table.getValue().calculateResetFactor(maxDataCount);
+            table.getValue().calculateResetFactor(maxDataRows);
         }
 
         restrictionsManager.setSQLCriteria(sqlData.getCriteria());
         restrictionsManager.setXMLConstraints(xmlData.getConstraints());
     }
 
-    public void initTableBase(XMLData xmlData) {
+    private void initTableBase(XMLData xmlData) {
         int m = xmlData.getM();
         int t = xmlData.getT();
-        logger.info("t = " + t);
-        logger.info("m = " + m);
+        logger.info("m = " + m + ", t = " + t);
 
         for (String tableName : xmlData.getTables()) {
             long count = xmlData.getRowsNum(tableName);
             if (count > m) {
                 count = count * t / 100;
             }
-
-            tableBaseMap.put(tableName, new TableBase(tableName,count));
+            tableBaseMap.put(tableName, new TableBase(tableName, xmlData.getAttributes(tableName), count));
         }
     }
 
-    private void initAttributes(XMLData xmlData, SQLData sqlData, Table table, String tableName, TableInstance tableInstance) {
+    private void initAttributes(XMLData xmlData, SQLData sqlData, Table table, TableInstance tableInstance) {
+        String tableName = table.getName();
         List<String> xmlAttributes = xmlData.getAttributes(tableName);
-        for (String attributeName : sqlData.getAttributes(table)) {
-            if (!xmlAttributes.contains(attributeName)) {
-                throw new RuntimeException("Attribute " + tableName + "." + attributeName + " not found in xml file");
-            }
+        List<String> sqlAttributes = sqlData.getAttributes(table);
 
-            AttributeTypes attributeType = AttributeTypes.valueOf(xmlData.getType(tableName, attributeName));
+        List<String> missingAttributes = new ArrayList<>(sqlAttributes);
+        missingAttributes.removeAll(xmlAttributes);
+        if (!missingAttributes.isEmpty()) {
+            throw new RuntimeException("Attributes " + Arrays.toString(missingAttributes.toArray()) + " not found in " + tableName + " definition");
+        }
+
+        for (String attributeName : xmlAttributes) {
+            //TODO consider adding only attributes present in SQL (could be configurable)
+            AttributeType attributeType = AttributeType.valueOf(xmlData.getType(tableName, attributeName));
             AttributeBase attributeBase = new AttributeBase(attributeType);
 
             AttributeInstance attributeInstance = new AttributeInstance(attributeBase, attributeName);
-
             tableInstance.addAttribute(attributeInstance);
         }
     }
 
     @Deprecated
     public void generate() {
-        int positiveRows = (int) (configuration.getSelectivity() * maxDataRows);
         for (long iteration = 0; iteration < maxDataRows; iteration++) {
             if ((iteration + 1) % 100000 == 0) {
                 //TODO consider logging progress in time periods
                 logger.debug((int) ((double) iteration / maxDataRows * 100) + "%");
             }
             clearTables(iteration);
-            generatePrimaryKeys();
-            generateRow(iteration >= positiveRows);
+            generateRow();
             saveTables(iteration);
         }
         closeTableFiles();
     }
 
     private void clearTables(long iteration) {
-        for (Map.Entry<String, OldDataTable> e : tableMap.entrySet()) {
-            OldDataTable table = e.getValue();
-            if (table.shouldBeGenerated(iteration)) {
+        for (Map.Entry<String, TableInstance> e : tableInstanceMap.entrySet()) {
+            TableInstance table = e.getValue();
+            if (table.getBase().shouldBeGenerated(iteration)) {
                 table.clear();
             }
         }
     }
 
-    private void generatePrimaryKeys() {
-        for (Map.Entry<String, OldDataTable> e : tableMap.entrySet()) {
-            OldDataTable table = e.getValue();
-            if (table.getPrimaryKey() != null) {
-                table.getPrimaryKey().generateValue(false);
-            }
-        }
-    }
-
-    private void generateRow(boolean isNegative) {
-        for (Map.Entry<String, OldDataTable> e : tableMap.entrySet()) {
-            OldDataTable table = e.getValue();
-            for (Map.Entry<String, OldAttribute> e2 : table.getAttributeMap().entrySet()) {
-                OldAttribute oldAttribute = e2.getValue();
-                oldAttribute.generateValue(isNegative);
-            }
-        }
+    private void generateRow() {
+        int positiveRows = (int) (configuration.getSelectivity() * maxDataRows);
+        tableBaseMap.entrySet().forEach(e -> e.getValue().saveAll());
     }
 
     private void saveTables(long iteration) {
@@ -156,7 +141,7 @@ public class DataController {
         }
     }
 
-
+    @Deprecated
     private void propagateEquals() {
         Set<OldAttribute> processed = new HashSet<>();
         for (Map.Entry<String, OldDataTable> e : tableMap.entrySet()) {
