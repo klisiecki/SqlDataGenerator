@@ -20,9 +20,9 @@ public class OldDataTable {
     private long dataCount;
     private final long dataCountLimit;
     private int resetFactor;
-    private final Map<String, Attribute> attributeMap;
+    private final Map<String, OldAttribute> attributeMap;
     private CSVWriter writer;
-    private Attribute primaryKey;
+    private OldAttribute primaryKey;
 
     public OldDataTable(String name, String originalName, long dataCountLimit) {
         this.name = name;
@@ -33,7 +33,7 @@ public class OldDataTable {
         this.attributeMap = new HashMap<>();
     }
 
-    public Attribute getPrimaryKey() {
+    public OldAttribute getPrimaryKey() {
         return primaryKey;
     }
 
@@ -45,9 +45,9 @@ public class OldDataTable {
         try {
             writer = new CSVWriter(new FileWriter(path + "/" + originalName + "_" + fileNum + ".csv"), ';');
             List<String> attributes = new ArrayList<>();
-            for (Map.Entry<String, Attribute> e2 : attributeMap.entrySet()) {
-                Attribute attribute = e2.getValue();
-                attributes.add(attribute.getName());
+            for (Map.Entry<String, OldAttribute> e2 : attributeMap.entrySet()) {
+                OldAttribute oldAttribute = e2.getValue();
+                attributes.add(oldAttribute.getName());
             }
             writer.writeNext(attributes.toArray(new String[attributes.size()]), false);
         } catch (IOException e) {
@@ -63,14 +63,14 @@ public class OldDataTable {
         }
     }
 
-    public Attribute getAttribute(String name) {
+    public OldAttribute getAttribute(String name) {
         return attributeMap.get(name);
     }
 
-    public void addAttribute(Attribute attribute) {
-        attributeMap.put(attribute.getName(), attribute);
-        if (attribute.isPrimaryKey()) {
-            this.primaryKey = attribute;
+    public void addAttribute(OldAttribute oldAttribute) {
+        attributeMap.put(oldAttribute.getName(), oldAttribute);
+        if (oldAttribute.isPrimaryKey()) {
+            this.primaryKey = oldAttribute;
         }
     }
 
@@ -80,7 +80,7 @@ public class OldDataTable {
 
     public void clear() {
         dataCount++;
-        for (Map.Entry<String, Attribute> e : attributeMap.entrySet()) {
+        for (Map.Entry<String, OldAttribute> e : attributeMap.entrySet()) {
             e.getValue().setClear(true);
         }
     }
@@ -98,7 +98,7 @@ public class OldDataTable {
         return name;
     }
 
-    public Map<String, Attribute> getAttributeMap() {
+    public Map<String, OldAttribute> getAttributeMap() {
         return attributeMap;
     }
 
@@ -108,9 +108,9 @@ public class OldDataTable {
             initTableFile();
         }
         List<String> values = new ArrayList<>();
-        for (Map.Entry<String, Attribute> e2 : attributeMap.entrySet()) {
-            Attribute attribute = e2.getValue();
-            values.add(attribute.getObjectValue().toString());
+        for (Map.Entry<String, OldAttribute> e2 : attributeMap.entrySet()) {
+            OldAttribute oldAttribute = e2.getValue();
+            values.add(oldAttribute.getObjectValue().toString());
         }
         writer.writeNext(values.toArray(new String[values.size()]), false);
     }

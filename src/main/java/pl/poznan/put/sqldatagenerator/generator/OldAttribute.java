@@ -9,40 +9,41 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-public abstract class Attribute {
+@Deprecated
+public abstract class OldAttribute {
     private final String name;
     private boolean clear;
     private final boolean isPrimaryKey;
     private KeyGenerator keyGenerator;
-    protected final List<Attribute> dependentAttributes;
-    protected final List<Attribute> equalsAttributes;
+    protected final List<OldAttribute> dependentOldAttributes;
+    protected final List<OldAttribute> equalsOldAttributes;
     protected OldRestriction restriction;
     protected OldRestriction negativeRestriction;
     private Boolean canBeNegative;
 
-    public Attribute(String name, boolean isPrimaryKey) {
+    public OldAttribute(String name, boolean isPrimaryKey) {
         this.name = name;
         this.isPrimaryKey = isPrimaryKey;
-        this.dependentAttributes = new ArrayList<>();
-        this.equalsAttributes = new ArrayList<>();
+        this.dependentOldAttributes = new ArrayList<>();
+        this.equalsOldAttributes = new ArrayList<>();
         setClear(true);
     }
 
-    public Attribute(String name, boolean isPrimaryKey, long dataRows) {
+    public OldAttribute(String name, boolean isPrimaryKey, long dataRows) {
         this(name, isPrimaryKey);
         if (isPrimaryKey) {
             keyGenerator = new SimpleKeyGenerator(dataRows);
         }
     }
 
-    public void addDependent(Attribute attribute) {
-        if (!dependentAttributes.contains(attribute)) {
-            dependentAttributes.add(attribute);
+    public void addDependent(OldAttribute oldAttribute) {
+        if (!dependentOldAttributes.contains(oldAttribute)) {
+            dependentOldAttributes.add(oldAttribute);
         }
     }
 
-    public void addEquals(Collection<Attribute> attributes) {
-        attributes.forEach(this::addEquals);
+    public void addEquals(Collection<OldAttribute> oldAttributes) {
+        oldAttributes.forEach(this::addEquals);
     }
 
     public boolean isPrimaryKey() {
@@ -59,21 +60,21 @@ public abstract class Attribute {
         return canBeNegative;
     }
 
-    public void addEquals(Attribute attribute) {
-        if (!equalsAttributes.contains(attribute) && !attribute.equals(this)) {
-            equalsAttributes.add(attribute);
-            addDependent(attribute);
-            restriction.addAndRangeSet(attribute.getRestriction().getRangeSet());
+    public void addEquals(OldAttribute oldAttribute) {
+        if (!equalsOldAttributes.contains(oldAttribute) && !oldAttribute.equals(this)) {
+            equalsOldAttributes.add(oldAttribute);
+            addDependent(oldAttribute);
+            restriction.addAndRangeSet(oldAttribute.getRestriction().getRangeSet());
         }
     }
 
-    public List<Attribute> getEqualsAttributes() {
-        return equalsAttributes;
+    public List<OldAttribute> getEqualsOldAttributes() {
+        return equalsOldAttributes;
     }
 
-    public void collectEquals(Set<Attribute> result) {
+    public void collectEquals(Set<OldAttribute> result) {
         result.add(this);
-        equalsAttributes.stream().filter(a -> !result.contains(a))
+        equalsOldAttributes.stream().filter(a -> !result.contains(a))
                 .forEach(a -> a.collectEquals(result));
     }
 
@@ -94,7 +95,7 @@ public abstract class Attribute {
             throw new RuntimeException("Rollback on primary key");
         }
         setClear(true);
-        dependentAttributes.stream().filter(a -> !a.isClear()).forEach(Attribute::rollback);
+        dependentOldAttributes.stream().filter(a -> !a.isClear()).forEach(OldAttribute::rollback);
     }
 
     public boolean generateValue(boolean negative) {
@@ -109,8 +110,8 @@ public abstract class Attribute {
                 return false;
             }
         }
-        for (Attribute attribute : dependentAttributes) {
-            if (!attribute.generateValue(negative)) {
+        for (OldAttribute oldAttribute : dependentOldAttributes) {
+            if (!oldAttribute.generateValue(negative)) {
                 return false;
             }
         }
@@ -126,9 +127,9 @@ public abstract class Attribute {
     }
 
     private boolean generateFromEquals() {
-        for (Attribute attribute : equalsAttributes) {
-            if (!attribute.isClear()) {
-                setObjectValue(attribute.getObjectValue());
+        for (OldAttribute oldAttribute : equalsOldAttributes) {
+            if (!oldAttribute.isClear()) {
+                setObjectValue(oldAttribute.getObjectValue());
                 return true;
             }
         }
@@ -143,13 +144,13 @@ public abstract class Attribute {
 
     protected boolean generateFromRestrictionAndDependent(boolean negative) {
         boolean foundClear = false;
-        for (Attribute a : dependentAttributes) {
+        for (OldAttribute a : dependentOldAttributes) {
             if (a.isClear()) {
                 foundClear = true;
                 break;
             }
         }
-        if (foundClear || dependentAttributes.size() == 0) {
+        if (foundClear || dependentOldAttributes.size() == 0) {
             generateFromRestriction(negative);
             return true;
         } else { //last attribute from clique

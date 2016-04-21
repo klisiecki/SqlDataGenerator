@@ -12,10 +12,9 @@ public class TableBase {
     private final Configuration configuration = Configuration.getInstance();
 
     private final String name;
-    private Attribute primaryKey;
+    private OldAttribute primaryKey;
     private long dataCount;
     private long dataCountLimit;
-    private final long dataCountLimitOneInstance;
     private int resetFactor;
     private CSVWriter writer;
     private int fileNum;
@@ -23,9 +22,9 @@ public class TableBase {
 
     private List<TableInstance> instanceList;
 
-    public TableBase(String name, long dataCountLimitOneInstance) {
+    public TableBase(String name, long dataCountLimit) {
         this.name = name;
-        this.dataCountLimitOneInstance = dataCountLimitOneInstance;
+        this.dataCountLimit = dataCountLimit;
         this.dataCount = 0;
         this.fileNum = 1;
 
@@ -37,11 +36,15 @@ public class TableBase {
     }
 
     public void calculateResetFactor(long maxDataRows) {
-        dataCountLimit = dataCountLimitOneInstance * instanceList.size();
-        this.resetFactor = (int) (100 * maxDataRows / dataCountLimit);
+        this.resetFactor = (int) (100 * maxDataRows / (dataCountLimit / instanceList.size()) );
     }
 
-    public Attribute getPrimaryKey() {
+    public boolean shouldBeGenerated(long iteration) {
+        return iteration == 0 ||    (iteration * 100 / resetFactor !=
+                (iteration - 1) * 100 / resetFactor);
+    }
+
+    public OldAttribute getPrimaryKey() {
         return primaryKey;
     }
 

@@ -106,6 +106,17 @@ public class XMLData {
         return result;
     }
 
+    public Integer getMaxRowsNum() {
+        XPathExpression expr = getXPathExpression("max(//TABLE/ROWS_NUM/text())");
+        Integer result;
+        try {
+            result = Integer.parseInt(expr.evaluate(document));
+        } catch (Exception e) {
+            return null;
+        }
+        return result;
+    }
+
     public String getDistribution(String table) {
         XPathExpression expr = getXPathExpression(
                 String.format("//TABLE[NAME/text()='%s']/DISTRIBUTION/text()", table));

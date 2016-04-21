@@ -8,7 +8,7 @@ import java.util.Map;
 public class TableInstance {
     private final TableBase base;
     private final String aliasName;
-    private final Map<String, Attribute> attributeMap;
+    private final Map<String, AttributeInstance> attributeMap;
 
     public TableInstance(TableBase base, String aliasName) {
         this.base = base;
@@ -18,14 +18,14 @@ public class TableInstance {
         base.addInstance(this);
     }
 
-    public void addAttribute(Attribute attribute) {
+    public void addAttribute(AttributeInstance attribute) {
         attributeMap.put(attribute.getName(), attribute);
     }
 
     public List<String> getValues(List<String> names) {
         List<String> values = new ArrayList<>();
         for (String name : names) {
-            values.add(attributeMap.get(name).getObjectValue().toString());
+            values.add(attributeMap.get(name).getValue());
         }
         return values;
     }

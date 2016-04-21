@@ -2,10 +2,11 @@ package pl.poznan.put.sqldatagenerator.generator;
 
 import pl.poznan.put.sqldatagenerator.restriction.IntegerOldRestriction;
 
-public class IntegerAttribute extends Attribute {
+@Deprecated
+public class OldIntegerAttribute extends OldAttribute {
     private Integer value;
 
-    public IntegerAttribute(String name, boolean isPrimaryKey, long dataRows) {
+    public OldIntegerAttribute(String name, boolean isPrimaryKey, long dataRows) {
         super(name, isPrimaryKey, dataRows);
         this.restriction = new IntegerOldRestriction(true);
         this.negativeRestriction = new IntegerOldRestriction(true);

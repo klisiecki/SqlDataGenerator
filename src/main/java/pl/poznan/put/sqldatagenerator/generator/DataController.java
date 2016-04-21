@@ -40,59 +40,64 @@ public class DataController {
     }
 
     public void initTables(XMLData xmlData, SQLData sqlData) {
-        List<String> xmlTables = xmlData.getTables();
+        initTableBase(xmlData);
 
+        for (Table table : sqlData.getTables()) {
+            String tableName = table.getName();
+            String aliasName = table.getAlias().getName();
+            if (!tableBaseMap.containsKey(tableName)) {
+                throw new RuntimeException("Table " + tableName + " not found in xml file");
+            }
+
+            TableInstance tableInstance = new TableInstance(tableBaseMap.get(tableName), aliasName);
+
+            initAttributes(xmlData, sqlData, table, tableName, tableInstance);
+
+            tableInstanceMap.put(aliasName,tableInstance);
+        }
+
+        int maxDataCount = xmlData.getMaxRowsNum();
+        for (Map.Entry<String, TableBase> table : tableBaseMap.entrySet()) {
+            table.getValue().calculateResetFactor(maxDataCount);
+        }
+
+        restrictionsManager.setSQLCriteria(sqlData.getCriteria());
+        restrictionsManager.setXMLConstraints(xmlData.getConstraints());
+    }
+
+    public void initTableBase(XMLData xmlData) {
         int m = xmlData.getM();
         int t = xmlData.getT();
         logger.info("t = " + t);
         logger.info("m = " + m);
 
-        // może przyjąć, że w XMLu są zawsze opisane dokładnie te same tabele co w SQL i uprościć pętle?
-        for (Table table : sqlData.getTables()) {
-            String tableName = table.getName();
-            String aliasName = table.getAlias().getName();
-            if (!xmlTables.contains(tableName)) {
-                throw new RuntimeException("Table " + tableName + " not found in xml file");
-            }
-            long dataRows = xmlData.getRowsNum(tableName);
-            if (dataRows > m) {
-                dataRows = dataRows * t / 100;
-            }
-            if (dataRows > maxDataRows) {
-                maxDataRows = dataRows;
+        for (String tableName : xmlData.getTables()) {
+            long count = xmlData.getRowsNum(tableName);
+            if (count > m) {
+                count = count * t / 100;
             }
 
-            TableBase tableBase =  tableBaseMap.getOrDefault(tableName, new TableBase(tableName, dataRows));
-            tableBaseMap.computeIfAbsent(tableName, x -> new TableBase(tableName,dataRows));
-            TableInstance tableInstance = new TableInstance(tableBase, aliasName);
-
-            List<String> xmlAttributes = xmlData.getAttributes(tableName);
-            for (String attributeName : sqlData.getAttributes(table)) {
-                if (!xmlAttributes.contains(attributeName)) {
-                    throw new RuntimeException("Attribute " + tableName + "." + attributeName + " not found in xml file");
-                }
-                String attributeType = xmlData.getType(tableName, attributeName);
-                Attribute attribute = initializeAttribute(attributeType, attributeName, xmlData.isPrimaryKey(tableName, attributeName), dataRows);
-                //addXMLRestrictions(tableName, attribute, xmlData);
-                tableInstance.addAttribute(attribute);
-            }
-//            oldDataTable.initTableFile();
-            tableInstanceMap.put(aliasName,tableInstance);
+            tableBaseMap.put(tableName, new TableBase(tableName,count));
         }
-
-        for (Map.Entry<String, OldDataTable> e : tableMap.entrySet()) {
-            OldDataTable table = e.getValue();
-            table.calculateResetFactor(maxDataRows);
-        }
-
-        restrictionsManager.setSQLCriteria(sqlData.getCriteria());
-        restrictionsManager.setXMLConstraints(xmlData.getConstraints());
-
-//        addSQLJoinEquals(sqlData);
-//        addSQLRestrictions(sqlData);
-//        propagateEquals();
     }
 
+    private void initAttributes(XMLData xmlData, SQLData sqlData, Table table, String tableName, TableInstance tableInstance) {
+        List<String> xmlAttributes = xmlData.getAttributes(tableName);
+        for (String attributeName : sqlData.getAttributes(table)) {
+            if (!xmlAttributes.contains(attributeName)) {
+                throw new RuntimeException("Attribute " + tableName + "." + attributeName + " not found in xml file");
+            }
+
+            AttributeTypes attributeType = AttributeTypes.valueOf(xmlData.getType(tableName, attributeName));
+            AttributeBase attributeBase = new AttributeBase(attributeType);
+
+            AttributeInstance attributeInstance = new AttributeInstance(attributeBase, attributeName);
+
+            tableInstance.addAttribute(attributeInstance);
+        }
+    }
+
+    @Deprecated
     public void generate() {
         int positiveRows = (int) (configuration.getSelectivity() * maxDataRows);
         for (long iteration = 0; iteration < maxDataRows; iteration++) {
@@ -129,9 +134,9 @@ public class DataController {
     private void generateRow(boolean isNegative) {
         for (Map.Entry<String, OldDataTable> e : tableMap.entrySet()) {
             OldDataTable table = e.getValue();
-            for (Map.Entry<String, Attribute> e2 : table.getAttributeMap().entrySet()) {
-                Attribute attribute = e2.getValue();
-                attribute.generateValue(isNegative);
+            for (Map.Entry<String, OldAttribute> e2 : table.getAttributeMap().entrySet()) {
+                OldAttribute oldAttribute = e2.getValue();
+                oldAttribute.generateValue(isNegative);
             }
         }
     }
@@ -146,22 +151,22 @@ public class DataController {
     }
 
     private void closeTableFiles() {
-        for (Map.Entry<String, OldDataTable> e : tableMap.entrySet()) {
-            OldDataTable table = e.getValue();
-            table.closeTableFile();
+        for (Map.Entry<String, TableBase> e : tableBaseMap.entrySet()) {
+            e.getValue().closeTableFile();
         }
     }
 
+
     private void propagateEquals() {
-        Set<Attribute> processed = new HashSet<>();
+        Set<OldAttribute> processed = new HashSet<>();
         for (Map.Entry<String, OldDataTable> e : tableMap.entrySet()) {
             OldDataTable table = e.getValue();
-            for (Map.Entry<String, Attribute> e2 : table.getAttributeMap().entrySet()) {
-                Attribute attribute = e2.getValue();
-                if (!processed.contains(attribute)) {
-                    Set<Attribute> clique = new HashSet<>();
-                    attribute.collectEquals(clique);
-                    for (Attribute a : clique) {
+            for (Map.Entry<String, OldAttribute> e2 : table.getAttributeMap().entrySet()) {
+                OldAttribute oldAttribute = e2.getValue();
+                if (!processed.contains(oldAttribute)) {
+                    Set<OldAttribute> clique = new HashSet<>();
+                    oldAttribute.collectEquals(clique);
+                    for (OldAttribute a : clique) {
                         a.addEquals(clique);
                     }
                     processed.addAll(clique);
@@ -174,20 +179,20 @@ public class DataController {
     private void addSQLRestrictions(SQLData sqlData) {
         List<OldAttributeRestriction> attributeRestrictions = sqlData.getOldRestrictions();
         for (OldAttributeRestriction a : attributeRestrictions) {
-            Attribute attribute = tableMap.get(a.getTableName()).getAttribute(a.getAttributeName());
-            attribute.getRestriction().addAndRangeSet(a.getRestriction().getRangeSet());
+            OldAttribute oldAttribute = tableMap.get(a.getTableName()).getAttribute(a.getAttributeName());
+            oldAttribute.getRestriction().addAndRangeSet(a.getRestriction().getRangeSet());
             // ranges complementary to restriction's range, for generating rows non-matching sql query
             TreeRangeSet complementSet;
-            if (attribute instanceof IntegerAttribute) {
+            if (oldAttribute instanceof OldIntegerAttribute) {
                 complementSet = (TreeRangeSet) a.getRestriction().getRangeSet().complement().subRangeSet(Range.closed(Integer.MIN_VALUE / 2, Integer.MAX_VALUE / 2));
-            } else if (attribute instanceof StringAttribute) {
+            } else if (oldAttribute instanceof OldStringAttribute) {
                 complementSet = (TreeRangeSet) a.getRestriction().getRangeSet().complement().subRangeSet(Range.closed(CustomString.MIN_VALUE, CustomString.MAX_VALUE));
             } else {
                 throw new NotImplementedException();
             }
 
             if (!complementSet.isEmpty()) {
-                attribute.getNegativeRestriction().addAndRangeSet(complementSet);
+                oldAttribute.getNegativeRestriction().addAndRangeSet(complementSet);
             }
         }
     }
@@ -198,25 +203,25 @@ public class DataController {
         for (RestrictionEquals c : equalsList) {
             OldDataTable tableA = tableMap.get(c.getLeftColumn().getTable().getName());
             OldDataTable tableB = tableMap.get(c.getRightColumn().getTable().getName());
-            Attribute attributeA = tableA.getAttribute(c.getLeftColumn().getColumnName());
-            Attribute attributeB = tableB.getAttribute(c.getRightColumn().getColumnName());
-            if (attributeA != null && attributeB != null) {
-                attributeA.addEquals(attributeB);
-                attributeB.addEquals(attributeA);
+            OldAttribute oldAttributeA = tableA.getAttribute(c.getLeftColumn().getColumnName());
+            OldAttribute oldAttributeB = tableB.getAttribute(c.getRightColumn().getColumnName());
+            if (oldAttributeA != null && oldAttributeB != null) {
+                oldAttributeA.addEquals(oldAttributeB);
+                oldAttributeB.addEquals(oldAttributeA);
             } else {
-                throw new RuntimeException("Attribute " + attributeA + " or " + attributeB + " not found");
+                throw new RuntimeException("OldAttribute " + oldAttributeA + " or " + oldAttributeB + " not found");
             }
         }
     }
 
     @Deprecated
-    private void addXMLRestrictions(String tableName, Attribute attribute, XMLData xmlData) {
-        String minValue = xmlData.getMinValue(tableName, attribute.getName());
-        String maxValue = xmlData.getMaxValue(tableName, attribute.getName());
-        List<String> values = xmlData.getValues(tableName, attribute.getName());
-        if (attribute instanceof IntegerAttribute) {
-            IntegerOldRestriction restriction = (IntegerOldRestriction) attribute.getRestriction();
-            IntegerOldRestriction negativeRestriction = (IntegerOldRestriction) attribute.getNegativeRestriction();
+    private void addXMLRestrictions(String tableName, OldAttribute oldAttribute, XMLData xmlData) {
+        String minValue = xmlData.getMinValue(tableName, oldAttribute.getName());
+        String maxValue = xmlData.getMaxValue(tableName, oldAttribute.getName());
+        List<String> values = xmlData.getValues(tableName, oldAttribute.getName());
+        if (oldAttribute instanceof OldIntegerAttribute) {
+            IntegerOldRestriction restriction = (IntegerOldRestriction) oldAttribute.getRestriction();
+            IntegerOldRestriction negativeRestriction = (IntegerOldRestriction) oldAttribute.getNegativeRestriction();
             if (minValue != null) {
                 restriction.addAndRange(Range.closed(Integer.parseInt(minValue), Integer.MAX_VALUE));
                 negativeRestriction.addAndRange(Range.closed(Integer.parseInt(minValue), Integer.MAX_VALUE));
@@ -237,9 +242,9 @@ public class DataController {
                 negativeRestriction.addAndRangeSet(rangeSet);
             }
 
-        } else if (attribute instanceof StringAttribute) {
-            StringOldRestriction restriction = (StringOldRestriction) attribute.getRestriction();
-            StringOldRestriction negativeRestriction = (StringOldRestriction) attribute.getNegativeRestriction();
+        } else if (oldAttribute instanceof OldStringAttribute) {
+            StringOldRestriction restriction = (StringOldRestriction) oldAttribute.getRestriction();
+            StringOldRestriction negativeRestriction = (StringOldRestriction) oldAttribute.getNegativeRestriction();
 
             if (minValue != null) {
                 int minIntValue = Integer.parseInt(minValue);
@@ -266,21 +271,10 @@ public class DataController {
         }
     }
 
-    private Attribute initializeAttribute(String type, String name, boolean isPrimaryKey, long dataRows) {
-        switch (type) {
-            case "INTEGER":
-                return new IntegerAttribute(name, isPrimaryKey, dataRows);
-            case "STRING":
-                return new StringAttribute(name);
-            default:
-                throw new NotImplementedException();
-        }
-    }
-
     @Override
     public String toString() {
         return "DataController{" +
-                "tables=" + tableMap +
+                "tableInstanceMap=" + tableInstanceMap +
                 '}';
     }
 }

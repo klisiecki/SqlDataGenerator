@@ -3,10 +3,11 @@ package pl.poznan.put.sqldatagenerator.generator;
 
 import pl.poznan.put.sqldatagenerator.restriction.StringOldRestriction;
 
-public class StringAttribute extends Attribute {
+@Deprecated
+public class OldStringAttribute extends OldAttribute {
     private String value;
 
-    public StringAttribute(String name) {
+    public OldStringAttribute(String name) {
         super(name, false);
         this.restriction = new StringOldRestriction(true);
         this.negativeRestriction = new StringOldRestriction(true);
