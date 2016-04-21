@@ -55,9 +55,7 @@ public class DataController {
         }
 
         maxDataRows = xmlData.getMaxRowsNum();
-        for (Map.Entry<String, TableBase> table : tableBaseMap.entrySet()) {
-            table.getValue().calculateResetFactor(maxDataRows);
-        }
+        tableBaseMap.values().forEach(table -> table.calculateResetFactor(maxDataRows));
 
         restrictionsManager.setSQLCriteria(sqlData.getCriteria());
         restrictionsManager.setXMLConstraints(xmlData.getConstraints());
@@ -92,7 +90,6 @@ public class DataController {
             //TODO consider adding only attributes present in SQL (could be configurable)
             AttributeType attributeType = AttributeType.valueOf(xmlData.getType(tableName, attributeName));
             AttributeBase attributeBase = new AttributeBase(attributeType);
-
             AttributeInstance attributeInstance = new AttributeInstance(attributeBase, attributeName);
             tableInstance.addAttribute(attributeInstance);
         }
@@ -109,35 +106,27 @@ public class DataController {
             generateRow();
             saveTables(iteration);
         }
-        closeTableFiles();
+        tableBaseMap.values().forEach(TableBase::closeTableFile);
     }
 
     private void clearTables(long iteration) {
-        for (Map.Entry<String, TableInstance> e : tableInstanceMap.entrySet()) {
-            TableInstance table = e.getValue();
-            if (table.getBase().shouldBeGenerated(iteration)) {
-                table.clear();
-            }
-        }
+        tableInstanceMap.values().stream()
+                .filter(table -> table.getBase().shouldBeGenerated(iteration))
+                .forEach(TableInstance::clear);
     }
 
     private void generateRow() {
         int positiveRows = (int) (configuration.getSelectivity() * maxDataRows);
-        tableBaseMap.entrySet().forEach(e -> e.getValue().saveAll());
+        tableBaseMap.values().forEach(TableBase::saveAll);
     }
 
+    @Deprecated
     private void saveTables(long iteration) {
         for (Map.Entry<String, OldDataTable> e : tableMap.entrySet()) {
             OldDataTable table = e.getValue();
             if (table.shouldBeGenerated(iteration)) {
                 table.save();
             }
-        }
-    }
-
-    private void closeTableFiles() {
-        for (Map.Entry<String, TableBase> e : tableBaseMap.entrySet()) {
-            e.getValue().closeTableFile();
         }
     }
 

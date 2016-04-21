@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import static java.util.stream.Collectors.toList;
+
 public class RestrictionsManager {
     private final List<Restrictions> restrictionsList;
     private final Random random;
@@ -27,9 +29,7 @@ public class RestrictionsManager {
         }
 
         NExpression<Restriction> dnfForm = (NExpression<Restriction>) RuleSet.toDNF(criteria);
-        for (Expression<Restriction> exp : dnfForm.getChildren()) {
-            restrictionsList.add(Restrictions.fromExpression(exp));
-        }
+        restrictionsList.addAll(dnfForm.getChildren().stream().map(Restrictions::fromExpression).collect(toList()));
     }
 
     public void setXMLConstraints(Restrictions constraints) {

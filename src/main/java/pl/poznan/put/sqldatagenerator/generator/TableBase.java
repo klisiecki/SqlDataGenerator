@@ -2,14 +2,15 @@ package pl.poznan.put.sqldatagenerator.generator;
 
 import com.opencsv.CSVWriter;
 import pl.poznan.put.sqldatagenerator.Configuration;
-import pl.poznan.put.sqldatagenerator.generator.key.KeyGenerator;
-import pl.poznan.put.sqldatagenerator.generator.key.SimpleKeyGenerator;
 
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Class representing single table in database
+ */
 public class TableBase {
     private final Configuration configuration = Configuration.getInstance();
 
@@ -41,7 +42,7 @@ public class TableBase {
     }
 
     public void calculateResetFactor(long maxDataRows) {
-        this.resetFactor = (int) (100 * maxDataRows / (dataCountLimit / instanceList.size()) );
+        this.resetFactor = (int) (100 * maxDataRows / (dataCountLimit / instanceList.size()));
     }
 
     public boolean shouldBeGenerated(long iteration) {

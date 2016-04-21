@@ -1,5 +1,10 @@
 package pl.poznan.put.sqldatagenerator.generator;
 
+/**
+ * Class representing an abstract concept of attribute in SQL query.
+ * one {@link AttributeBase} may refer to multiple attributes used in SQL query when they have the same type
+ * and there is equals operator between them.
+ */
 public class AttributeBase {
 
     private String value;
