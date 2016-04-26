@@ -40,4 +40,9 @@ public class Restrictions {
             throw new RuntimeException(exp.getClass() + " not supported here");
         }
     }
+
+    @Override
+    public String toString() {
+        return restrictions.toString();
+    }
 }

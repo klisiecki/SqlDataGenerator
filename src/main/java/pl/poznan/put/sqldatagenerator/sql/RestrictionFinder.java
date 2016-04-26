@@ -4,6 +4,7 @@ import com.bpodgursky.jbool_expressions.And;
 import com.bpodgursky.jbool_expressions.Expression;
 import com.bpodgursky.jbool_expressions.Or;
 import com.bpodgursky.jbool_expressions.Variable;
+import net.sf.jsqlparser.expression.Parenthesis;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
 import net.sf.jsqlparser.expression.operators.relational.*;
@@ -57,6 +58,14 @@ public class RestrictionFinder extends AbstractFinder {
         orExpression.getRightExpression().accept(finder2);
         result = Or.of(finder1.getResult(), finder2.getResult());
     }
+
+    @Override
+    public void visit(Parenthesis parenthesis) {
+        RestrictionFinder finder = new RestrictionFinder();
+        parenthesis.getExpression().accept(finder);
+        result = finder.getResult();
+    }
+
 
     private void processExpression(net.sf.jsqlparser.expression.Expression expression) {
         result = Variable.of(RestrictionFactory.createRestriction(expression));

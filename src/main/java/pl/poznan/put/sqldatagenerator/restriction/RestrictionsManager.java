@@ -2,6 +2,7 @@ package pl.poznan.put.sqldatagenerator.restriction;
 
 import com.bpodgursky.jbool_expressions.Expression;
 import com.bpodgursky.jbool_expressions.NExpression;
+import com.bpodgursky.jbool_expressions.Or;
 import com.bpodgursky.jbool_expressions.rules.RuleSet;
 
 import java.util.ArrayList;
@@ -29,7 +30,11 @@ public class RestrictionsManager {
         }
 
         NExpression<Restriction> dnfForm = (NExpression<Restriction>) RuleSet.toDNF(criteria);
-        restrictionsList.addAll(dnfForm.getChildren().stream().map(Restrictions::fromExpression).collect(toList()));
+        if (dnfForm instanceof Or) {
+            restrictionsList.addAll(dnfForm.getChildren().stream().map(Restrictions::fromExpression).collect(toList()));
+        } else {
+            restrictionsList.add(Restrictions.fromExpression(dnfForm));
+        }
     }
 
     public void setXMLConstraints(Restrictions constraints) {
