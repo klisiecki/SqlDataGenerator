@@ -14,7 +14,7 @@ public class TableInstance {
     private final TableBase base;
 
     private final String aliasName;
-    private final Map<String, AttributeInstance> attributeMap;
+    private final Map<String, Attribute> attributeMap;
 
     public TableInstance(TableBase base, String aliasName) {
         this.base = base;
@@ -24,25 +24,34 @@ public class TableInstance {
         base.addInstance(this);
     }
 
-    public void addAttribute(AttributeInstance attribute) {
+    public void addAttribute(Attribute attribute) {
         attributeMap.put(attribute.getName(), attribute);
     }
 
+    public void clear() {
+        attributeMap.values().forEach(Attribute::clear);
+    }
+
     /**
-     * @return list of attribute values in the same order as as in method parameter
+     * @return list of attribute values in the same order as as in base table
      */
-    public List<String> getValues(List<String> attributesNames) {
+    public List<String> getValues() {
+        List<String> attributesNames = base.getAttributesNames();
         if (attributesNames.stream().anyMatch(name -> !attributeMap.containsKey(name))) {
             throw new RuntimeException("One of given attributes does not match table attributes");
         }
         return attributesNames.stream().map(name -> attributeMap.get(name).getValue()).collect(toList());
     }
 
-    public void clear() {
-        attributeMap.values().forEach(AttributeInstance::clear);
-    }
-
     public TableBase getBase() {
         return base;
+    }
+
+    public boolean shouldBeGenerated(long iteration) {
+        return base.shouldBeGenerated(iteration);
+    }
+
+    public void save() {
+        base.saveInstance(getValues());
     }
 }

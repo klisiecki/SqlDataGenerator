@@ -3,6 +3,7 @@ package pl.poznan.put.sqldatagenerator.generator;
 /**
  * Class representing single occurrence of attribute in SQL query.
  */
+@Deprecated
 public class AttributeInstance {
     private final AttributeBase base;
 

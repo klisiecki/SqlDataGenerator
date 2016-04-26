@@ -37,6 +37,10 @@ public class TableBase {
         instanceList.add(instance);
     }
 
+    public List<String> getAttributesNames() {
+        return attributesNames;
+    }
+
     public void setAttributesNames(List<String> attributesNames) {
         this.attributesNames = attributesNames;
     }
@@ -75,15 +79,11 @@ public class TableBase {
         }
     }
 
-    public void saveAll() {
-        instanceList.forEach(this::saveInstance);
-    }
-
-    private void saveInstance(TableInstance table) {
+    public void saveInstance(List<String> values) {
         if (dataCount % configuration.getRowsPerFile() == 0) {
             fileNum++;
             initFile();
         }
-        writeList(table.getValues(attributesNames));
+        writeList(values);
     }
 }

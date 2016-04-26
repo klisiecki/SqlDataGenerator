@@ -12,6 +12,7 @@ import pl.poznan.put.sqldatagenerator.restriction.CustomString;
 import pl.poznan.put.sqldatagenerator.restriction.IntegerOldRestriction;
 import pl.poznan.put.sqldatagenerator.restriction.RestrictionsManager;
 import pl.poznan.put.sqldatagenerator.restriction.StringOldRestriction;
+import pl.poznan.put.sqldatagenerator.solver.Solver;
 import pl.poznan.put.sqldatagenerator.sql.model.OldAttributeRestriction;
 import pl.poznan.put.sqldatagenerator.sql.model.RestrictionEquals;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
@@ -89,14 +90,14 @@ public class DataController {
         for (String attributeName : xmlAttributes) {
             //TODO consider adding only attributes present in SQL (could be configurable)
             AttributeType attributeType = AttributeType.valueOf(xmlData.getType(tableName, attributeName));
-            AttributeBase attributeBase = new AttributeBase(attributeType);
-            AttributeInstance attributeInstance = new AttributeInstance(attributeBase, attributeName);
-            tableInstance.addAttribute(attributeInstance);
+            Attribute attribute = new Attribute(attributeName, attributeType);
+            tableInstance.addAttribute(attribute);
         }
     }
 
-    @Deprecated
     public void generate() {
+        int positiveRows = (int) (configuration.getSelectivity() * maxDataRows);
+
         for (long iteration = 0; iteration < maxDataRows; iteration++) {
             if ((iteration + 1) % 100000 == 0) {
                 //TODO consider logging progress in time periods
@@ -111,17 +112,22 @@ public class DataController {
 
     private void clearTables(long iteration) {
         tableInstanceMap.values().stream()
-                .filter(table -> table.getBase().shouldBeGenerated(iteration))
+                .filter(table -> table.shouldBeGenerated(iteration))
                 .forEach(TableInstance::clear);
     }
 
     private void generateRow() {
-        int positiveRows = (int) (configuration.getSelectivity() * maxDataRows);
-        tableBaseMap.values().forEach(TableBase::saveAll);
+        new Solver(restrictionsManager.getRandom()).solve();
+    }
+
+    private void saveTables(long iteration) {
+        tableInstanceMap.values().stream()
+                .filter(table -> table.shouldBeGenerated(iteration))
+                .forEach(TableInstance::save);
     }
 
     @Deprecated
-    private void saveTables(long iteration) {
+    private void saveTablesOld(long iteration) {
         for (Map.Entry<String, OldDataTable> e : tableMap.entrySet()) {
             OldDataTable table = e.getValue();
             if (table.shouldBeGenerated(iteration)) {

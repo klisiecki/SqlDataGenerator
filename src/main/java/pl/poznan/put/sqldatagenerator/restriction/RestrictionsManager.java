@@ -33,8 +33,12 @@ public class RestrictionsManager {
     }
 
     public void setXMLConstraints(Restrictions constraints) {
-        for (Restrictions restrictions : restrictionsList) {
-            restrictions.add(constraints);
+        if (restrictionsList.isEmpty()) {
+            restrictionsList.add(constraints);
+        } else {
+            for (Restrictions restrictions : restrictionsList) {
+                restrictions.add(constraints);
+            }
         }
     }
 

@@ -25,6 +25,10 @@ public class Restrictions {
         return restrictions;
     }
 
+    /**
+     * @param exp must be and and and
+     * @return
+     */
     public static Restrictions fromExpression(Expression<Restriction> exp) {
         if (exp instanceof NExpression) {
             List<Expression<Restriction>> children = ((NExpression<Restriction>) exp).getChildren();

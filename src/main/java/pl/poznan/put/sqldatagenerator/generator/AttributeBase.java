@@ -5,6 +5,7 @@ package pl.poznan.put.sqldatagenerator.generator;
  * one {@link AttributeBase} may refer to multiple attributes used in SQL query when they have the same type
  * and there is equals operator between them.
  */
+@Deprecated
 public class AttributeBase {
 
     private String value;
