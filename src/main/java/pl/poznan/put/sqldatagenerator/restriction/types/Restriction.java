@@ -1,8 +1,8 @@
-package pl.poznan.put.sqldatagenerator.restriction;
+package pl.poznan.put.sqldatagenerator.restriction.types;
 
 import net.sf.jsqlparser.expression.Expression;
 
-public class Restriction {
+public abstract class Restriction {
     private Expression expression;
 
     public Restriction(Expression expression) {

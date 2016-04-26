@@ -3,6 +3,7 @@ package pl.poznan.put.sqldatagenerator.restriction;
 import com.bpodgursky.jbool_expressions.Expression;
 import com.bpodgursky.jbool_expressions.NExpression;
 import com.bpodgursky.jbool_expressions.Variable;
+import pl.poznan.put.sqldatagenerator.restriction.types.Restriction;
 
 import java.util.Collection;
 import java.util.List;

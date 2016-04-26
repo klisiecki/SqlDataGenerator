@@ -10,8 +10,8 @@ import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
 import net.sf.jsqlparser.expression.operators.relational.*;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
-import pl.poznan.put.sqldatagenerator.restriction.Restriction;
 import pl.poznan.put.sqldatagenerator.restriction.RestrictionFactory;
+import pl.poznan.put.sqldatagenerator.restriction.types.Restriction;
 
 public class RestrictionFinder extends AbstractFinder {
     private Expression<Restriction> result;

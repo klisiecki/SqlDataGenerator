@@ -4,6 +4,7 @@ import com.bpodgursky.jbool_expressions.Expression;
 import com.bpodgursky.jbool_expressions.NExpression;
 import com.bpodgursky.jbool_expressions.Or;
 import com.bpodgursky.jbool_expressions.rules.RuleSet;
+import pl.poznan.put.sqldatagenerator.restriction.types.Restriction;
 
 import java.util.ArrayList;
 import java.util.List;

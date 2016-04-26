@@ -4,7 +4,7 @@ package pl.poznan.put.sqldatagenerator.readers;
 import com.bpodgursky.jbool_expressions.Expression;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.Select;
-import pl.poznan.put.sqldatagenerator.restriction.Restriction;
+import pl.poznan.put.sqldatagenerator.restriction.types.Restriction;
 import pl.poznan.put.sqldatagenerator.sql.*;
 import pl.poznan.put.sqldatagenerator.sql.model.OldAttributeRestriction;
 import pl.poznan.put.sqldatagenerator.sql.model.RestrictionEquals;
