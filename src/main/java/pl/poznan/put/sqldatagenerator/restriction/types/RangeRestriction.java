@@ -15,8 +15,13 @@ public class RangeRestriction extends OneAttributeRestriction {
         super(expression);
     }
 
+    public void setRangeSet(TreeRangeSet rangeSet) {
+        this.rangeSet = rangeSet;
+    }
+
     public static RangeRestriction fromGreaterThan(GreaterThan greaterThan) {
-        return new RangeRestriction(greaterThan);
+        RangeRestriction restriction = new RangeRestriction(greaterThan);
+        return restriction;
     }
 
     public static RangeRestriction fromBetween(Between between) {
