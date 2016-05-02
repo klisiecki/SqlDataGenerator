@@ -5,6 +5,7 @@ import com.bpodgursky.jbool_expressions.NExpression;
 import com.bpodgursky.jbool_expressions.Variable;
 import pl.poznan.put.sqldatagenerator.restriction.types.Restriction;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -36,7 +37,7 @@ public class Restrictions {
             List<Restriction> list = children.stream().map(e -> ((Variable<Restriction>) e).getValue()).collect(toList());
             return new Restrictions(list);
         } else if (exp instanceof Variable) {
-            return new Restrictions(singletonList(((Variable<Restriction>) exp).getValue()));
+            return new Restrictions(new ArrayList<>(singletonList(((Variable<Restriction>) exp).getValue())));
         } else {
             throw new RuntimeException(exp.getClass() + " not supported here");
         }

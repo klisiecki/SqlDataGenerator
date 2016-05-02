@@ -2,7 +2,6 @@ package pl.poznan.put.sqldatagenerator.restriction;
 
 import com.google.common.collect.Range;
 import com.google.common.collect.TreeRangeSet;
-import pl.poznan.put.sqldatagenerator.Utils;
 
 @Deprecated
 public abstract class OldRestriction {
@@ -23,7 +22,7 @@ public abstract class OldRestriction {
     public void addAndRange(Range range) {
         TreeRangeSet t = TreeRangeSet.create();
         t.add(range);
-        rangeSet = Utils.intersectRangeSets(rangeSet, t);
+//        rangeSet = Utils.intersectRangeSets(rangeSet, t);
     }
 
     public void addOrRangeSet(TreeRangeSet set) {
@@ -31,6 +30,6 @@ public abstract class OldRestriction {
     }
 
     public void addAndRangeSet(TreeRangeSet set) {
-        rangeSet = Utils.intersectRangeSets(rangeSet, set);
+//        rangeSet = Utils.intersectRangeSets(rangeSet, set);
     }
 }

@@ -59,7 +59,7 @@ public class DataController {
         tableBaseMap.values().forEach(table -> table.calculateResetFactor(maxDataRows));
 
         restrictionsManager.setSQLCriteria(sqlData.getCriteria());
-        restrictionsManager.setXMLConstraints(xmlData.getConstraints());
+        restrictionsManager.setXMLConstraints(xmlData.getConstraints(tableBaseMap));
     }
 
     private void initTableBase(XMLData xmlData) {
@@ -89,10 +89,10 @@ public class DataController {
 
         for (String attributeName : xmlAttributes) {
             //TODO consider adding only attributes present in SQL (could be configurable)
-            AttributeType attributeType = AttributeType.valueOf(xmlData.getType(tableName, attributeName));
-            Attribute attribute = new Attribute(attributeName, attributeType);
+            AttributeType attributeType = xmlData.getType(tableName, attributeName);
+            Attribute attribute = new Attribute(tableInstance.getAliasName(), attributeName, attributeType);
             tableInstance.addAttribute(attribute);
-            AttributesMap.add(tableInstance.getAliasName(), attributeName, attribute);
+            AttributesMap.add(tableInstance, attributeName, attribute);
         }
     }
 

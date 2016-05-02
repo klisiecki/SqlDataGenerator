@@ -10,6 +10,7 @@ import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
 import net.sf.jsqlparser.expression.operators.relational.GreaterThan;
 import net.sf.jsqlparser.expression.operators.relational.InExpression;
 import net.sf.jsqlparser.schema.Column;
+import pl.poznan.put.sqldatagenerator.generator.Attribute;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 public class RangeRestriction extends OneAttributeRestriction {
@@ -23,6 +24,11 @@ public class RangeRestriction extends OneAttributeRestriction {
 
     public RangeRestriction(Expression expression, Column column, TreeRangeSet treeRangeSet) {
         super(expression, column);
+        this.treeRangeSet = treeRangeSet;
+    }
+
+    public RangeRestriction(Attribute attribute, TreeRangeSet treeRangeSet) {
+        super(attribute);
         this.treeRangeSet = treeRangeSet;
     }
 
@@ -105,5 +111,8 @@ public class RangeRestriction extends OneAttributeRestriction {
         return new RangeRestriction(equalsTo, null, null);
     }
 
-
+    @Override
+    public String toString() {
+        return "RangeRestriction[" + attributes.get(0) + ": " + (expression == null ? "" : expression + ", ") + treeRangeSet + "]";
+    }
 }

@@ -3,20 +3,17 @@ package pl.poznan.put.sqldatagenerator.generator;
 public class Attribute {
 
     private final String name;
+    private final String fullyQualifiedName;
     private String value;
     private final AttributeType type;
     private boolean isClear;
     private Attribute baseAttribute;
 
 
-    public Attribute(String name, AttributeType type) {
+    public Attribute(String tableName, String name, AttributeType type) {
         this.name = name;
+        this.fullyQualifiedName = tableName + "." + name;
         this.type = type;
-    }
-
-    public Attribute(Attribute attribute) {
-        this.name = attribute.getName();
-        this.type = attribute.getType();
     }
 
     public String getName() {
@@ -61,5 +58,10 @@ public class Attribute {
             throw new RuntimeException("Dependent attribute must have the same type as base attribute");
         }
         this.baseAttribute = baseAttribute;
+    }
+
+    @Override
+    public String toString() {
+        return fullyQualifiedName;
     }
 }

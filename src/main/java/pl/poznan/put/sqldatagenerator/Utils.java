@@ -23,16 +23,17 @@ public class Utils {
         }
     }
 
-    public static TreeRangeSet intersectRangeSets(TreeRangeSet a, TreeRangeSet b) {
+    public static void intersectRangeSets(TreeRangeSet a, TreeRangeSet b) {
         TreeRangeSet result = TreeRangeSet.create();
-        for (Range aRange: (Set<Range>) a.asRanges()) {
+        TreeRangeSet aClone = TreeRangeSet.create(a);
+        a.clear();
+        for (Range aRange : (Set<Range>) aClone.asRanges()) {
             for (Range bRange:  (Set<Range>) b.asRanges()) {
                 try {
                     Range r = bRange.intersection(aRange);
-                    result.add(r);
+                    a.add(r);
                 } catch (IllegalArgumentException ignore) {}
             }
         }
-        return result;
     }
 }

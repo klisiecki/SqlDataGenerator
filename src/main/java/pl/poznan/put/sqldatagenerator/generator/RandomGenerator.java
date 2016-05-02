@@ -7,19 +7,26 @@ import com.google.common.collect.TreeRangeSet;
 import java.util.Random;
 
 public class RandomGenerator {
-    public static Integer getInteger(int from, int to) {
+
+    //TODO if (from == Long.MIN_VALUE && to == Long.MAX_VALUE)
+    public static long getLong(long from, long to) {
         if (from == to) return from;
-        int max = to - from;
         Random rand = new Random();
-        int randomNum = rand.nextInt(max);
+        if (from == Long.MIN_VALUE && to == Long.MAX_VALUE) {
+            return rand.nextLong();
+        }
+
+        long max = to - from;
+        long randomNum = (long) (rand.nextDouble() * max);
         return randomNum + from;
     }
 
-    public static Integer getInteger(TreeRangeSet rangeSet) {
+    //TODO handle inclusive and exclusive bounds
+    public static long getLong(TreeRangeSet rangeSet) {
         Object[] ranges = rangeSet.asRanges().toArray();
-        int i = ranges.length == 1 ? 0 : getInteger(0, ranges.length);
+        int i = ranges.length == 1 ? 0 : (int) getLong(0, ranges.length);
         Range range = (Range) ranges[i];
-        return getInteger((Integer) range.lowerEndpoint(), (Integer) range.upperEndpoint());
+        return getLong((Long) range.lowerEndpoint(), (Long) range.upperEndpoint());
     }
 
     public static char getChar(char from, char to) {
@@ -35,7 +42,7 @@ public class RandomGenerator {
 
     public static String getString(String from, String to) {
         if (from.equals(to)) return from;
-        int length = getInteger(from.length(), to.length());
+        int length = (int) getLong(from.length(), to.length());
         StringBuilder stringBuilder = new StringBuilder(length);
         for (int i = 0; i < length; i++) {
             stringBuilder.append(getChar('A', 'z')); //TODO change to length ranges
@@ -46,7 +53,7 @@ public class RandomGenerator {
 
     public static String getString(TreeRangeSet rangeSet) {
         Object[] ranges = rangeSet.asRanges().toArray();
-        int i = ranges.length == 1 ? 0 : getInteger(0, ranges.length);
+        int i = ranges.length == 1 ? 0 : (int) getLong(0, ranges.length);
         Range range = (Range) ranges[i];
         return getString(range.lowerEndpoint().toString(), range.upperEndpoint().toString());
 

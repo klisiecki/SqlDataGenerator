@@ -1,9 +1,17 @@
 package pl.poznan.put.sqldatagenerator.readers;
 
+import com.google.common.collect.Range;
+import com.google.common.collect.TreeRangeSet;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+import pl.poznan.put.sqldatagenerator.generator.Attribute;
+import pl.poznan.put.sqldatagenerator.generator.AttributeType;
+import pl.poznan.put.sqldatagenerator.generator.AttributesMap;
+import pl.poznan.put.sqldatagenerator.generator.TableBase;
 import pl.poznan.put.sqldatagenerator.restriction.Restrictions;
+import pl.poznan.put.sqldatagenerator.restriction.types.RangeRestriction;
+import pl.poznan.put.sqldatagenerator.restriction.types.Restriction;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
@@ -18,8 +26,8 @@ import javax.xml.xpath.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public class XMLData {
     private final XPathFactory xPathfactory = XPathFactory.newInstance();
@@ -33,8 +41,34 @@ public class XMLData {
         document = builder.parse(fileName);
     }
 
-    public Restrictions getConstraints() {
-        return new Restrictions(Collections.emptyList());
+    public Restrictions getConstraints(Map<String, TableBase> tableBaseMap) {
+        List<Restriction> restrictionList = new ArrayList<>();
+        for (String tableName : getTables()) {
+            for (String attributeName : getAttributes(tableName)) {
+                List<Attribute> attributes = AttributesMap.get(tableBaseMap.get(tableName), attributeName);
+                AttributeType attributeType = getType(tableName, attributeName);
+                TreeRangeSet rangeSet = null;
+                switch (attributeType) {
+                    case INTEGER:
+                        rangeSet = getIntegerRangeSet(tableName, attributeName);
+                        break;
+                }
+                for (Attribute attribute : attributes) {
+                    restrictionList.add(new RangeRestriction(attribute, rangeSet));
+                }
+            }
+        }
+        return new Restrictions(restrictionList);
+    }
+
+    private TreeRangeSet<Long> getIntegerRangeSet(String table, String attribute) {
+        TreeRangeSet<Long> treeRangeSet = TreeRangeSet.create();
+        String minValue = getMinValue(table, attribute);
+        String maxValue = getMaxValue(table, attribute);
+        Long min = minValue == null ? Long.MIN_VALUE : Long.parseLong(minValue);
+        Long max = maxValue == null ? Long.MAX_VALUE : Long.parseLong(maxValue);
+        treeRangeSet.add(Range.closed(min, max));
+        return treeRangeSet;
     }
 
     private void validate(String fileName) throws IOException, SAXException {
@@ -64,7 +98,8 @@ public class XMLData {
             result = Integer.parseInt(e.evaluate(document));
         } catch (XPathExpressionException e1) {
             e1.printStackTrace();
-        } catch (NumberFormatException ignore) {}
+        } catch (NumberFormatException ignore) {
+        }
         return result;
     }
 
@@ -75,7 +110,8 @@ public class XMLData {
             result = Integer.parseInt(e.evaluate(document));
         } catch (XPathExpressionException e1) {
             e1.printStackTrace();
-        } catch (NumberFormatException ignore) {}
+        } catch (NumberFormatException ignore) {
+        }
         return result;
     }
 
@@ -186,9 +222,9 @@ public class XMLData {
         }
     }
 
-    public String getType(String table, String attribute) {
+    public AttributeType getType(String table, String attribute) {
         try {
-            return getAttributeProperty(table, attribute, "TYPE");
+            return AttributeType.valueOf(getAttributeProperty(table, attribute, "TYPE"));
         } catch (Exception e) {
             e.printStackTrace();
             return null;

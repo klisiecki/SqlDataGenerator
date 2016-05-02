@@ -28,13 +28,17 @@ public class TableBase {
         this.name = name;
         this.dataCountLimit = dataCountLimit;
         this.dataCount = 0;
-        this.fileNum = 1;
+        this.fileNum = 0;
         this.instanceList = new ArrayList<>();
         this.attributesNames = attributesNames;
     }
 
     public void addInstance(TableInstance instance) {
         instanceList.add(instance);
+    }
+
+    public List<TableInstance> getInstances() {
+        return instanceList;
     }
 
     public List<String> getAttributesNames() {
@@ -81,9 +85,10 @@ public class TableBase {
 
     public void saveInstance(List<String> values) {
         if (dataCount % configuration.getRowsPerFile() == 0) {
-            fileNum++;
             initFile();
+            fileNum++;
         }
         writeList(values);
+        dataCount++;
     }
 }
