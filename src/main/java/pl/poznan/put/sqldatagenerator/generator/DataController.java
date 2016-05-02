@@ -92,6 +92,7 @@ public class DataController {
             AttributeType attributeType = AttributeType.valueOf(xmlData.getType(tableName, attributeName));
             Attribute attribute = new Attribute(attributeName, attributeType);
             tableInstance.addAttribute(attribute);
+            AttributesMap.add(tableInstance.getAliasName(), attributeName, attribute);
         }
     }
 

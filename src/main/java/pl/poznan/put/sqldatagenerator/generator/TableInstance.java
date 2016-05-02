@@ -47,6 +47,10 @@ public class TableInstance {
         return base;
     }
 
+    public String getAliasName() {
+        return aliasName;
+    }
+
     public boolean shouldBeGenerated(long iteration) {
         return base.shouldBeGenerated(iteration);
     }

@@ -30,9 +30,10 @@ public class RestrictionsManager {
             throw new RuntimeException("Already initialized!");
         }
 
-        NExpression<Restriction> dnfForm = (NExpression<Restriction>) RuleSet.toDNF(criteria);
+        Expression<Restriction> dnfForm = RuleSet.toDNF(criteria);
         if (dnfForm instanceof Or) {
-            restrictionsList.addAll(dnfForm.getChildren().stream().map(Restrictions::fromExpression).collect(toList()));
+            restrictionsList.addAll(((NExpression<Restriction>) dnfForm).getChildren().stream()
+                    .map(Restrictions::fromExpression).collect(toList()));
         } else {
             restrictionsList.add(Restrictions.fromExpression(dnfForm));
         }
