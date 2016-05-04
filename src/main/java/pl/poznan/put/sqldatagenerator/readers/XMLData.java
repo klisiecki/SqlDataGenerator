@@ -1,5 +1,6 @@
 package pl.poznan.put.sqldatagenerator.readers;
 
+import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
 import com.google.common.collect.TreeRangeSet;
 import org.w3c.dom.Document;
@@ -63,11 +64,15 @@ public class XMLData {
 
     private TreeRangeSet<Long> getIntegerRangeSet(String table, String attribute) {
         TreeRangeSet<Long> treeRangeSet = TreeRangeSet.create();
+        treeRangeSet.add(Range.all());
         String minValue = getMinValue(table, attribute);
         String maxValue = getMaxValue(table, attribute);
-        Long min = minValue == null ? Long.MIN_VALUE : Long.parseLong(minValue);
-        Long max = maxValue == null ? Long.MAX_VALUE : Long.parseLong(maxValue);
-        treeRangeSet.add(Range.closed(min, max));
+        if (minValue != null) {
+            treeRangeSet.add(Range.downTo(Long.valueOf(minValue), BoundType.CLOSED));
+        }
+        if (maxValue != null) {
+            treeRangeSet.add(Range.upTo(Long.valueOf(maxValue), BoundType.CLOSED));
+        }
         return treeRangeSet;
     }
 

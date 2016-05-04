@@ -1,32 +1,49 @@
 package pl.poznan.put.sqldatagenerator.generator;
 
 
+import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
 import com.google.common.collect.TreeRangeSet;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class RandomGenerator {
 
-    //TODO if (from == Long.MIN_VALUE && to == Long.MAX_VALUE)
-    public static long getLong(long from, long to) {
-        if (from == to) return from;
-        Random rand = new Random();
-        if (from == Long.MIN_VALUE && to == Long.MAX_VALUE) {
-            return rand.nextLong();
-        }
+    private static ThreadLocalRandom random = ThreadLocalRandom.current();
 
-        long max = to - from;
-        long randomNum = (long) (rand.nextDouble() * max);
-        return randomNum + from;
+    /**
+     * Returns a pseudorandom value from given {@link TreeRangeSet}.
+     *
+     * @param rangeSet {@link TreeRangeSet} of {@link Long} type. Must not contain empty ranges.
+     * @return random {@link Long} value from random {@link Range} in given set.
+     */
+    public static long getLong(TreeRangeSet<Long> rangeSet) {
+        List<Range<Long>> ranges = new ArrayList<>();
+        ranges.addAll(rangeSet.asRanges());
+        int i = ranges.size() == 1 ? 0 : random.nextInt(ranges.size());
+        Range<Long> range = ranges.get(i);
+        long minValue = getMinLong(range);
+        long maxValue = getMaxLong(range);
+        return random.nextLong(minValue, maxValue);
     }
 
-    //TODO handle inclusive and exclusive bounds
-    public static long getLong(TreeRangeSet rangeSet) {
-        Object[] ranges = rangeSet.asRanges().toArray();
-        int i = ranges.length == 1 ? 0 : (int) getLong(0, ranges.length);
-        Range range = (Range) ranges[i];
-        return getLong((Long) range.lowerEndpoint(), (Long) range.upperEndpoint());
+    private static long getMinLong(Range<Long> range) {
+        if (!range.hasLowerBound()) {
+            return Long.MIN_VALUE;
+        }
+        int rangeTypeCorrection = range.lowerBoundType() == BoundType.CLOSED ? 1 : 0;
+        return range.lowerEndpoint() + rangeTypeCorrection;
+    }
+
+    private static long getMaxLong(Range<Long> range) {
+        if (!range.hasUpperBound()) {
+            return Long.MAX_VALUE;
+        }
+        int rangeTypeCorrection = range.upperBoundType() == BoundType.CLOSED ? 0 : 1;
+        return range.upperEndpoint() + rangeTypeCorrection;
     }
 
     public static char getChar(char from, char to) {
@@ -42,7 +59,7 @@ public class RandomGenerator {
 
     public static String getString(String from, String to) {
         if (from.equals(to)) return from;
-        int length = (int) getLong(from.length(), to.length());
+        int length = random.nextInt(from.length(), to.length());
         StringBuilder stringBuilder = new StringBuilder(length);
         for (int i = 0; i < length; i++) {
             stringBuilder.append(getChar('A', 'z')); //TODO change to length ranges
@@ -53,7 +70,7 @@ public class RandomGenerator {
 
     public static String getString(TreeRangeSet rangeSet) {
         Object[] ranges = rangeSet.asRanges().toArray();
-        int i = ranges.length == 1 ? 0 : (int) getLong(0, ranges.length);
+        int i = ranges.length == 1 ? 0 : random.nextInt(ranges.length);
         Range range = (Range) ranges[i];
         return getString(range.lowerEndpoint().toString(), range.upperEndpoint().toString());
 

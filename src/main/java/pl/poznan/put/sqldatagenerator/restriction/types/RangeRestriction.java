@@ -1,5 +1,6 @@
 package pl.poznan.put.sqldatagenerator.restriction.types;
 
+import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
 import com.google.common.collect.TreeRangeSet;
 import net.sf.jsqlparser.expression.Expression;
@@ -57,9 +58,9 @@ public class RangeRestriction extends OneAttributeRestriction {
         if (b instanceof LongValue || b instanceof SignedExpression) {
             Long value = getLong(b);
             if (boundType == RangeBoundType.INCLUSIVE) {
-                rangeSet.add(Range.closedOpen(value, Long.MAX_VALUE));
+                rangeSet.add(Range.downTo(value, BoundType.CLOSED));
             } else {
-                rangeSet.add(Range.open(value, Long.MAX_VALUE));
+                rangeSet.add(Range.downTo(value, BoundType.OPEN));
             }
         } else {
             throw new NotImplementedException();
@@ -72,9 +73,9 @@ public class RangeRestriction extends OneAttributeRestriction {
         if (b instanceof LongValue || b instanceof SignedExpression) {
             Long value = getLong(b);
             if (boundType == RangeBoundType.INCLUSIVE) {
-                rangeSet.add(Range.closedOpen(Long.MIN_VALUE, value));
+                rangeSet.add(Range.upTo(value, BoundType.CLOSED));
             } else {
-                rangeSet.add(Range.open(Long.MIN_VALUE, value));
+                rangeSet.add(Range.upTo(value, BoundType.OPEN));
             }
         } else {
             throw new NotImplementedException();
