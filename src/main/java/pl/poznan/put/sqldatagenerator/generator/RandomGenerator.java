@@ -3,6 +3,7 @@ package pl.poznan.put.sqldatagenerator.generator;
 
 import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
+import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
 
 import java.util.ArrayList;
@@ -15,18 +16,21 @@ public class RandomGenerator {
     private static ThreadLocalRandom random = ThreadLocalRandom.current();
 
     /**
-     * Returns a pseudorandom value from given {@link TreeRangeSet}.
+     * Returns a pseudorandom value from given {@link RangeSet}.
      *
      * @param rangeSet {@link TreeRangeSet} of {@link Long} type. Must not contain empty ranges.
      * @return random {@link Long} value from random {@link Range} in given set.
      */
-    public static long getLong(TreeRangeSet<Long> rangeSet) {
+    public static long getLong(RangeSet<Long> rangeSet) {
         List<Range<Long>> ranges = new ArrayList<>();
         ranges.addAll(rangeSet.asRanges());
         int i = ranges.size() == 1 ? 0 : random.nextInt(ranges.size());
         Range<Long> range = ranges.get(i);
         long minValue = getMinLong(range);
         long maxValue = getMaxLong(range);
+        if (minValue == maxValue) {
+            return minValue;
+        }
         return random.nextLong(minValue, maxValue);
     }
 
@@ -34,7 +38,7 @@ public class RandomGenerator {
         if (!range.hasLowerBound()) {
             return Long.MIN_VALUE;
         }
-        int rangeTypeCorrection = range.lowerBoundType() == BoundType.CLOSED ? 1 : 0;
+        int rangeTypeCorrection = range.lowerBoundType() == BoundType.CLOSED ? 0 : 1;
         return range.lowerEndpoint() + rangeTypeCorrection;
     }
 
@@ -42,7 +46,7 @@ public class RandomGenerator {
         if (!range.hasUpperBound()) {
             return Long.MAX_VALUE;
         }
-        int rangeTypeCorrection = range.upperBoundType() == BoundType.CLOSED ? 0 : 1;
+        int rangeTypeCorrection = range.upperBoundType() == BoundType.CLOSED ? 1 : 0;
         return range.upperEndpoint() + rangeTypeCorrection;
     }
 
@@ -68,7 +72,7 @@ public class RandomGenerator {
         return stringBuilder.toString();
     }
 
-    public static String getString(TreeRangeSet rangeSet) {
+    public static String getString(RangeSet rangeSet) {
         Object[] ranges = rangeSet.asRanges().toArray();
         int i = ranges.length == 1 ? 0 : random.nextInt(ranges.length);
         Range range = (Range) ranges[i];

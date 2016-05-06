@@ -28,8 +28,8 @@ public class SQLExpressionsUtils {
             }
         } else if (expression instanceof Between) {
             Between between = (Between) expression;
-            if (isColumn(between.getLeftExpression()) && isNumberValue(between.getBetweenExpressionStart())
-                    && isNumberValue(between.getBetweenExpressionEnd())) {
+            if (isColumn(between.getLeftExpression()) && isIntegerValue(between.getBetweenExpressionStart())
+                    && isIntegerValue(between.getBetweenExpressionEnd())) {
                 return true;
             }
         }
@@ -41,14 +41,14 @@ public class SQLExpressionsUtils {
     }
 
     public static boolean isSimpleValue(Expression expression) {
-        return isNumberValue(expression) || isStringValue(expression);
+        return isIntegerValue(expression) || isStringValue(expression);
     }
 
-    public static boolean isNumberValue(Expression expression) {
+    public static boolean isIntegerValue(Expression expression) {
         if (expression instanceof LongValue) {
             return true;
         } else if (expression instanceof SignedExpression) {
-            return isNumberValue(((SignedExpression) expression).getExpression());
+            return isIntegerValue(((SignedExpression) expression).getExpression());
         }
         return false;
     }
@@ -65,4 +65,55 @@ public class SQLExpressionsUtils {
         return expression instanceof DoubleValue;
     }
 
+    public static Long getLong(Expression expression) {
+        if (expression instanceof LongValue) {
+            return ((LongValue) expression).getValue();
+        } else if (expression instanceof SignedExpression) {
+            SignedExpression se = (SignedExpression) expression;
+            Expression e = se.getExpression();
+            return se.getSign() == '-' ? -getLong(e) : getLong(e);
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * @param expression must be positively checked by {@link SQLExpressionsUtils#isColumnAndValueExpression(Expression)}
+     * @return true if expression have form like [column][sign][value], false otherwise
+     */
+    public static boolean isInverted(BinaryExpression expression) {
+        return expression.getRightExpression() instanceof Column;
+    }
+
+    /**
+     * Returns {@link Column} from {@link BinaryExpression} containing {@link Expression} and {@link Column}
+     *
+     * @param expression must be positively checked by {@link SQLExpressionsUtils#isColumnAndValueExpression(Expression)}
+     * @return left or right {@link Expression} casted to {@link Column}
+     */
+    public static Column getColumn(BinaryExpression expression) {
+        Expression left = expression.getLeftExpression();
+        Expression right = expression.getRightExpression();
+        if (left instanceof Column) {
+            return (Column) left;
+        } else {
+            return (Column) right;
+        }
+    }
+
+    /**
+     * Returns {@link Expression} from {@link BinaryExpression} containing {@link Expression} and {@link Column}
+     *
+     * @param expression must be positively checked by {@link SQLExpressionsUtils#isColumnAndValueExpression(Expression)}
+     * @return left or right {@link Expression}
+     */
+    public static Expression getValueExpression(BinaryExpression expression) {
+        Expression left = expression.getLeftExpression();
+        Expression right = expression.getRightExpression();
+        if (left instanceof Column) {
+            return right;
+        } else {
+            return left;
+        }
+    }
 }

@@ -1,6 +1,7 @@
 package pl.poznan.put.sqldatagenerator;
 
 import com.google.common.collect.Range;
+import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
 
 import java.io.BufferedReader;
@@ -23,9 +24,8 @@ public class Utils {
         }
     }
 
-    public static void intersectRangeSets(TreeRangeSet a, TreeRangeSet b) {
-        TreeRangeSet result = TreeRangeSet.create();
-        TreeRangeSet aClone = TreeRangeSet.create(a);
+    public static void intersectRangeSets(RangeSet a, RangeSet b) {
+        RangeSet aClone = TreeRangeSet.create(a);
         a.clear();
         for (Range aRange : (Set<Range>) aClone.asRanges()) {
             for (Range bRange:  (Set<Range>) b.asRanges()) {

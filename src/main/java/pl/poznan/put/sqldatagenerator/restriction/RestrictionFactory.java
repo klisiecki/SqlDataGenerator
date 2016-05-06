@@ -24,6 +24,8 @@ public class RestrictionFactory {
                 return RangeRestriction.fromIn((InExpression) expression);
             } else if (expression instanceof EqualsTo) {
                 return RangeRestriction.fromEquals((EqualsTo) expression);
+            } else if (expression instanceof NotEqualsTo) {
+                return RangeRestriction.fromNotEquals((NotEqualsTo) expression);
             }
         }
         throw new RuntimeException("Instruction " + expression.toString() + " not implemented");

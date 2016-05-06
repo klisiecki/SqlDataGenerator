@@ -2,6 +2,7 @@ package pl.poznan.put.sqldatagenerator.restriction.types;
 
 import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
+import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
 import net.sf.jsqlparser.expression.BinaryExpression;
 import net.sf.jsqlparser.expression.Expression;
@@ -9,9 +10,12 @@ import net.sf.jsqlparser.expression.LongValue;
 import net.sf.jsqlparser.expression.SignedExpression;
 import net.sf.jsqlparser.expression.operators.relational.*;
 import net.sf.jsqlparser.schema.Column;
+import pl.poznan.put.sqldatagenerator.Utils;
 import pl.poznan.put.sqldatagenerator.generator.Attribute;
 import pl.poznan.put.sqldatagenerator.restriction.SQLExpressionsUtils;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
+import static pl.poznan.put.sqldatagenerator.restriction.SQLExpressionsUtils.*;
 
 public class RangeRestriction extends OneAttributeRestriction {
 
@@ -32,64 +36,102 @@ public class RangeRestriction extends OneAttributeRestriction {
         abstract SignType flip();
     }
 
-    private TreeRangeSet treeRangeSet;
+    private RangeSet rangeSet;
 
-    public RangeRestriction(Expression expression, Column column, TreeRangeSet treeRangeSet) {
+    public RangeRestriction(Expression expression, Column column, RangeSet rangeSet) {
         super(expression, column);
-        this.treeRangeSet = treeRangeSet;
+        this.rangeSet = rangeSet;
     }
 
-    public RangeRestriction(Attribute attribute, TreeRangeSet treeRangeSet) {
+    public RangeRestriction(Attribute attribute, RangeSet rangeSet) {
         super(attribute);
-        this.treeRangeSet = treeRangeSet;
+        this.rangeSet = rangeSet;
     }
 
-    public void setTreeRangeSet(TreeRangeSet treeRangeSet) {
-        this.treeRangeSet = treeRangeSet;
+    public void setRangeSet(RangeSet rangeSet) {
+        this.rangeSet = rangeSet;
     }
 
-    public TreeRangeSet getTreeRangeSet() {
-        return treeRangeSet;
-    }
-
-    private static Long getLong(Expression expression) {
-        if (expression instanceof LongValue) {
-            return ((LongValue) expression).getValue();
-        } else if (expression instanceof SignedExpression) {
-            SignedExpression se = (SignedExpression) expression;
-            Expression e = se.getExpression();
-            return -getLong(e);
-        } else {
-            return null;
-        }
+    public RangeSet getRangeSet() {
+        return rangeSet;
     }
 
     public static RangeRestriction fromGreaterThan(GreaterThan greaterThan) {
-        return fromBinaryExpression(greaterThan, SignType.GREATER_THAN, BoundType.OPEN);
+        SignType signType = SQLExpressionsUtils.isInverted(greaterThan) ? SignType.MINOR_THAN : SignType.GREATER_THAN;
+        RangeSet rangeSet = createMaxOrMinRangeSet(getValueExpression(greaterThan), signType, BoundType.OPEN);
+        return new RangeRestriction(greaterThan, getColumn(greaterThan), rangeSet);
     }
 
     public static RangeRestriction fromGreaterThanEquals(GreaterThanEquals greaterThanEquals) {
-        return fromBinaryExpression(greaterThanEquals, SignType.GREATER_THAN, BoundType.CLOSED);
+        SignType signType = SQLExpressionsUtils.isInverted(greaterThanEquals) ? SignType.MINOR_THAN : SignType.GREATER_THAN;
+        RangeSet rangeSet = createMaxOrMinRangeSet(getValueExpression(greaterThanEquals), signType, BoundType.CLOSED);
+        return new RangeRestriction(greaterThanEquals, getColumn(greaterThanEquals), rangeSet);
     }
 
     public static RangeRestriction fromMinorThan(MinorThan minorThan) {
-        return fromBinaryExpression(minorThan, SignType.MINOR_THAN, BoundType.OPEN);
+        SignType signType = SQLExpressionsUtils.isInverted(minorThan) ? SignType.GREATER_THAN : SignType.MINOR_THAN;
+        RangeSet rangeSet = createMaxOrMinRangeSet(getValueExpression(minorThan), signType, BoundType.OPEN);
+        return new RangeRestriction(minorThan, getColumn(minorThan), rangeSet);
     }
 
     public static RangeRestriction fromMinorThanEquals(MinorThanEquals minorThanEquals) {
-        return fromBinaryExpression(minorThanEquals, SignType.MINOR_THAN, BoundType.CLOSED);
+        SignType signType = SQLExpressionsUtils.isInverted(minorThanEquals) ? SignType.GREATER_THAN : SignType.MINOR_THAN;
+        RangeSet rangeSet = createMaxOrMinRangeSet(getValueExpression(minorThanEquals), signType, BoundType.CLOSED);
+        return new RangeRestriction(minorThanEquals, getColumn(minorThanEquals), rangeSet);
     }
 
-    private static RangeRestriction fromBinaryExpression(BinaryExpression binaryExpression, SignType signType, BoundType boundType) {
-        TreeRangeSet treeRangeSet;
-        Expression expression = getExpression(binaryExpression);
-        treeRangeSet = createMaxOrMinRestriction(expression, isInverted(binaryExpression) ? signType.flip() : signType, boundType);
-        return new RangeRestriction(expression, getColumn(binaryExpression), treeRangeSet);
+    public static RangeRestriction fromBetween(Between between) {
+        Column column = (Column) between.getLeftExpression();
+        RangeSet left = createMaxOrMinRangeSet(between.getBetweenExpressionStart(), SignType.GREATER_THAN, BoundType.CLOSED);
+        RangeSet right = createMaxOrMinRangeSet(between.getBetweenExpressionEnd(), SignType.MINOR_THAN, BoundType.CLOSED);
+        Utils.intersectRangeSets(left, right);
+        return new RangeRestriction(between, column, left);
     }
 
-    private static TreeRangeSet createMaxOrMinRestriction(Expression expression, SignType signType, BoundType boundType) {
+    public static RangeRestriction fromIn(InExpression in) {
+        Column column = (Column) in.getLeftExpression();
+        if (in.getRightItemsList() instanceof ExpressionList) {
+            ExpressionList list = (ExpressionList) in.getRightItemsList();
+            Expression first = list.getExpressions().get(0);
+            if (isIntegerValue(first)) {
+                RangeSet<Long> rangeSet = TreeRangeSet.create();
+                for (Expression e : list.getExpressions()) {
+                    Long value = getLong(e);
+                    rangeSet.add(Range.closed(value, value));
+                }
+                return new RangeRestriction(in, column, rangeSet);
+            } else {
+                throw new NotImplementedException();
+            }
+        } else {
+            throw new NotImplementedException();
+        }
+    }
+
+    public static RangeRestriction fromEquals(EqualsTo equalsTo) {
+        return getEqualsRangeRestriction(equalsTo);
+    }
+
+    private static RangeRestriction getEqualsRangeRestriction(BinaryExpression expression) {
+        Column column = getColumn(expression);
+        Expression valueExpression = getValueExpression(expression);
+        if (isIntegerValue(valueExpression)) {
+            RangeSet<Long> rangeSet = TreeRangeSet.create();
+            Long value = getLong(valueExpression);
+            rangeSet.add(Range.closed(value, value));
+            return new RangeRestriction(expression, column, rangeSet);
+        } else {
+            throw new NotImplementedException();
+        }
+    }
+
+    public static RangeRestriction fromNotEquals(NotEqualsTo notEqualsTo) {
+        return (RangeRestriction) getEqualsRangeRestriction(notEqualsTo).reverse();
+    }
+
+    private static RangeSet createMaxOrMinRangeSet(Expression expression, SignType signType, BoundType boundType) {
         if (expression instanceof LongValue || expression instanceof SignedExpression) {
-            TreeRangeSet<Long> rangeSet = TreeRangeSet.create();
+            RangeSet<Long> rangeSet = TreeRangeSet.create();
             Long value = getLong(expression);
             if (signType == SignType.GREATER_THAN) {
                 rangeSet.add(Range.downTo(value, boundType));
@@ -102,56 +144,13 @@ public class RangeRestriction extends OneAttributeRestriction {
         }
     }
 
-    private static boolean isInverted(BinaryExpression expression) {
-        return expression.getRightExpression() instanceof Column;
-    }
-
-    /**
-     * Returns {@link Column} from {@link BinaryExpression} containing {@link Expression} and {@link Column}
-     *
-     * @param expression must be positively checked by {@link SQLExpressionsUtils#isColumnAndValueExpression(Expression)}
-     * @return left or right Expression casted to {@link Column}
-     */
-    private static Column getColumn(BinaryExpression expression) {
-        Expression left = expression.getLeftExpression();
-        Expression right = expression.getRightExpression();
-        if (left instanceof Column) {
-            return (Column) left;
-        } else {
-            return (Column) right;
-        }
-    }
-
-    /**
-     * Returns {@link Expression} from {@link BinaryExpression} containing {@link Expression} and {@link Column}
-     *
-     * @param expression must be positively checked by {@link SQLExpressionsUtils#isColumnAndValueExpression(Expression)}
-     * @return left or right Expression
-     */
-    private static Expression getExpression(BinaryExpression expression) {
-        Expression left = expression.getLeftExpression();
-        Expression right = expression.getRightExpression();
-        if (left instanceof Column) {
-            return right;
-        } else {
-            return left;
-        }
-    }
-
-    public static RangeRestriction fromBetween(Between between) {
-        return new RangeRestriction(between, null, null);
-    }
-
-    public static RangeRestriction fromIn(InExpression in) {
-        return new RangeRestriction(in, null, null);
-    }
-
-    public static RangeRestriction fromEquals(EqualsTo equalsTo) {
-        return new RangeRestriction(equalsTo, null, null);
+    @Override
+    public Restriction reverse() {
+        return new RangeRestriction(attributes.get(0), rangeSet.complement());
     }
 
     @Override
     public String toString() {
-        return "RangeRestriction[" + attributes.get(0) + ": " + (expression == null ? "" : expression + ", ") + treeRangeSet + "]";
+        return "RangeRestriction[" + attributes.get(0) + ": " + (expression == null ? "" : expression + ", ") + rangeSet + "]";
     }
 }

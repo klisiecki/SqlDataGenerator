@@ -2,6 +2,7 @@ package pl.poznan.put.sqldatagenerator.solver;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Range;
+import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
 import org.apache.log4j.Logger;
 import pl.poznan.put.sqldatagenerator.Utils;
@@ -47,7 +48,7 @@ public class Solver {
             if (restrictions.size() == 1) {
                 switch (attribute.getType()) {
                     case INTEGER:
-                        attribute.setValue("" + RandomGenerator.getLong(((RangeRestriction) restrictions.toArray()[0]).getTreeRangeSet()));
+                        attribute.setValue("" + RandomGenerator.getLong(((RangeRestriction) restrictions.toArray()[0]).getRangeSet()));
                         break;
                     default:
                         throw new NotImplementedException();
@@ -85,10 +86,10 @@ public class Solver {
         List<RangeRestriction> rangeRestrictions = restrictions.stream()
                 .filter(r -> r instanceof RangeRestriction).map(r -> (RangeRestriction) r).collect(toList());
         if (rangeRestrictions.size() > 1) {
-            TreeRangeSet rangeSet = TreeRangeSet.create();
+            RangeSet rangeSet = TreeRangeSet.create();
             rangeSet.add(Range.all());
             rangeRestrictions.forEach(restriction -> {
-                Utils.intersectRangeSets(rangeSet, restriction.getTreeRangeSet());
+                Utils.intersectRangeSets(rangeSet, restriction.getRangeSet());
                 toRemoveRestrictions.put(attribute, restriction);
 
             });

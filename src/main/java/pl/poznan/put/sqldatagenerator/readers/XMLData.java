@@ -2,6 +2,7 @@ package pl.poznan.put.sqldatagenerator.readers;
 
 import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
+import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
@@ -48,7 +49,7 @@ public class XMLData {
             for (String attributeName : getAttributes(tableName)) {
                 List<Attribute> attributes = AttributesMap.get(tableBaseMap.get(tableName), attributeName);
                 AttributeType attributeType = getType(tableName, attributeName);
-                TreeRangeSet rangeSet = null;
+                RangeSet rangeSet = null;
                 switch (attributeType) {
                     case INTEGER:
                         rangeSet = getIntegerRangeSet(tableName, attributeName);
@@ -62,18 +63,18 @@ public class XMLData {
         return new Restrictions(restrictionList);
     }
 
-    private TreeRangeSet<Long> getIntegerRangeSet(String table, String attribute) {
-        TreeRangeSet<Long> treeRangeSet = TreeRangeSet.create();
-        treeRangeSet.add(Range.all());
+    private RangeSet<Long> getIntegerRangeSet(String table, String attribute) {
+        RangeSet<Long> rangeSet = TreeRangeSet.create();
+        rangeSet.add(Range.all());
         String minValue = getMinValue(table, attribute);
         String maxValue = getMaxValue(table, attribute);
         if (minValue != null) {
-            treeRangeSet.add(Range.downTo(Long.valueOf(minValue), BoundType.CLOSED));
+            rangeSet.add(Range.downTo(Long.valueOf(minValue), BoundType.CLOSED));
         }
         if (maxValue != null) {
-            treeRangeSet.add(Range.upTo(Long.valueOf(maxValue), BoundType.CLOSED));
+            rangeSet.add(Range.upTo(Long.valueOf(maxValue), BoundType.CLOSED));
         }
-        return treeRangeSet;
+        return rangeSet;
     }
 
     private void validate(String fileName) throws IOException, SAXException {
