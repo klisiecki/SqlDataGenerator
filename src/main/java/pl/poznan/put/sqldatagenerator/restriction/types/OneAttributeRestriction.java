@@ -11,7 +11,7 @@ public abstract class OneAttributeRestriction extends Restriction {
 
     public OneAttributeRestriction(Expression expression, Column column) {
         super(expression);
-        this.attributes = singletonList(AttributesMap.get(column.getTable().getName(), column.getColumnName()));
+        this.attributes = singletonList(AttributesMap.get(column));
     }
 
     public OneAttributeRestriction(Attribute attribute) {

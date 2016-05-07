@@ -3,16 +3,15 @@ package pl.poznan.put.sqldatagenerator.generator;
 public class Attribute {
 
     private final String name;
-    private final String fullyQualifiedName;
     private String value;
     private final AttributeType type;
     private boolean isClear;
     private Attribute baseAttribute;
+    private TableInstance tableInstance;
 
-
-    public Attribute(String tableName, String name, AttributeType type) {
+    public Attribute(TableInstance tableInstance, String name, AttributeType type) {
         this.name = name;
-        this.fullyQualifiedName = tableName + "." + name;
+        this.tableInstance = tableInstance;
         this.type = type;
     }
 
@@ -42,6 +41,10 @@ public class Attribute {
         return type;
     }
 
+    public String getBaseTableName() {
+        return tableInstance.getBase().getName();
+    }
+
     public boolean isClear() {
         return isClear;
     }
@@ -54,6 +57,9 @@ public class Attribute {
     }
 
     public void setBaseAttribute(Attribute baseAttribute) {
+        if (this.baseAttribute != null) {
+            throw new RuntimeException("Base attribute already set");
+        }
         if (type != baseAttribute.getType()) {
             throw new RuntimeException("Dependent attribute must have the same type as base attribute");
         }
@@ -62,6 +68,6 @@ public class Attribute {
 
     @Override
     public String toString() {
-        return fullyQualifiedName;
+        return tableInstance.getAliasName() + "." + name;
     }
 }

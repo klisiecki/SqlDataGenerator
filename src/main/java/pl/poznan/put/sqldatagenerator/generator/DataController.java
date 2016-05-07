@@ -13,8 +13,8 @@ import pl.poznan.put.sqldatagenerator.restriction.IntegerOldRestriction;
 import pl.poznan.put.sqldatagenerator.restriction.RestrictionsManager;
 import pl.poznan.put.sqldatagenerator.restriction.StringOldRestriction;
 import pl.poznan.put.sqldatagenerator.solver.Solver;
+import pl.poznan.put.sqldatagenerator.sql.model.AttributesPair;
 import pl.poznan.put.sqldatagenerator.sql.model.OldAttributeRestriction;
-import pl.poznan.put.sqldatagenerator.sql.model.RestrictionEquals;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.*;
@@ -54,7 +54,7 @@ public class DataController {
             initAttributes(xmlData, sqlData, table, tableInstance);
             tableInstanceMap.put(aliasName, tableInstance);
         }
-
+        connectKeys(xmlData, sqlData);
         maxDataRows = xmlData.getMaxRowsNum();
         tableBaseMap.values().forEach(table -> table.calculateResetFactor(maxDataRows));
 
@@ -90,9 +90,23 @@ public class DataController {
         for (String attributeName : xmlAttributes) {
             //TODO consider adding only attributes present in SQL (could be configurable)
             AttributeType attributeType = xmlData.getType(tableName, attributeName);
-            Attribute attribute = new Attribute(tableInstance.getAliasName(), attributeName, attributeType);
+            Attribute attribute = new Attribute(tableInstance, attributeName, attributeType);
             tableInstance.addAttribute(attribute);
             AttributesMap.add(tableInstance, attributeName, attribute);
+        }
+    }
+
+    private void connectKeys(XMLData xmlData, SQLData sqlData) {
+        for (AttributesPair attributesPair : sqlData.getJoinEquals()) {
+            Attribute attribute1 = attributesPair.getAttribute1();
+            Attribute attribute2 = attributesPair.getAttribute2();
+            if (xmlData.isPrimaryKey(attribute1.getBaseTableName(), attribute1.getName())) {
+                attribute2.setBaseAttribute(attribute1);
+            } else if (xmlData.isPrimaryKey(attribute2.getBaseTableName(), attribute2.getName())) {
+                attribute1.setBaseAttribute(attribute2);
+            } else {
+                throw new RuntimeException("Join on two primary keys or not keys");
+            }
         }
     }
 
@@ -180,19 +194,19 @@ public class DataController {
 
     @Deprecated
     private void addSQLJoinEquals(SQLData sqlData) {
-        List<RestrictionEquals> equalsList = sqlData.getJoinEquals();
-        for (RestrictionEquals c : equalsList) {
-            OldDataTable tableA = tableMap.get(c.getLeftColumn().getTable().getName());
-            OldDataTable tableB = tableMap.get(c.getRightColumn().getTable().getName());
-            OldAttribute oldAttributeA = tableA.getAttribute(c.getLeftColumn().getColumnName());
-            OldAttribute oldAttributeB = tableB.getAttribute(c.getRightColumn().getColumnName());
-            if (oldAttributeA != null && oldAttributeB != null) {
-                oldAttributeA.addEquals(oldAttributeB);
-                oldAttributeB.addEquals(oldAttributeA);
-            } else {
-                throw new RuntimeException("OldAttribute " + oldAttributeA + " or " + oldAttributeB + " not found");
-            }
-        }
+//        List<AttributesPair> equalsList = sqlData.getJoinEquals();
+//        for (AttributesPair c : equalsList) {
+//            OldDataTable tableA = tableMap.get(c.getLeftColumn().getTable().getName());
+//            OldDataTable tableB = tableMap.get(c.getRightColumn().getTable().getName());
+//            OldAttribute oldAttributeA = tableA.getAttribute(c.getLeftColumn().getColumnName());
+//            OldAttribute oldAttributeB = tableB.getAttribute(c.getRightColumn().getColumnName());
+//            if (oldAttributeA != null && oldAttributeB != null) {
+//                oldAttributeA.addEquals(oldAttributeB);
+//                oldAttributeB.addEquals(oldAttributeA);
+//            } else {
+//                throw new RuntimeException("OldAttribute " + oldAttributeA + " or " + oldAttributeB + " not found");
+//            }
+//        }
     }
 
     @Deprecated

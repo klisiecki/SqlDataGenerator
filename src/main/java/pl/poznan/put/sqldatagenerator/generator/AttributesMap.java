@@ -1,5 +1,7 @@
 package pl.poznan.put.sqldatagenerator.generator;
 
+import net.sf.jsqlparser.schema.Column;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,8 +15,12 @@ public class AttributesMap {
         map.put(getKey(tableInstance.getAliasName(), attributeName), attribute);
     }
 
-    public static Attribute get(String aliasName, String attributeName) {
+    private static Attribute get(String aliasName, String attributeName) {
         return map.get(getKey(aliasName, attributeName));
+    }
+
+    public static Attribute get(Column column) {
+        return get(column.getTable().getName(), column.getColumnName());
     }
 
     public static List<Attribute> get(TableBase tableBase, String attributeName) {

@@ -6,8 +6,8 @@ import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.Select;
 import pl.poznan.put.sqldatagenerator.restriction.types.Restriction;
 import pl.poznan.put.sqldatagenerator.sql.*;
+import pl.poznan.put.sqldatagenerator.sql.model.AttributesPair;
 import pl.poznan.put.sqldatagenerator.sql.model.OldAttributeRestriction;
-import pl.poznan.put.sqldatagenerator.sql.model.RestrictionEquals;
 
 import java.util.List;
 
@@ -29,9 +29,9 @@ public class SQLData {
         return attributesNamesFinder.getAttributesList(selectStatement, table);
     }
 
-    public List<RestrictionEquals> getJoinEquals() {
-        EqualsFinder equalsFinder = new EqualsFinder();
-        return equalsFinder.findEquals(selectStatement);
+    public List<AttributesPair> getJoinEquals() {
+        JoinEqualsFinder joinEqualsFinder = new JoinEqualsFinder();
+        return joinEqualsFinder.findEquals(selectStatement);
     }
 
     public Expression<Restriction> getCriteria() {

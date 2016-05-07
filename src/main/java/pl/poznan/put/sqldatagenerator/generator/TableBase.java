@@ -33,6 +33,10 @@ public class TableBase {
         this.attributesNames = attributesNames;
     }
 
+    public String getName() {
+        return name;
+    }
+
     public void addInstance(TableInstance instance) {
         instanceList.add(instance);
     }
