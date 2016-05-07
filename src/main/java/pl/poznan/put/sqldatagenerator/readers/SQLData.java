@@ -5,9 +5,11 @@ import com.bpodgursky.jbool_expressions.Expression;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.Select;
 import pl.poznan.put.sqldatagenerator.restriction.types.Restriction;
-import pl.poznan.put.sqldatagenerator.sql.*;
+import pl.poznan.put.sqldatagenerator.sql.AttributesNamesFinder;
+import pl.poznan.put.sqldatagenerator.sql.JoinEqualsFinder;
+import pl.poznan.put.sqldatagenerator.sql.RestrictionFinder;
+import pl.poznan.put.sqldatagenerator.sql.TablesFinder;
 import pl.poznan.put.sqldatagenerator.sql.model.AttributesPair;
-import pl.poznan.put.sqldatagenerator.sql.model.OldAttributeRestriction;
 
 import java.util.List;
 
@@ -39,9 +41,4 @@ public class SQLData {
         return restrictionFinder.getResult();
     }
 
-    @Deprecated
-    public List<OldAttributeRestriction> getOldRestrictions() {
-        OldRestrictionFinder restrictionFinder = new OldRestrictionFinder();
-        return restrictionFinder.findRestrictions(selectStatement);
-    }
 }

@@ -1,30 +1,20 @@
 package pl.poznan.put.sqldatagenerator.generator;
 
 
-import com.google.common.collect.Range;
-import com.google.common.collect.TreeRangeSet;
 import net.sf.jsqlparser.schema.Table;
 import org.apache.log4j.Logger;
 import pl.poznan.put.sqldatagenerator.Configuration;
 import pl.poznan.put.sqldatagenerator.readers.SQLData;
 import pl.poznan.put.sqldatagenerator.readers.XMLData;
-import pl.poznan.put.sqldatagenerator.restriction.CustomString;
-import pl.poznan.put.sqldatagenerator.restriction.IntegerOldRestriction;
 import pl.poznan.put.sqldatagenerator.restriction.RestrictionsManager;
-import pl.poznan.put.sqldatagenerator.restriction.StringOldRestriction;
 import pl.poznan.put.sqldatagenerator.solver.Solver;
 import pl.poznan.put.sqldatagenerator.sql.model.AttributesPair;
-import pl.poznan.put.sqldatagenerator.sql.model.OldAttributeRestriction;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.*;
 
 public class DataController {
     private static final Configuration configuration = Configuration.getInstance();
     private static final Logger logger = Logger.getLogger(DataController.class);
-
-    @Deprecated
-    private final Map<String, OldDataTable> tableMap;
 
     private final Map<String, TableBase> tableBaseMap;
     private final Map<String, TableInstance> tableInstanceMap;
@@ -34,7 +24,6 @@ public class DataController {
     private RestrictionsManager restrictionsManager;
 
     public DataController() {
-        this.tableMap = new HashMap<>();
         this.tableBaseMap = new HashMap<>();
         this.tableInstanceMap = new HashMap<>();
         this.restrictionsManager = new RestrictionsManager();
@@ -138,131 +127,6 @@ public class DataController {
         tableInstanceMap.values().stream()
                 .filter(table -> table.shouldBeGenerated(iteration))
                 .forEach(TableInstance::save);
-    }
-
-    @Deprecated
-    private void saveTablesOld(long iteration) {
-        for (Map.Entry<String, OldDataTable> e : tableMap.entrySet()) {
-            OldDataTable table = e.getValue();
-            if (table.shouldBeGenerated(iteration)) {
-                table.save();
-            }
-        }
-    }
-
-    @Deprecated
-    private void propagateEquals() {
-        Set<OldAttribute> processed = new HashSet<>();
-        for (Map.Entry<String, OldDataTable> e : tableMap.entrySet()) {
-            OldDataTable table = e.getValue();
-            for (Map.Entry<String, OldAttribute> e2 : table.getAttributeMap().entrySet()) {
-                OldAttribute oldAttribute = e2.getValue();
-                if (!processed.contains(oldAttribute)) {
-                    Set<OldAttribute> clique = new HashSet<>();
-                    oldAttribute.collectEquals(clique);
-                    for (OldAttribute a : clique) {
-                        a.addEquals(clique);
-                    }
-                    processed.addAll(clique);
-                }
-            }
-        }
-    }
-
-    @Deprecated
-    private void addSQLRestrictions(SQLData sqlData) {
-        List<OldAttributeRestriction> attributeRestrictions = sqlData.getOldRestrictions();
-        for (OldAttributeRestriction a : attributeRestrictions) {
-            OldAttribute oldAttribute = tableMap.get(a.getTableName()).getAttribute(a.getAttributeName());
-            oldAttribute.getRestriction().addAndRangeSet(a.getRestriction().getRangeSet());
-            // ranges complementary to restriction's range, for generating rows non-matching sql query
-            TreeRangeSet complementSet;
-            if (oldAttribute instanceof OldIntegerAttribute) {
-                complementSet = (TreeRangeSet) a.getRestriction().getRangeSet().complement().subRangeSet(Range.closed(Integer.MIN_VALUE / 2, Integer.MAX_VALUE / 2));
-            } else if (oldAttribute instanceof OldStringAttribute) {
-                complementSet = (TreeRangeSet) a.getRestriction().getRangeSet().complement().subRangeSet(Range.closed(CustomString.MIN_VALUE, CustomString.MAX_VALUE));
-            } else {
-                throw new NotImplementedException();
-            }
-
-            if (!complementSet.isEmpty()) {
-                oldAttribute.getNegativeRestriction().addAndRangeSet(complementSet);
-            }
-        }
-    }
-
-    @Deprecated
-    private void addSQLJoinEquals(SQLData sqlData) {
-//        List<AttributesPair> equalsList = sqlData.getJoinEquals();
-//        for (AttributesPair c : equalsList) {
-//            OldDataTable tableA = tableMap.get(c.getLeftColumn().getTable().getName());
-//            OldDataTable tableB = tableMap.get(c.getRightColumn().getTable().getName());
-//            OldAttribute oldAttributeA = tableA.getAttribute(c.getLeftColumn().getColumnName());
-//            OldAttribute oldAttributeB = tableB.getAttribute(c.getRightColumn().getColumnName());
-//            if (oldAttributeA != null && oldAttributeB != null) {
-//                oldAttributeA.addEquals(oldAttributeB);
-//                oldAttributeB.addEquals(oldAttributeA);
-//            } else {
-//                throw new RuntimeException("OldAttribute " + oldAttributeA + " or " + oldAttributeB + " not found");
-//            }
-//        }
-    }
-
-    @Deprecated
-    private void addXMLRestrictions(String tableName, OldAttribute oldAttribute, XMLData xmlData) {
-        String minValue = xmlData.getMinValue(tableName, oldAttribute.getName());
-        String maxValue = xmlData.getMaxValue(tableName, oldAttribute.getName());
-        List<String> values = xmlData.getValues(tableName, oldAttribute.getName());
-        if (oldAttribute instanceof OldIntegerAttribute) {
-            IntegerOldRestriction restriction = (IntegerOldRestriction) oldAttribute.getRestriction();
-            IntegerOldRestriction negativeRestriction = (IntegerOldRestriction) oldAttribute.getNegativeRestriction();
-            if (minValue != null) {
-                restriction.addAndRange(Range.closed(Integer.parseInt(minValue), Integer.MAX_VALUE));
-                negativeRestriction.addAndRange(Range.closed(Integer.parseInt(minValue), Integer.MAX_VALUE));
-            }
-            if (maxValue != null) {
-                restriction.addAndRange(Range.closed(Integer.MIN_VALUE, Integer.parseInt(maxValue)));
-                negativeRestriction.addAndRange(Range.closed(Integer.MIN_VALUE, Integer.parseInt(maxValue)));
-            }
-
-            if (values != null) {
-                TreeRangeSet rangeSet = TreeRangeSet.create();
-                for (String value : values) {
-                    int v = Integer.parseInt(value);
-                    rangeSet.add(Range.closed(v, v));
-                }
-
-                restriction.addAndRangeSet(rangeSet);
-                negativeRestriction.addAndRangeSet(rangeSet);
-            }
-
-        } else if (oldAttribute instanceof OldStringAttribute) {
-            StringOldRestriction restriction = (StringOldRestriction) oldAttribute.getRestriction();
-            StringOldRestriction negativeRestriction = (StringOldRestriction) oldAttribute.getNegativeRestriction();
-
-            if (minValue != null) {
-                int minIntValue = Integer.parseInt(minValue);
-                restriction.addAndRange(Range.closed(new CustomString('A', minIntValue), CustomString.MAX_VALUE));
-                negativeRestriction.addAndRange(Range.closed(new CustomString('A', minIntValue), CustomString.MAX_VALUE));
-            }
-            if (maxValue != null) {
-                int maxIntValue = Integer.parseInt(maxValue);
-                restriction.addAndRange(Range.closed(CustomString.MIN_VALUE, new CustomString('z', maxIntValue)));
-                negativeRestriction.addAndRange(Range.closed(CustomString.MIN_VALUE, new CustomString('z', maxIntValue)));
-            }
-
-            if (values != null) {
-                TreeRangeSet rangeSet = TreeRangeSet.create();
-                for (String value : values) {
-                    rangeSet.add(Range.closed(new CustomString(value), new CustomString(value)));
-                }
-
-                restriction.addAndRangeSet(rangeSet);
-                negativeRestriction.addAndRangeSet(rangeSet);
-            }
-        } else {
-            throw new NotImplementedException();
-        }
     }
 
     @Override
