@@ -145,7 +145,13 @@ public class RangeRestriction extends OneAttributeRestriction {
 
     @Override
     public Restriction reverse() {
-        return new RangeRestriction(attributes.get(0), rangeSet.complement());
+        rangeSet = rangeSet.complement();
+        return this;
+    }
+
+    @Override
+    public Restriction clone() {
+        return new RangeRestriction(attributes.get(0), TreeRangeSet.create(rangeSet));
     }
 
     @Override

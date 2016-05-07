@@ -1,8 +1,6 @@
 package pl.poznan.put.sqldatagenerator.restriction;
 
-import com.bpodgursky.jbool_expressions.Expression;
-import com.bpodgursky.jbool_expressions.NExpression;
-import com.bpodgursky.jbool_expressions.Variable;
+import com.bpodgursky.jbool_expressions.*;
 import pl.poznan.put.sqldatagenerator.restriction.types.Restriction;
 
 import java.util.ArrayList;
@@ -28,19 +26,23 @@ public class Restrictions {
     }
 
     /**
-     * @param exp must be and and and
-     * @return
+     * @param expression must be {@link And} or {@link Or}
+     * @return {@link Restrictions} object with copy of {@link Restriction}s from given expression
      */
-    public static Restrictions fromExpression(Expression<Restriction> exp) {
-        if (exp instanceof NExpression) {
-            List<Expression<Restriction>> children = ((NExpression<Restriction>) exp).getChildren();
-            List<Restriction> list = children.stream().map(e -> ((Variable<Restriction>) e).getValue()).collect(toList());
+    public static Restrictions fromExpression(Expression<Restriction> expression) {
+        if (expression instanceof NExpression) {
+            List<Expression<Restriction>> children = ((NExpression<Restriction>) expression).getChildren();
+            List<Restriction> list = children.stream().map(e -> ((Variable<Restriction>) e).getValue().clone()).collect(toList());
             return new Restrictions(list);
-        } else if (exp instanceof Variable) {
-            return new Restrictions(new ArrayList<>(singletonList(((Variable<Restriction>) exp).getValue())));
+        } else if (expression instanceof Variable) {
+            return new Restrictions(new ArrayList<>(singletonList(((Variable<Restriction>) expression).getValue().clone())));
         } else {
-            throw new RuntimeException(exp.getClass() + " not supported here");
+            throw new RuntimeException(expression.getClass() + " not supported here");
         }
+    }
+
+    public void reverserAll() {
+        restrictions.forEach(Restriction::reverse);
     }
 
     @Override

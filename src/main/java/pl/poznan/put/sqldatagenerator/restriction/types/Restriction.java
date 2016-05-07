@@ -19,6 +19,8 @@ public abstract class Restriction {
 
     public abstract Restriction reverse();
 
+    public abstract Restriction clone();
+
     @Override
     public String toString() {
         return "Restriction{" +

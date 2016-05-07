@@ -118,7 +118,7 @@ public class DataController {
                 logger.debug((int) ((double) iteration / maxDataRows * 100) + "%");
             }
             clearTables(iteration);
-            generateRow();
+            generateRow(iteration < positiveRows);
             saveTables(iteration);
         }
         tableBaseMap.values().forEach(TableBase::closeTableFile);
@@ -130,8 +130,8 @@ public class DataController {
                 .forEach(TableInstance::clear);
     }
 
-    private void generateRow() {
-        new Solver(restrictionsManager.getRandom()).solve();
+    private void generateRow(boolean positive) {
+        new Solver(restrictionsManager.getRandom(positive)).solve();
     }
 
     private void saveTables(long iteration) {

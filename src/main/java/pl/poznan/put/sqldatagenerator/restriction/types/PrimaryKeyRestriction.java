@@ -22,6 +22,11 @@ public class PrimaryKeyRestriction extends OneAttributeRestriction {
     }
 
     @Override
+    public Restriction clone() {
+        throw new RuntimeException("Cannot copy primary key restriction");
+    }
+
+    @Override
     public String toString() {
         return "PrimaryKeyRestriction{" + attributes.get(0) + "}";
     }
