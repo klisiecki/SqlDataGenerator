@@ -21,7 +21,7 @@ public class RandomGenerator {
      * @param rangeSet {@link TreeRangeSet} of {@link Long} type. Must not contain empty ranges.
      * @return random {@link Long} value from random {@link Range} in given set.
      */
-    public static long getLong(RangeSet<Long> rangeSet) {
+    public static Long getLong(RangeSet<Long> rangeSet) {
         List<Range<Long>> ranges = new ArrayList<>();
         ranges.addAll(rangeSet.asRanges());
         int i = ranges.size() == 1 ? 0 : random.nextInt(ranges.size());

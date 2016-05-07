@@ -12,7 +12,6 @@ import net.sf.jsqlparser.expression.operators.relational.*;
 import net.sf.jsqlparser.schema.Column;
 import pl.poznan.put.sqldatagenerator.Utils;
 import pl.poznan.put.sqldatagenerator.generator.Attribute;
-import pl.poznan.put.sqldatagenerator.restriction.SQLExpressionsUtils;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import static pl.poznan.put.sqldatagenerator.restriction.SQLExpressionsUtils.*;
@@ -57,25 +56,25 @@ public class RangeRestriction extends OneAttributeRestriction {
     }
 
     public static RangeRestriction fromGreaterThan(GreaterThan greaterThan) {
-        SignType signType = SQLExpressionsUtils.isInverted(greaterThan) ? SignType.MINOR_THAN : SignType.GREATER_THAN;
+        SignType signType = isInverted(greaterThan) ? SignType.MINOR_THAN : SignType.GREATER_THAN;
         RangeSet rangeSet = createMaxOrMinRangeSet(getValueExpression(greaterThan), signType, BoundType.OPEN);
         return new RangeRestriction(greaterThan, getColumn(greaterThan), rangeSet);
     }
 
     public static RangeRestriction fromGreaterThanEquals(GreaterThanEquals greaterThanEquals) {
-        SignType signType = SQLExpressionsUtils.isInverted(greaterThanEquals) ? SignType.MINOR_THAN : SignType.GREATER_THAN;
+        SignType signType = isInverted(greaterThanEquals) ? SignType.MINOR_THAN : SignType.GREATER_THAN;
         RangeSet rangeSet = createMaxOrMinRangeSet(getValueExpression(greaterThanEquals), signType, BoundType.CLOSED);
         return new RangeRestriction(greaterThanEquals, getColumn(greaterThanEquals), rangeSet);
     }
 
     public static RangeRestriction fromMinorThan(MinorThan minorThan) {
-        SignType signType = SQLExpressionsUtils.isInverted(minorThan) ? SignType.GREATER_THAN : SignType.MINOR_THAN;
+        SignType signType = isInverted(minorThan) ? SignType.GREATER_THAN : SignType.MINOR_THAN;
         RangeSet rangeSet = createMaxOrMinRangeSet(getValueExpression(minorThan), signType, BoundType.OPEN);
         return new RangeRestriction(minorThan, getColumn(minorThan), rangeSet);
     }
 
     public static RangeRestriction fromMinorThanEquals(MinorThanEquals minorThanEquals) {
-        SignType signType = SQLExpressionsUtils.isInverted(minorThanEquals) ? SignType.GREATER_THAN : SignType.MINOR_THAN;
+        SignType signType = isInverted(minorThanEquals) ? SignType.GREATER_THAN : SignType.MINOR_THAN;
         RangeSet rangeSet = createMaxOrMinRangeSet(getValueExpression(minorThanEquals), signType, BoundType.CLOSED);
         return new RangeRestriction(minorThanEquals, getColumn(minorThanEquals), rangeSet);
     }
@@ -112,6 +111,10 @@ public class RangeRestriction extends OneAttributeRestriction {
         return getEqualsRangeRestriction(equalsTo);
     }
 
+    public static RangeRestriction fromNotEquals(NotEqualsTo notEqualsTo) {
+        return (RangeRestriction) getEqualsRangeRestriction(notEqualsTo).reverse();
+    }
+
     private static RangeRestriction getEqualsRangeRestriction(BinaryExpression expression) {
         Column column = getColumn(expression);
         Expression valueExpression = getValueExpression(expression);
@@ -123,10 +126,6 @@ public class RangeRestriction extends OneAttributeRestriction {
         } else {
             throw new NotImplementedException();
         }
-    }
-
-    public static RangeRestriction fromNotEquals(NotEqualsTo notEqualsTo) {
-        return (RangeRestriction) getEqualsRangeRestriction(notEqualsTo).reverse();
     }
 
     private static RangeSet createMaxOrMinRangeSet(Expression expression, SignType signType, BoundType boundType) {

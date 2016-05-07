@@ -9,6 +9,7 @@ import pl.poznan.put.sqldatagenerator.Utils;
 import pl.poznan.put.sqldatagenerator.generator.Attribute;
 import pl.poznan.put.sqldatagenerator.generator.RandomGenerator;
 import pl.poznan.put.sqldatagenerator.restriction.Restrictions;
+import pl.poznan.put.sqldatagenerator.restriction.types.PrimaryKeyRestriction;
 import pl.poznan.put.sqldatagenerator.restriction.types.RangeRestriction;
 import pl.poznan.put.sqldatagenerator.restriction.types.Restriction;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
@@ -46,12 +47,19 @@ public class Solver {
                 continue;
             }
             if (restrictions.size() == 1) {
-                switch (attribute.getType()) {
-                    case INTEGER:
-                        attribute.setValue("" + RandomGenerator.getLong(((RangeRestriction) restrictions.toArray()[0]).getRangeSet()));
-                        break;
-                    default:
-                        throw new NotImplementedException();
+                Restriction restriction = (Restriction) restrictions.toArray()[0];
+                if (restriction instanceof RangeRestriction) {
+                    RangeRestriction rangeRestriction = (RangeRestriction) restriction;
+                    switch (attribute.getType()) {
+                        case INTEGER:
+                            attribute.setValue(RandomGenerator.getLong(rangeRestriction.getRangeSet()).toString());
+                            break;
+                        default:
+                            throw new NotImplementedException();
+                    }
+                } else if (restriction instanceof PrimaryKeyRestriction) {
+                    PrimaryKeyRestriction primaryKeyRestriction = (PrimaryKeyRestriction) restriction;
+                    attribute.setValue(primaryKeyRestriction.getNextValue().toString());
                 }
             } else {
                 throw new NotImplementedException();
@@ -93,6 +101,9 @@ public class Solver {
                 toRemoveRestrictions.put(attribute, restriction);
 
             });
+            if (rangeSet.isEmpty()) {
+                throw new RuntimeException("Range for attribute " + attribute.getName() + " is empty");
+            }
             restrictionsByAttribute.put(attribute, new RangeRestriction(attribute, rangeSet));
         }
     }

@@ -29,8 +29,8 @@ public class OldIntegerAttribute extends OldAttribute {
 
     @Override
     protected void generateFromRestriction(boolean negative) {
-        IntegerOldRestriction integerRestriction = negative ? (IntegerOldRestriction) getNegativeRestriction() : (IntegerOldRestriction) getRestriction();
-        setValue((int) RandomGenerator.getLong(integerRestriction.getRangeSet()));
+//        IntegerOldRestriction integerRestriction = negative ? (IntegerOldRestriction) getNegativeRestriction() : (IntegerOldRestriction) getRestriction();
+//        setValue((int) RandomGenerator.getLong(integerRestriction.getRangeSet()));
     }
 
     @Override

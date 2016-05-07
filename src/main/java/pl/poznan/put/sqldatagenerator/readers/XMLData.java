@@ -11,7 +11,10 @@ import pl.poznan.put.sqldatagenerator.generator.Attribute;
 import pl.poznan.put.sqldatagenerator.generator.AttributeType;
 import pl.poznan.put.sqldatagenerator.generator.AttributesMap;
 import pl.poznan.put.sqldatagenerator.generator.TableBase;
+import pl.poznan.put.sqldatagenerator.generator.key.KeyGenerator;
+import pl.poznan.put.sqldatagenerator.generator.key.SimpleKeyGenerator;
 import pl.poznan.put.sqldatagenerator.restriction.Restrictions;
+import pl.poznan.put.sqldatagenerator.restriction.types.PrimaryKeyRestriction;
 import pl.poznan.put.sqldatagenerator.restriction.types.RangeRestriction;
 import pl.poznan.put.sqldatagenerator.restriction.types.Restriction;
 
@@ -50,13 +53,24 @@ public class XMLData {
                 List<Attribute> attributes = AttributesMap.get(tableBaseMap.get(tableName), attributeName);
                 AttributeType attributeType = getType(tableName, attributeName);
                 RangeSet rangeSet = null;
+                KeyGenerator keyGenerator = null;
                 switch (attributeType) {
                     case INTEGER:
-                        rangeSet = getIntegerRangeSet(tableName, attributeName);
+                        if (isPrimaryKey(tableName, attributeName)) {
+                            keyGenerator = new SimpleKeyGenerator(getRowsNum(tableName));
+                        } else {
+                            rangeSet = getIntegerRangeSet(tableName, attributeName);
+                        }
                         break;
                 }
                 for (Attribute attribute : attributes) {
-                    restrictionList.add(new RangeRestriction(attribute, rangeSet));
+                    if (rangeSet != null) {
+                        restrictionList.add(new RangeRestriction(attribute, rangeSet));
+                    } else if (keyGenerator != null) {
+                        restrictionList.add(new PrimaryKeyRestriction(attribute, keyGenerator));
+                    } else {
+                        throw new RuntimeException("Attribute must have restriction");
+                    }
                 }
             }
         }
