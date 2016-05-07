@@ -58,8 +58,7 @@ public class DataController {
         maxDataRows = xmlData.getMaxRowsNum();
         tableBaseMap.values().forEach(table -> table.calculateResetFactor(maxDataRows));
 
-        restrictionsManager.setSQLCriteria(sqlData.getCriteria());
-        restrictionsManager.setXMLConstraints(xmlData.getConstraints(tableBaseMap));
+        restrictionsManager.initialize(sqlData.getCriteria(), xmlData.getConstraints(tableBaseMap));
     }
 
     private void initTableBase(XMLData xmlData) {

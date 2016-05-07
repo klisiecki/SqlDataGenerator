@@ -20,4 +20,9 @@ public class PrimaryKeyRestriction extends OneAttributeRestriction {
     public Restriction reverse() {
         throw new RuntimeException("Cannot reverse primary key restriction");
     }
+
+    @Override
+    public String toString() {
+        return "PrimaryKeyRestriction{" + attributes.get(0) + "}";
+    }
 }
