@@ -24,6 +24,7 @@ public class Utils {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public static void intersectRangeSets(RangeSet a, RangeSet b) {
         RangeSet aClone = TreeRangeSet.create(a);
         a.clear();

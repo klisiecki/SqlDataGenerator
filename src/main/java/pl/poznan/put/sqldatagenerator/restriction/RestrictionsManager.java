@@ -123,6 +123,7 @@ public class RestrictionsManager {
                 .filter(r -> r instanceof RangeRestriction).map(r -> (RangeRestriction) r).collect(toList());
         if (rangeRestrictions.size() > 1) {
             RangeSet rangeSet = TreeRangeSet.create();
+            //noinspection unchecked
             rangeSet.add(Range.all());
             rangeRestrictions.forEach(restriction -> {
                 Utils.intersectRangeSets(rangeSet, restriction.getRangeSet());

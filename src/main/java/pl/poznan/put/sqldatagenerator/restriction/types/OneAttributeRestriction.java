@@ -9,12 +9,12 @@ import static java.util.Collections.singletonList;
 
 public abstract class OneAttributeRestriction extends Restriction {
 
-    public OneAttributeRestriction(Expression expression, Column column) {
+    protected OneAttributeRestriction(Expression expression, Column column) {
         super(expression);
         this.attributes = singletonList(AttributesMap.get(column));
     }
 
-    public OneAttributeRestriction(Attribute attribute) {
+    protected OneAttributeRestriction(Attribute attribute) {
         super(null);
         this.attributes = singletonList(attribute);
     }

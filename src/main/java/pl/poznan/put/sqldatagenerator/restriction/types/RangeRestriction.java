@@ -19,35 +19,19 @@ import static pl.poznan.put.sqldatagenerator.restriction.SQLExpressionsUtils.*;
 public class RangeRestriction extends OneAttributeRestriction {
 
     private enum SignType {
-        GREATER_THAN {
-            @Override
-            SignType flip() {
-                return MINOR_THAN;
-            }
-        },
-        MINOR_THAN {
-            @Override
-            SignType flip() {
-                return GREATER_THAN;
-            }
-        };
-
-        abstract SignType flip();
+        GREATER_THAN,
+        MINOR_THAN
     }
 
     private RangeSet rangeSet;
 
-    public RangeRestriction(Expression expression, Column column, RangeSet rangeSet) {
+    private RangeRestriction(Expression expression, Column column, RangeSet rangeSet) {
         super(expression, column);
         this.rangeSet = rangeSet;
     }
 
     public RangeRestriction(Attribute attribute, RangeSet rangeSet) {
         super(attribute);
-        this.rangeSet = rangeSet;
-    }
-
-    public void setRangeSet(RangeSet rangeSet) {
         this.rangeSet = rangeSet;
     }
 

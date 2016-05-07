@@ -101,7 +101,7 @@ public class XMLData {
 
     }
 
-    public XPathExpression getXPathExpression(String expr) {
+    private XPathExpression getXPathExpression(String expr) {
         XPath xpath = xPathfactory.newXPath();
         try {
             return xpath.compile(expr);
@@ -252,7 +252,7 @@ public class XMLData {
     }
 
     public boolean isPrimaryKey(String table, String attribute) {
-        return ("true").equals(getAttributeProperty(table, attribute, "PRIMARY_KEY"));
+        return "true".equals(getAttributeProperty(table, attribute, "PRIMARY_KEY"));
     }
 
     public Float getNullPercentage(String table, String attribute) {

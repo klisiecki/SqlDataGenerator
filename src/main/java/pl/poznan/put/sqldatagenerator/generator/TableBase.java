@@ -49,17 +49,12 @@ public class TableBase {
         return attributesNames;
     }
 
-    public void setAttributesNames(List<String> attributesNames) {
-        this.attributesNames = attributesNames;
-    }
-
     public void calculateResetFactor(long maxDataRows) {
         this.resetFactor = (int) (100 * maxDataRows / (dataCountLimit / instanceList.size()));
     }
 
     public boolean shouldBeGenerated(long iteration) {
-        return iteration == 0 || (iteration * 100 / resetFactor !=
-                (iteration - 1) * 100 / resetFactor);
+        return iteration == 0 || iteration * 100 / resetFactor != (iteration - 1) * 100 / resetFactor;
     }
 
     private void initFile() {

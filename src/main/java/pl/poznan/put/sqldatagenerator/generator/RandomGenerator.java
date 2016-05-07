@@ -50,7 +50,7 @@ public class RandomGenerator {
         return range.upperEndpoint() + rangeTypeCorrection;
     }
 
-    public static char getChar(char from, char to) {
+    private static char getChar(char from, char to) {
         Random r = new Random();
         int offset = 0;
         if (from <= 90 && to >= 97) offset = 6;

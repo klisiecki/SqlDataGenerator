@@ -35,7 +35,7 @@ public class TableInstance {
     /**
      * @return list of attribute values in the same order as as in base table
      */
-    public List<String> getValues() {
+    private List<String> getValues() {
         List<String> attributesNames = base.getAttributesNames();
         if (attributesNames.stream().anyMatch(name -> !attributeMap.containsKey(name))) {
             throw new RuntimeException("One of given attributes does not match table attributes");
