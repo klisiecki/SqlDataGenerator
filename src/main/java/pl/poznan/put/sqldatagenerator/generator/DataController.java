@@ -99,6 +99,7 @@ public class DataController {
     }
 
     public void generate() {
+        logger.info("Generating...");
         int positiveRows = (int) (configuration.getSelectivity() * maxDataRows);
 
         for (long iteration = 0; iteration < maxDataRows; iteration++) {
@@ -111,6 +112,8 @@ public class DataController {
             saveTables(iteration);
         }
         tableBaseMap.values().forEach(TableBase::closeTableFile);
+
+        logger.info("Generating done.");
     }
 
     private void clearTables(long iteration) {

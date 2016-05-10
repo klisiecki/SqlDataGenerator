@@ -4,6 +4,7 @@ import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
+import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -35,12 +36,15 @@ import java.util.List;
 import java.util.Map;
 
 public class XMLData {
+    private static final Logger logger = Logger.getLogger(XMLData.class);
+
     private final XPathFactory xPathfactory = XPathFactory.newInstance();
     private Document document;
     private final static String schemaLocation = "/pl/poznan/put/sqldatagenerator/schema.xsd";
 
     public XMLData(String fileName) throws ParserConfigurationException, IOException, SAXException {
         validate(fileName);
+        logger.info(fileName + " is valid");
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
         document = builder.parse(fileName);

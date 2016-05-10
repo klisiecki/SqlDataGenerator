@@ -58,7 +58,7 @@ public class TableBase {
     }
 
     private void initFile() {
-        String path = configuration.getInstanceName();
+        String path = configuration.getOutputPath();
         if (writer != null) {
             closeTableFile();
         }

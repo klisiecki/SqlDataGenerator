@@ -2,85 +2,114 @@ package pl.poznan.put.sqldatagenerator;
 
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.parser.CCJSqlParserManager;
-import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.Select;
+import net.sourceforge.argparse4j.ArgumentParsers;
+import net.sourceforge.argparse4j.inf.ArgumentParser;
+import net.sourceforge.argparse4j.inf.ArgumentParserException;
+import net.sourceforge.argparse4j.inf.Namespace;
 import org.apache.log4j.Logger;
+import org.xml.sax.SAXException;
 import pl.poznan.put.sqldatagenerator.generator.DataController;
 import pl.poznan.put.sqldatagenerator.readers.SQLData;
 import pl.poznan.put.sqldatagenerator.readers.XMLData;
 
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 
 
 public class Main {
-
     private static final Logger logger = Logger.getLogger(Main.class);
-
     private static final Configuration configuration = Configuration.getInstance();
 
-    public static void main(String[] args) throws JSQLParserException, IOException {
+    public static void main(String[] args) {
+        Namespace ns = initArgumentParser(args);
 
-        if (args.length != 3) {
-            logger.error("Required parameters: "); //TODO print usage
-            return;
-        }
+        configuration.setOutputPath(ns.getString("output"));
+        configuration.setSelectivity(ns.getDouble("selectivity"));
+        configuration.setRowsPerFile(ns.getInt("maxRows"));
 
-        CCJSqlParserManager pm = new CCJSqlParserManager();
-        String instanceName = args[0];
-        configuration.setInstanceName(instanceName);
-        String sql = Utils.readFile(instanceName + ".sql");
+        SQLData sqlData = getSqlData(ns.getString("sqlFile"));
+        XMLData xmlData = getXmlData(ns.getString("xmlFile"));
+        createOutputDirectory();
 
-        try {
-            configuration.setSelectivity(Double.parseDouble(args[1]));
-        } catch (NumberFormatException e) {
-            logger.error(args[1] + " is not valid number");
-        }
-
-        try {
-            configuration.setRowsPerFile(Integer.parseInt(args[2]));
-        } catch (NumberFormatException e) {
-            logger.error(args[1] + " is not valid integer");
-        }
-
-        XMLData xmlData;
-        try {
-            xmlData = new XMLData(instanceName + ".xml");
-            logger.info(instanceName + ".xml is valid");
-        } catch (Exception e) {
-            logger.error(e);
-            return;
-        }
-
-        File file = new File(instanceName);
-        if(!file.exists() && !file.mkdir()) {
-            logger.error("Unable to create dir " + instanceName);
-        }
-
-        Statement statement = pm.parse(new StringReader(sql));
-
-        if (statement instanceof Select) {
-            generateDataForSelect(xmlData, (Select) statement);
-        } else {
-            logger.info("Incorrect statement, must be SELECT");
-        }
+        DataController dataController = new DataController();
+        dataController.initTables(xmlData, sqlData);
+        dataController.generate();
     }
 
-    private static void generateDataForSelect(XMLData xmlData, Select selectStatement) {
-        logger.info("Parsed statement: " + selectStatement);
-        DataController dataController = new DataController();
-        SQLData sqlData = new SQLData(selectStatement);
-        dataController.initTables(xmlData, sqlData);
+    private static Namespace initArgumentParser(String[] args) {
+        ArgumentParser parser = ArgumentParsers.newArgumentParser("generator")
+                .defaultHelp(true)
+                .description("Some description.");
 
-        logger.info("Tables (name, synonym, columns):");
-        for (Table table : sqlData.getTables()) {
-            logger.info(table + " " + sqlData.getAttributes(table));
+        parser.addArgument("--xmlFile")
+                .required(true)
+                .help("XML file");
+
+        parser.addArgument("--sqlFile")
+                .required(true)
+                .help("SQL file");
+
+        parser.addArgument("--output")
+                .required(true)
+                .help("Output data location");
+
+        parser.addArgument("--selectivity")
+                .setDefault(0.5)
+                .type(Double.class)
+                .help("Expected selectivity");
+
+        parser.addArgument("--maxRows")
+                .setDefault(10000)
+                .type(Integer.class)
+                .help("Max number of rows in output file");
+
+
+        try {
+            return parser.parseArgs(args);
+        } catch (ArgumentParserException e) {
+            parser.handleError(e);
+            //TODO logger? throw?
+            System.exit(1);
         }
+        return null;
+    }
 
-        logger.info("Generating...");
-        dataController.generate();
-        logger.info("Done.");
+    private static SQLData getSqlData(String file) {
+        try {
+            String sql = Utils.readFile(file);
+            Statement statement = new CCJSqlParserManager().parse(new StringReader(sql));
+            if (statement instanceof Select) {
+                return new SQLData((Select)statement);
+            } else {
+                logger.info("Incorrect statement, must be SELECT");
+                //TODO Throw exception
+            }
+        } catch (IOException | JSQLParserException e) {
+            e.printStackTrace();
+            //TODO Throw exception
+        }
+        return null;
+    }
+
+    private static XMLData getXmlData(String file) {
+        try {
+            return new XMLData(file);
+        } catch (ParserConfigurationException | SAXException | IOException e) {
+            logger.error(e);
+            //TODO Throw exception, oddzielnie sygnalizować niezgodność z schematem
+        }
+        return null;
+    }
+
+    private static void createOutputDirectory() {
+        File file = new File(configuration.getOutputPath());
+        if(!file.exists() && !file.mkdir()) {
+            logger.error("Unable to create dir " + configuration.getOutputPath());
+            //TODO Throw exception
+        }
     }
 }

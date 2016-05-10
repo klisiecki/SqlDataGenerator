@@ -4,7 +4,7 @@ package pl.poznan.put.sqldatagenerator;
 public class Configuration {
 
     private int rowsPerFile = 10000;
-    private String instanceName;
+    private String outputPath;
     private double selectivity = 0.5;
 
     private static Configuration instance;
@@ -27,12 +27,12 @@ public class Configuration {
         this.rowsPerFile = rowsPerFile;
     }
 
-    public String getInstanceName() {
-        return instanceName;
+    public String getOutputPath() {
+        return outputPath;
     }
 
-    public void setInstanceName(String instanceName) {
-        this.instanceName = instanceName;
+    public void setOutputPath(String outputPath) {
+        this.outputPath = outputPath;
     }
 
     public double getSelectivity() {
