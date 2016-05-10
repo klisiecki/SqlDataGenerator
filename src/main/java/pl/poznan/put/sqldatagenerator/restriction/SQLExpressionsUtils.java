@@ -28,8 +28,8 @@ public class SQLExpressionsUtils {
             }
         } else if (expression instanceof Between) {
             Between between = (Between) expression;
-            if (isColumn(between.getLeftExpression()) && isIntegerValue(between.getBetweenExpressionStart())
-                    && isIntegerValue(between.getBetweenExpressionEnd())) {
+            if (isColumn(between.getLeftExpression()) && isNumberValue(between.getBetweenExpressionStart())
+                    && isNumberValue(between.getBetweenExpressionEnd())) {
                 return true;
             }
         }
@@ -41,7 +41,11 @@ public class SQLExpressionsUtils {
     }
 
     public static boolean isSimpleValue(Expression expression) {
-        return isIntegerValue(expression) || isStringValue(expression);
+        return isNumberValue(expression) || isStringValue(expression);
+    }
+
+    public static boolean isNumberValue(Expression expression) {
+        return isDoubleValue(expression) || isIntegerValue(expression);
     }
 
     public static boolean isIntegerValue(Expression expression) {
@@ -62,7 +66,12 @@ public class SQLExpressionsUtils {
     }
 
     public static boolean isDoubleValue(Expression expression) {
-        return expression instanceof DoubleValue;
+        if (expression instanceof DoubleValue) {
+            return true;
+        } else if (expression instanceof SignedExpression) {
+            return isDoubleValue(((SignedExpression) expression).getExpression());
+        }
+        return false;
     }
 
     public static Long getLong(Expression expression) {
@@ -74,6 +83,18 @@ public class SQLExpressionsUtils {
             return se.getSign() == '-' ? -getLong(e) : getLong(e);
         } else {
             return null;
+        }
+    }
+
+    public static Double getDouble(Expression expression) {
+        if (expression instanceof DoubleValue) {
+            return ((DoubleValue) expression).getValue();
+        } else if (expression instanceof SignedExpression) {
+            SignedExpression se = (SignedExpression) expression;
+            Expression e = se.getExpression();
+            return se.getSign() == '-' ? -getDouble(e) : getDouble(e);
+        } else {
+            return getLong(expression).doubleValue();
         }
     }
 

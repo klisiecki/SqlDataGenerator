@@ -37,6 +37,9 @@ public class Solver {
                         case INTEGER:
                             attribute.setValue(RandomGenerator.getLong(rangeRestriction.getRangeSet()).toString());
                             break;
+                        case FLOAT:
+                            attribute.setValue(RandomGenerator.getDouble(rangeRestriction.getRangeSet()).toString());
+                            break;
                         default:
                             throw new NotImplementedException();
                     }

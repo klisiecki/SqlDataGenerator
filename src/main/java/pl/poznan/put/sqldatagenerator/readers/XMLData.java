@@ -66,6 +66,9 @@ public class XMLData {
                             rangeSet = getIntegerRangeSet(tableName, attributeName);
                         }
                         break;
+                    case FLOAT:
+                        rangeSet = getFloatRangeSet(tableName, attributeName);
+                        break;
                 }
                 for (Attribute attribute : attributes) {
                     if (rangeSet != null) {
@@ -83,15 +86,31 @@ public class XMLData {
 
     private RangeSet<Long> getIntegerRangeSet(String table, String attribute) {
         RangeSet<Long> rangeSet = TreeRangeSet.create();
-        rangeSet.add(Range.all());
+        Range<Long> range = Range.all();
         String minValue = getMinValue(table, attribute);
         String maxValue = getMaxValue(table, attribute);
         if (minValue != null) {
-            rangeSet.add(Range.downTo(Long.valueOf(minValue), BoundType.CLOSED));
+            range = range.intersection(Range.downTo(Long.valueOf(minValue), BoundType.CLOSED));
         }
         if (maxValue != null) {
-            rangeSet.add(Range.upTo(Long.valueOf(maxValue), BoundType.CLOSED));
+            range = range.intersection(Range.upTo(Long.valueOf(maxValue), BoundType.CLOSED));
         }
+        rangeSet.add(range);
+        return rangeSet;
+    }
+
+    private RangeSet<Double> getFloatRangeSet(String table, String attribute) {
+        RangeSet<Double> rangeSet = TreeRangeSet.create();
+        Range<Double> range = Range.all();
+        String minValue = getMinValue(table, attribute);
+        String maxValue = getMaxValue(table, attribute);
+        if (minValue != null) {
+            range = range.intersection(Range.downTo(Double.valueOf(minValue), BoundType.CLOSED));
+        }
+        if (maxValue != null) {
+            range = range.intersection(Range.upTo(Double.valueOf(maxValue), BoundType.CLOSED));
+        }
+        rangeSet.add(range);
         return rangeSet;
     }
 

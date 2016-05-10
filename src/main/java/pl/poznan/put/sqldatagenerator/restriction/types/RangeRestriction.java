@@ -6,12 +6,12 @@ import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
 import net.sf.jsqlparser.expression.BinaryExpression;
 import net.sf.jsqlparser.expression.Expression;
-import net.sf.jsqlparser.expression.LongValue;
-import net.sf.jsqlparser.expression.SignedExpression;
 import net.sf.jsqlparser.expression.operators.relational.*;
 import net.sf.jsqlparser.schema.Column;
 import pl.poznan.put.sqldatagenerator.Utils;
 import pl.poznan.put.sqldatagenerator.generator.Attribute;
+import pl.poznan.put.sqldatagenerator.generator.AttributeType;
+import pl.poznan.put.sqldatagenerator.generator.AttributesMap;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import static pl.poznan.put.sqldatagenerator.restriction.SQLExpressionsUtils.*;
@@ -41,32 +41,36 @@ public class RangeRestriction extends OneAttributeRestriction {
 
     public static RangeRestriction fromGreaterThan(GreaterThan greaterThan) {
         SignType signType = isInverted(greaterThan) ? SignType.MINOR_THAN : SignType.GREATER_THAN;
-        RangeSet rangeSet = createMaxOrMinRangeSet(getValueExpression(greaterThan), signType, BoundType.OPEN);
-        return new RangeRestriction(greaterThan, getColumn(greaterThan), rangeSet);
+        Column column = getColumn(greaterThan);
+        RangeSet rangeSet = createMaxOrMinRangeSet(column, getValueExpression(greaterThan), signType, BoundType.OPEN);
+        return new RangeRestriction(greaterThan, column, rangeSet);
     }
 
     public static RangeRestriction fromGreaterThanEquals(GreaterThanEquals greaterThanEquals) {
         SignType signType = isInverted(greaterThanEquals) ? SignType.MINOR_THAN : SignType.GREATER_THAN;
-        RangeSet rangeSet = createMaxOrMinRangeSet(getValueExpression(greaterThanEquals), signType, BoundType.CLOSED);
-        return new RangeRestriction(greaterThanEquals, getColumn(greaterThanEquals), rangeSet);
+        Column column = getColumn(greaterThanEquals);
+        RangeSet rangeSet = createMaxOrMinRangeSet(column, getValueExpression(greaterThanEquals), signType, BoundType.CLOSED);
+        return new RangeRestriction(greaterThanEquals, column, rangeSet);
     }
 
     public static RangeRestriction fromMinorThan(MinorThan minorThan) {
         SignType signType = isInverted(minorThan) ? SignType.GREATER_THAN : SignType.MINOR_THAN;
-        RangeSet rangeSet = createMaxOrMinRangeSet(getValueExpression(minorThan), signType, BoundType.OPEN);
-        return new RangeRestriction(minorThan, getColumn(minorThan), rangeSet);
+        Column column = getColumn(minorThan);
+        RangeSet rangeSet = createMaxOrMinRangeSet(column, getValueExpression(minorThan), signType, BoundType.OPEN);
+        return new RangeRestriction(minorThan, column, rangeSet);
     }
 
     public static RangeRestriction fromMinorThanEquals(MinorThanEquals minorThanEquals) {
         SignType signType = isInverted(minorThanEquals) ? SignType.GREATER_THAN : SignType.MINOR_THAN;
-        RangeSet rangeSet = createMaxOrMinRangeSet(getValueExpression(minorThanEquals), signType, BoundType.CLOSED);
-        return new RangeRestriction(minorThanEquals, getColumn(minorThanEquals), rangeSet);
+        Column column = getColumn(minorThanEquals);
+        RangeSet rangeSet = createMaxOrMinRangeSet(column, getValueExpression(minorThanEquals), signType, BoundType.CLOSED);
+        return new RangeRestriction(minorThanEquals, column, rangeSet);
     }
 
     public static RangeRestriction fromBetween(Between between) {
         Column column = (Column) between.getLeftExpression();
-        RangeSet left = createMaxOrMinRangeSet(between.getBetweenExpressionStart(), SignType.GREATER_THAN, BoundType.CLOSED);
-        RangeSet right = createMaxOrMinRangeSet(between.getBetweenExpressionEnd(), SignType.MINOR_THAN, BoundType.CLOSED);
+        RangeSet left = createMaxOrMinRangeSet(column, between.getBetweenExpressionStart(), SignType.GREATER_THAN, BoundType.CLOSED);
+        RangeSet right = createMaxOrMinRangeSet(column, between.getBetweenExpressionEnd(), SignType.MINOR_THAN, BoundType.CLOSED);
         Utils.intersectRangeSets(left, right);
         return new RangeRestriction(between, column, left);
     }
@@ -112,10 +116,20 @@ public class RangeRestriction extends OneAttributeRestriction {
         }
     }
 
-    private static RangeSet createMaxOrMinRangeSet(Expression expression, SignType signType, BoundType boundType) {
-        if (expression instanceof LongValue || expression instanceof SignedExpression) {
+    private static RangeSet createMaxOrMinRangeSet(Column column, Expression expression, SignType signType, BoundType boundType) {
+        AttributeType type = AttributesMap.get(column).getType();
+        if (type == AttributeType.INTEGER) {
             RangeSet<Long> rangeSet = TreeRangeSet.create();
             Long value = getLong(expression);
+            if (signType == SignType.GREATER_THAN) {
+                rangeSet.add(Range.downTo(value, boundType));
+            } else if (signType == SignType.MINOR_THAN) {
+                rangeSet.add(Range.upTo(value, boundType));
+            }
+            return rangeSet;
+        } else if (type == AttributeType.FLOAT) {
+            RangeSet<Double> rangeSet = TreeRangeSet.create();
+            Double value = getDouble(expression);
             if (signType == SignType.GREATER_THAN) {
                 rangeSet.add(Range.downTo(value, boundType));
             } else if (signType == SignType.MINOR_THAN) {

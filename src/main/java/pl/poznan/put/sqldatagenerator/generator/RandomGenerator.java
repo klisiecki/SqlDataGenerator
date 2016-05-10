@@ -14,6 +14,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public class RandomGenerator {
 
     private static ThreadLocalRandom random = ThreadLocalRandom.current();
+    private static double doubleMinValue = 0.001;
 
     /**
      * Returns a pseudorandom value from given {@link RangeSet}.
@@ -22,10 +23,7 @@ public class RandomGenerator {
      * @return random {@link Long} value from random {@link Range} in given set.
      */
     public static Long getLong(RangeSet<Long> rangeSet) {
-        List<Range<Long>> ranges = new ArrayList<>();
-        ranges.addAll(rangeSet.asRanges());
-        int i = ranges.size() == 1 ? 0 : random.nextInt(ranges.size());
-        Range<Long> range = ranges.get(i);
+        Range<Long> range = getRandomRange(rangeSet);
         long minValue = getMinLong(range);
         long maxValue = getMaxLong(range);
         if (minValue == maxValue) {
@@ -34,11 +32,36 @@ public class RandomGenerator {
         return random.nextLong(minValue, maxValue);
     }
 
+    public static Double getDouble(RangeSet<Double> rangeSet) {
+        Range<Double> range = getRandomRange(rangeSet);
+        double minValue = getMinDouble(range);
+        double maxValue = getMaxDouble(range);
+        if (minValue == maxValue) {
+            return minValue;
+        }
+        return random.nextDouble(minValue, maxValue);
+    }
+
+    private static Range getRandomRange(RangeSet rangeSet) {
+        List<Range> ranges = new ArrayList<>();
+        ranges.addAll(rangeSet.asRanges());
+        int i = ranges.size() == 1 ? 0 : random.nextInt(ranges.size());
+        return ranges.get(i);
+    }
+
     private static long getMinLong(Range<Long> range) {
         if (!range.hasLowerBound()) {
             return Long.MIN_VALUE;
         }
         int rangeTypeCorrection = range.lowerBoundType() == BoundType.CLOSED ? 0 : 1;
+        return range.lowerEndpoint() + rangeTypeCorrection;
+    }
+
+    private static double getMinDouble(Range<Double> range) {
+        if (!range.hasLowerBound()) {
+            return Long.MIN_VALUE;
+        }
+        double rangeTypeCorrection = range.lowerBoundType() == BoundType.CLOSED ? 0 : doubleMinValue; //TODO consider double ranges
         return range.lowerEndpoint() + rangeTypeCorrection;
     }
 
@@ -50,6 +73,13 @@ public class RandomGenerator {
         return range.upperEndpoint() + rangeTypeCorrection;
     }
 
+    private static double getMaxDouble(Range<Double> range) {
+        if (!range.hasUpperBound()) {
+            return Double.MAX_VALUE;
+        }
+        return range.upperEndpoint();
+    }
+
     private static char getChar(char from, char to) {
         Random r = new Random();
         int offset = 0;
@@ -59,6 +89,15 @@ public class RandomGenerator {
             i += offset;
         }
         return (char) i;
+    }
+
+    public static String getString(int minLength, int maxLength) {
+        int length = random.nextInt(minLength, maxLength + 1);
+        StringBuilder sb = new StringBuilder(length);
+        for (int i = 0; i < length; i++) {
+            sb.append(getChar('A', 'z'));
+        }
+        return sb.toString();
     }
 
     public static String getString(String from, String to) {
