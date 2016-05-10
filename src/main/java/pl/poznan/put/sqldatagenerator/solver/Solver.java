@@ -1,7 +1,8 @@
 package pl.poznan.put.sqldatagenerator.solver;
 
 import com.google.common.collect.HashMultimap;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pl.poznan.put.sqldatagenerator.generator.Attribute;
 import pl.poznan.put.sqldatagenerator.generator.RandomGenerator;
 import pl.poznan.put.sqldatagenerator.restriction.types.PrimaryKeyRestriction;
@@ -13,7 +14,7 @@ import java.util.Collection;
 import java.util.Map;
 
 public class Solver {
-    private static final Logger logger = Logger.getLogger(Solver.class);
+    private static final Logger logger = LoggerFactory.getLogger(Solver.class);
 
     private HashMultimap<Attribute, Restriction> restrictionsByAttribute;
 
@@ -22,7 +23,7 @@ public class Solver {
     }
 
     public void solve() {
-        logger.info("Solving " + restrictionsByAttribute.values());
+        logger.debug("Solving {}", restrictionsByAttribute.values());
         for (Map.Entry<Attribute, Collection<Restriction>> restrictionEntry : restrictionsByAttribute.asMap().entrySet()) {
             Attribute attribute = restrictionEntry.getKey();
             Collection<Restriction> restrictions = restrictionEntry.getValue();

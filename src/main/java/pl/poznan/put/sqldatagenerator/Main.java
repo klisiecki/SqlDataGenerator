@@ -8,7 +8,8 @@ import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 import pl.poznan.put.sqldatagenerator.generator.DataController;
 import pl.poznan.put.sqldatagenerator.readers.SQLData;
@@ -21,7 +22,7 @@ import java.io.StringReader;
 
 
 public class Main {
-    private static final Logger logger = Logger.getLogger(Main.class);
+    private static final Logger logger = LoggerFactory.getLogger(Main.class);
     private static final Configuration configuration = Configuration.getInstance();
 
     public static void main(String[] args) {
@@ -99,7 +100,7 @@ public class Main {
         try {
             return new XMLData(file);
         } catch (ParserConfigurationException | SAXException | IOException e) {
-            logger.error(e);
+            logger.error("Error reading XML file", e);
             //TODO Throw exception, oddzielnie sygnalizować niezgodność z schematem
         }
         return null;
@@ -108,7 +109,7 @@ public class Main {
     private static void createOutputDirectory() {
         File file = new File(configuration.getOutputPath());
         if(!file.exists() && !file.mkdir()) {
-            logger.error("Unable to create dir " + configuration.getOutputPath());
+            logger.error("Unable to create dir {}", configuration.getOutputPath());
             //TODO Throw exception
         }
     }

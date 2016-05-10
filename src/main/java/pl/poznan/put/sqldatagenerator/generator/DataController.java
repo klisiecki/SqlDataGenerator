@@ -1,8 +1,8 @@
 package pl.poznan.put.sqldatagenerator.generator;
 
-
 import net.sf.jsqlparser.schema.Table;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pl.poznan.put.sqldatagenerator.Configuration;
 import pl.poznan.put.sqldatagenerator.readers.SQLData;
 import pl.poznan.put.sqldatagenerator.readers.XMLData;
@@ -10,11 +10,13 @@ import pl.poznan.put.sqldatagenerator.restriction.RestrictionsManager;
 import pl.poznan.put.sqldatagenerator.solver.Solver;
 import pl.poznan.put.sqldatagenerator.sql.model.AttributesPair;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 
 public class DataController {
     private static final Configuration configuration = Configuration.getInstance();
-    private static final Logger logger = Logger.getLogger(DataController.class);
+    private static final Logger logger = LoggerFactory.getLogger(DataController.class);
 
     private final Map<String, TableBase> tableBaseMap;
     private final Map<String, TableInstance> tableInstanceMap;
@@ -50,10 +52,29 @@ public class DataController {
         restrictionsManager.initialize(sqlData.getCriteria(), xmlData.getConstraints(tableBaseMap));
     }
 
+    public void generate() {
+        logger.info("Generating process started");
+        int positiveRows = (int) (configuration.getSelectivity() * maxDataRows);
+        Instant lastTimestamp = Instant.now();
+
+        for (long iteration = 0; iteration < maxDataRows; iteration++) {
+            if (Duration.between(lastTimestamp, Instant.now()).toMillis() > 1000) {
+                lastTimestamp = Instant.now();
+                logger.info("Generation progress: {} %", (int) ((double) iteration / maxDataRows * 100));
+            }
+            clearTables(iteration);
+            generateRow(iteration < positiveRows);
+            saveTables(iteration);
+        }
+        tableBaseMap.values().forEach(TableBase::closeTableFile);
+
+        logger.info("Generating process done");
+    }
+
     private void initTableBase(XMLData xmlData) {
         int m = xmlData.getM();
         int t = xmlData.getT();
-        logger.info("m = " + m + ", t = " + t);
+        logger.info("m = {}, t = {}", m, t);
 
         for (String tableName : xmlData.getTables()) {
             long count = xmlData.getRowsNum(tableName);
@@ -96,24 +117,6 @@ public class DataController {
                 throw new RuntimeException("Join on two primary keys or not keys");
             }
         }
-    }
-
-    public void generate() {
-        logger.info("Generating...");
-        int positiveRows = (int) (configuration.getSelectivity() * maxDataRows);
-
-        for (long iteration = 0; iteration < maxDataRows; iteration++) {
-            if ((iteration + 1) % 100000 == 0) {
-                //TODO consider logging progress in time periods
-                logger.debug((int) ((double) iteration / maxDataRows * 100) + "%");
-            }
-            clearTables(iteration);
-            generateRow(iteration < positiveRows);
-            saveTables(iteration);
-        }
-        tableBaseMap.values().forEach(TableBase::closeTableFile);
-
-        logger.info("Generating done.");
     }
 
     private void clearTables(long iteration) {

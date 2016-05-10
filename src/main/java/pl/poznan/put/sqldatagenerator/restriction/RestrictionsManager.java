@@ -9,7 +9,8 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pl.poznan.put.sqldatagenerator.Utils;
 import pl.poznan.put.sqldatagenerator.generator.Attribute;
 import pl.poznan.put.sqldatagenerator.restriction.types.RangeRestriction;
@@ -20,7 +21,7 @@ import java.util.*;
 import static java.util.stream.Collectors.toList;
 
 public class RestrictionsManager {
-    private static final Logger logger = Logger.getLogger(RestrictionsManager.class);
+    private static final Logger logger = LoggerFactory.getLogger(RestrictionsManager.class);
 
     private List<HashMultimap<Attribute, Restriction>> positiveRestrictionsByAttributeList;
     private List<HashMultimap<Attribute, Restriction>> negativeRestrictionsByAttributeList;
@@ -110,7 +111,7 @@ public class RestrictionsManager {
 
             for (Map.Entry<Attribute, Collection<Restriction>> restrictionEntry : restrictionsByAttribute.asMap().entrySet()) {
                 Attribute attribute = restrictionEntry.getKey();
-                logger.info("Restrictions for " + attribute + ": " + restrictionEntry.getValue());
+                logger.info("Restrictions for {}: {}", attribute, restrictionEntry.getValue());
             }
             result.add(restrictionsByAttribute);
         }
