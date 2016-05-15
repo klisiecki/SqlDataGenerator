@@ -41,7 +41,7 @@ public class XMLData {
 
     private final XPathFactory xPathfactory = XPathFactory.newInstance();
     private Document document;
-    private final static String schemaLocation = "/pl/poznan/put/sqldatagenerator/schema.xsd";
+    private final static String schemaLocation = "/schema.xsd";
 
     public XMLData(String fileName) throws ParserConfigurationException, IOException, SAXException {
         validate(fileName);
