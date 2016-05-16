@@ -3,11 +3,11 @@ package pl.poznan.put.sqldatagenerator.generator;
 public class Attribute {
 
     private final String name;
-    private String value;
     private final AttributeType type;
-    private boolean isClear;
     private Attribute baseAttribute;
     private TableInstance tableInstance;
+
+    private boolean isClear;
 
     public Attribute(TableInstance tableInstance, String name, AttributeType type) {
         this.name = name;
@@ -23,7 +23,7 @@ public class Attribute {
         if (baseAttribute != null) {
             return baseAttribute.getValue();
         }
-        return value;
+        return tableInstance.getState().getValue(name);
     }
 
     public void setValue(String value) {
@@ -34,7 +34,7 @@ public class Attribute {
             throw new RuntimeException("Value for attribute '" + name + "' already set");
         }
         isClear = false;
-        this.value = value;
+        tableInstance.getState().setValue(name, value);
     }
 
     public AttributeType getType() {
@@ -45,14 +45,16 @@ public class Attribute {
         return tableInstance.getBase().getName();
     }
 
-    public boolean isClear() {
-        return isClear;
+    public boolean canBeGenerated() {
+        if (baseAttribute == null) {
+            return isClear;
+        }
+        return false;
     }
 
-    public void clear() {
+    public void setClear(boolean isClear) {
         if (baseAttribute == null) {
-            isClear = true;
-            value = null;
+            this.isClear = isClear;
         }
     }
 

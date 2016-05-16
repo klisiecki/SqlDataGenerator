@@ -27,7 +27,7 @@ public class Solver {
         for (Map.Entry<Attribute, Collection<Restriction>> restrictionEntry : restrictionsByAttribute.asMap().entrySet()) {
             Attribute attribute = restrictionEntry.getKey();
             Collection<Restriction> restrictions = restrictionEntry.getValue();
-            if (!attribute.isClear()) {
+            if (!attribute.canBeGenerated()) {
                 continue;
             }
             if (restrictions.size() == 1) {

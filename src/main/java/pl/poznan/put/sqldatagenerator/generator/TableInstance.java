@@ -15,12 +15,13 @@ public class TableInstance {
 
     private final String aliasName;
     private final Map<String, Attribute> attributeMap;
+    private TableInstanceState state;
 
     public TableInstance(TableBase base, String aliasName) {
         this.base = base;
         this.aliasName = aliasName;
         this.attributeMap = new HashMap<>();
-
+        this.state = new TableInstanceState();
         base.addInstance(this);
     }
 
@@ -28,8 +29,20 @@ public class TableInstance {
         attributeMap.put(attribute.getName(), attribute);
     }
 
-    public void clear() {
-        attributeMap.values().forEach(Attribute::clear);
+    public TableInstanceState getState() {
+        return state;
+    }
+
+    public void setState(TableInstanceState state) {
+        attributeMap.values().forEach(a -> a.setClear(false));
+        this.state = state;
+    }
+
+    public TableInstanceState getStateAndClear() {
+        TableInstanceState prevState = state;
+        this.state = new TableInstanceState();
+        attributeMap.values().forEach(a -> a.setClear(true));
+        return prevState;
     }
 
     /**

@@ -122,7 +122,7 @@ public class DataController {
     private void clearTables(long iteration) {
         tableInstanceMap.values().stream()
                 .filter(table -> table.shouldBeGenerated(iteration))
-                .forEach(TableInstance::clear);
+                .forEach(TableInstance::getStateAndClear);
     }
 
     private void generateRow(boolean positive) {

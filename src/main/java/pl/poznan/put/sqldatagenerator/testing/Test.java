@@ -48,7 +48,7 @@ public class Test {
 //                while (channel.read(buffer) > 0) {
 //                    buffer.flip();
 //                    digest.update(buffer);
-//                    buffer.clear();
+//                    buffer.getStateAndClear();
 //                }
 //            } catch (IOException e) {
 //                System.err
