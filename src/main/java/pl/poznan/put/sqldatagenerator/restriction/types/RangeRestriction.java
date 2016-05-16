@@ -87,6 +87,13 @@ public class RangeRestriction extends OneAttributeRestriction {
                     rangeSet.add(Range.closed(value, value));
                 }
                 return new RangeRestriction(in, column, rangeSet);
+            } else if (isDoubleValue(first)) {
+                RangeSet<Double> rangeSet = TreeRangeSet.create();
+                for (Expression e : list.getExpressions()) {
+                    Double value = getDouble(e);
+                    rangeSet.add(Range.closed(value, value));
+                }
+                return new RangeRestriction(in, column, rangeSet);
             } else {
                 throw new NotImplementedException();
             }
