@@ -16,7 +16,10 @@ import pl.poznan.put.sqldatagenerator.generator.Attribute;
 import pl.poznan.put.sqldatagenerator.restriction.types.RangeRestriction;
 import pl.poznan.put.sqldatagenerator.restriction.types.Restriction;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 import static java.util.stream.Collectors.toList;
 
@@ -26,19 +29,22 @@ public class RestrictionsManager {
     private List<HashMultimap<Attribute, Restriction>> positiveRestrictionsByAttributeList;
     private List<HashMultimap<Attribute, Restriction>> negativeRestrictionsByAttributeList;
 
-    private final Random random;
-
-    public RestrictionsManager() {
-        random = new Random();
-    }
-
-    public HashMultimap<Attribute, Restriction> getRandom(boolean positive) {
+    public HashMultimap<Attribute, Restriction> get(boolean positive, int index) {
         if (positive) {
-            return positiveRestrictionsByAttributeList.get(random.nextInt(positiveRestrictionsByAttributeList.size()));
+            return positiveRestrictionsByAttributeList.get(index);
         } else {
-            return negativeRestrictionsByAttributeList.get(random.nextInt(negativeRestrictionsByAttributeList.size()));
+            return negativeRestrictionsByAttributeList.get(index);
         }
     }
+
+    public int getListSize(boolean positive) {
+        if (positive) {
+            return positiveRestrictionsByAttributeList.size();
+        } else {
+            return negativeRestrictionsByAttributeList.size();
+        }
+    }
+
 
     public void initialize(Expression<Restriction> criteria, Restrictions constraints) {
         List<Restrictions> positiveRestrictionsList = new ArrayList<>();

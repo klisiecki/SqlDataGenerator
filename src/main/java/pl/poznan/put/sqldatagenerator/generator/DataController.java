@@ -23,12 +23,19 @@ public class DataController {
 
     private long maxDataRows = 0;
 
+    private Random random;
+
     private RestrictionsManager restrictionsManager;
+    private HistoryManager positiveHistoryManager;
+    private HistoryManager negativeHistoryManager;
 
     public DataController() {
         this.tableBaseMap = new HashMap<>();
         this.tableInstanceMap = new HashMap<>();
+        this.random = new Random();
         this.restrictionsManager = new RestrictionsManager();
+        this.positiveHistoryManager = new HistoryManager();
+        this.negativeHistoryManager = new HistoryManager();
     }
 
     public void initTables(XMLData xmlData, SQLData sqlData) {
@@ -50,6 +57,8 @@ public class DataController {
         tableBaseMap.values().forEach(table -> table.calculateResetFactor(maxDataRows));
 
         restrictionsManager.initialize(sqlData.getCriteria(), xmlData.getConstraints(tableBaseMap));
+        positiveHistoryManager.initialize(restrictionsManager.getListSize(true));
+        negativeHistoryManager.initialize(restrictionsManager.getListSize(false));
     }
 
     public void generate() {
@@ -62,7 +71,7 @@ public class DataController {
                 lastTimestamp = Instant.now();
                 logger.info("Generation progress: {} %", (int) ((double) iteration / maxDataRows * 100));
             }
-            clearTables(iteration);
+            prepareTables(iteration);
             generateRow(iteration < positiveRows);
             saveTables(iteration);
         }
@@ -119,14 +128,15 @@ public class DataController {
         }
     }
 
-    private void clearTables(long iteration) {
+    private void prepareTables(long iteration) {
         tableInstanceMap.values().stream()
                 .filter(table -> table.shouldBeGenerated(iteration))
                 .forEach(TableInstance::getStateAndClear);
     }
 
     private void generateRow(boolean positive) {
-        new Solver(restrictionsManager.getRandom(positive)).solve();
+        int restrictionsIndex = random.nextInt(restrictionsManager.getListSize(positive));
+        new Solver(restrictionsManager.get(positive, restrictionsIndex)).solve();
     }
 
     private void saveTables(long iteration) {
