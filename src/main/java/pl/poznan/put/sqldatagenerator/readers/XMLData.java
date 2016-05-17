@@ -55,6 +55,7 @@ public class XMLData {
         List<Restriction> restrictionList = new ArrayList<>();
         for (String tableName : getTables()) {
             for (String attributeName : getAttributes(tableName)) {
+                List<String> values = getValues(tableName, attributeName);
                 List<Attribute> attributes = AttributesMap.get(tableBaseMap.get(tableName), attributeName);
                 AttributeType attributeType = getType(tableName, attributeName);
                 RangeSet rangeSet = null;
@@ -63,8 +64,14 @@ public class XMLData {
                     case INTEGER:
                         if (isPrimaryKey(tableName, attributeName)) {
                             keyGenerator = new SimpleKeyGenerator(getRowsNum(tableName));
-                        } else {
+                        } else if (values == null) {
                             rangeSet = getIntegerRangeSet(tableName, attributeName);
+                        } else {
+                            rangeSet = TreeRangeSet.create();
+                            for (String valueString : values) {
+                                Long value = Long.parseLong(valueString);
+                                rangeSet.add(Range.closed(value, value));
+                            }
                         }
                         break;
                     case FLOAT:

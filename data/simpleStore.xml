@@ -22,8 +22,12 @@
             <ATTRIBUTE>
                 <NAME>CATEGORY</NAME>
                 <TYPE>INTEGER</TYPE>
-                <MIN_VALUE>1</MIN_VALUE>
-                <MAX_VALUE>5</MAX_VALUE>
+                <VALUES>
+                    <VALUE>1</VALUE>
+                    <VALUE>2</VALUE>
+                    <VALUE>3</VALUE>
+                    <VALUE>4</VALUE>
+                </VALUES>
             </ATTRIBUTE>
 
         </ATTRIBUTES>
