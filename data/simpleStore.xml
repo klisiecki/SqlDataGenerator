@@ -19,6 +19,13 @@
                 <MAX_VALUE>10000</MAX_VALUE>
             </ATTRIBUTE>
 
+            <ATTRIBUTE>
+                <NAME>CATEGORY</NAME>
+                <TYPE>INTEGER</TYPE>
+                <MIN_VALUE>1</MIN_VALUE>
+                <MAX_VALUE>5</MAX_VALUE>
+            </ATTRIBUTE>
+
         </ATTRIBUTES>
     </TABLE>
 
@@ -30,6 +37,12 @@
                 <NAME>ID</NAME>
                 <TYPE>INTEGER</TYPE>
                 <PRIMARY_KEY>true</PRIMARY_KEY>
+            </ATTRIBUTE>
+            <ATTRIBUTE>
+                <NAME>AGE</NAME>
+                <TYPE>INTEGER</TYPE>
+                <MIN_VALUE>10</MIN_VALUE>
+                <MAX_VALUE>124</MAX_VALUE>
             </ATTRIBUTE>
 
         </ATTRIBUTES>
