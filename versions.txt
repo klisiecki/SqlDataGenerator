@@ -1,0 +1,2 @@
+0.1 - first version for HDPiA project
+0.2 - version after application redesign and refactor
