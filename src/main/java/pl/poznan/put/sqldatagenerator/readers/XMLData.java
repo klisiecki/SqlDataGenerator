@@ -19,6 +19,7 @@ import pl.poznan.put.sqldatagenerator.restriction.Restrictions;
 import pl.poznan.put.sqldatagenerator.restriction.types.PrimaryKeyRestriction;
 import pl.poznan.put.sqldatagenerator.restriction.types.RangeRestriction;
 import pl.poznan.put.sqldatagenerator.restriction.types.Restriction;
+import pl.poznan.put.sqldatagenerator.restriction.types.StringRestriction;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
@@ -78,14 +79,24 @@ public class XMLData {
                     case FLOAT:
                         rangeSet = getFloatRangeSet(tableName, attributeName);
                         break;
-                    case STRING:
-
                 }
                 for (Attribute attribute : attributes) {
                     if (rangeSet != null) {
                         restrictionList.add(new RangeRestriction(attribute, rangeSet));
                     } else if (keyGenerator != null) {
                         restrictionList.add(new PrimaryKeyRestriction(attribute, keyGenerator));
+                    } else if (attribute.getType() == AttributeType.STRING) {
+                        //TODO improve readability and consistency of this code. Separate class for StringRestriction properties?
+                        StringRestriction stringRestriction = new StringRestriction(attribute);
+                        if (values != null) {
+                            stringRestriction.setAllowedValues(values);
+                        }
+                        if (getMinValue(tableName, attributeName) != null) {
+                            stringRestriction.setMinLength(Integer.parseInt(getMinValue(tableName, attributeName)));
+                        }
+                        if (getMaxValue(tableName, attributeName) != null) {
+                            stringRestriction.setMaxLength(Integer.parseInt(getMaxValue(tableName, attributeName)));
+                        }
                     } else {
                         throw new RuntimeException("Attribute must have restriction");
                     }

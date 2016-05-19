@@ -8,6 +8,7 @@ import pl.poznan.put.sqldatagenerator.generator.RandomGenerator;
 import pl.poznan.put.sqldatagenerator.restriction.types.PrimaryKeyRestriction;
 import pl.poznan.put.sqldatagenerator.restriction.types.RangeRestriction;
 import pl.poznan.put.sqldatagenerator.restriction.types.Restriction;
+import pl.poznan.put.sqldatagenerator.restriction.types.StringRestriction;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.Collection;
@@ -48,6 +49,13 @@ public class Solver {
                 } else if (restriction instanceof PrimaryKeyRestriction) {
                     PrimaryKeyRestriction primaryKeyRestriction = (PrimaryKeyRestriction) restriction;
                     attribute.setValue(primaryKeyRestriction.getNextValue().toString());
+                } else if (restriction instanceof StringRestriction) {
+                    StringRestriction stringRestriction = (StringRestriction) restriction;
+                    if (stringRestriction.getAllowedValues() != null && stringRestriction.getAllowedValues().size() > 0) {
+                        attribute.setValue(stringRestriction.getAllowedValues().get(0)); //TODO random
+                    } else {
+                        attribute.setValue(RandomGenerator.getString(stringRestriction.getMinLength(), stringRestriction.getMaxLength()));
+                    }
                 }
             } else {
                 throw new NotImplementedException();

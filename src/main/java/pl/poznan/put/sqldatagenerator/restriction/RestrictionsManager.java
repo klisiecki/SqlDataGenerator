@@ -15,12 +15,14 @@ import pl.poznan.put.sqldatagenerator.Utils;
 import pl.poznan.put.sqldatagenerator.generator.Attribute;
 import pl.poznan.put.sqldatagenerator.restriction.types.RangeRestriction;
 import pl.poznan.put.sqldatagenerator.restriction.types.Restriction;
+import pl.poznan.put.sqldatagenerator.restriction.types.StringRestriction;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import static java.lang.Math.min;
 import static java.util.stream.Collectors.toList;
 
 public class RestrictionsManager {
@@ -124,6 +126,7 @@ public class RestrictionsManager {
         return result;
     }
 
+    //TODO to consider: move merging logic to restrictions classes
     private void mergeRestrictions(Attribute attribute, Collection<Restriction> restrictions,
                                    HashMultimap<Attribute, Restriction> toRemoveRestrictions, HashMultimap<Attribute, Restriction> restrictionsByAttribute) {
         List<RangeRestriction> rangeRestrictions = restrictions.stream()
@@ -141,6 +144,34 @@ public class RestrictionsManager {
                 throw new RuntimeException("Range for attribute " + attribute.getName() + " is empty");
             }
             restrictionsByAttribute.put(attribute, new RangeRestriction(attribute, rangeSet));
+        }
+
+        List<StringRestriction> stringRestrictions = restrictions.stream()
+                .filter(r -> r instanceof StringRestriction).map(r -> (StringRestriction) r).collect(toList());
+        if (stringRestrictions.size() > 1) {
+            StringRestriction first = stringRestrictions.get(0);
+            int minLength = first.getMinLength();
+            int maxLength = first.getMaxLength();
+            StringRestriction.LikeExpression likeExpression = first.getLikeExpression();
+            List<String> allowedValues = first.getAllowedValues();
+            for (int i = 1; i < stringRestrictions.size(); i++) {
+                StringRestriction restriction = stringRestrictions.get(i);
+                minLength = min(minLength, restriction.getMinLength());
+                maxLength = Math.max(maxLength, restriction.getMaxLength());
+                List<String> resultValues = allowedValues.stream().filter(allowedValue -> restriction.getAllowedValues().contains(allowedValue)).collect(toList());
+                toRemoveRestrictions.put(attribute, restriction);
+                allowedValues = resultValues;
+                if (restriction.getLikeExpression() != null) {
+                    likeExpression = restriction.getLikeExpression();
+                }
+            }
+            toRemoveRestrictions.put(attribute, first);
+            StringRestriction mergedRestriction = new StringRestriction(attribute);
+            mergedRestriction.setMinLength(minLength);
+            mergedRestriction.setMinLength(maxLength);
+            mergedRestriction.setAllowedValues(allowedValues);
+            mergedRestriction.setLikeExpression(likeExpression);
+            restrictionsByAttribute.put(attribute, mergedRestriction);
         }
     }
 

@@ -5,6 +5,8 @@ import net.sf.jsqlparser.expression.operators.relational.Between;
 import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
 import net.sf.jsqlparser.expression.operators.relational.InExpression;
 import net.sf.jsqlparser.schema.Column;
+import pl.poznan.put.sqldatagenerator.generator.AttributeType;
+import pl.poznan.put.sqldatagenerator.generator.AttributesMap;
 
 public class SQLExpressionsUtils {
     public static boolean isColumnAndValueExpression(Expression expression) {
@@ -34,6 +36,18 @@ public class SQLExpressionsUtils {
             }
         }
         return false;
+    }
+
+    public static boolean isStringExpression(Expression expression) {
+        Column column;
+        if (expression instanceof BinaryExpression) {
+            column = getColumn((BinaryExpression) expression);
+        } else if (expression instanceof InExpression) {
+            column = (Column) ((InExpression) expression).getLeftExpression();
+        } else {
+            return false;
+        }
+        return AttributesMap.get(column).getType() == AttributeType.STRING;
     }
 
     public static boolean isColumn(Expression left) {
@@ -95,6 +109,14 @@ public class SQLExpressionsUtils {
             return se.getSign() == '-' ? -getDouble(e) : getDouble(e);
         } else {
             return getLong(expression).doubleValue();
+        }
+    }
+
+    public static String getString(Expression expression) {
+        if (expression instanceof StringValue) {
+            return ((StringValue) expression).getValue();
+        } else {
+            return null;
         }
     }
 
