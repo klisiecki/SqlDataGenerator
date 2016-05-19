@@ -26,7 +26,12 @@ public class Main {
     private static final Configuration configuration = Configuration.getInstance();
 
     public static void main(String[] args) {
-        Namespace ns = initArgumentParser(args);
+        Namespace ns;
+        try {
+            ns = initArgumentParser(args);
+        } catch (ArgumentParserException e) {
+            return;
+        }
 
         configuration.setOutputPath(ns.getString("output"));
         configuration.setSelectivity(ns.getDouble("selectivity"));
@@ -41,7 +46,7 @@ public class Main {
         dataController.generate();
     }
 
-    private static Namespace initArgumentParser(String[] args) {
+    private static Namespace initArgumentParser(String[] args) throws ArgumentParserException {
         ArgumentParser parser = ArgumentParsers.newArgumentParser("generator")
                 .defaultHelp(true)
                 .description("Some description.");
@@ -73,10 +78,8 @@ public class Main {
             return parser.parseArgs(args);
         } catch (ArgumentParserException e) {
             parser.handleError(e);
-            //TODO logger? throw?
-            System.exit(1);
+            throw e;
         }
-        return null;
     }
 
     private static SQLData getSqlData(String file) {
@@ -101,7 +104,8 @@ public class Main {
             return new XMLData(file);
         } catch (ParserConfigurationException | SAXException | IOException e) {
             logger.error("Error reading XML file", e);
-            //TODO Throw exception, oddzielnie sygnalizować niezgodność z schematem
+            //TODO Throw exception
+            //TODO separate info for non valid XML file
         }
         return null;
     }

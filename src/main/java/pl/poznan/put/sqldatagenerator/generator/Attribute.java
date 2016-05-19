@@ -5,7 +5,7 @@ public class Attribute {
     private final String name;
     private final AttributeType type;
     private Attribute baseAttribute;
-    private TableInstance tableInstance;
+    private final TableInstance tableInstance;
 
     private boolean isClear;
 
@@ -46,10 +46,7 @@ public class Attribute {
     }
 
     public boolean canBeGenerated() {
-        if (baseAttribute == null) {
-            return isClear;
-        }
-        return false;
+        return baseAttribute == null && isClear;
     }
 
     public void setClear(boolean isClear) {

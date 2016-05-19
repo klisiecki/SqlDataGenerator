@@ -7,7 +7,7 @@ import java.util.Random;
 public class HistoryManager {
     private static final int HISTORY_SIZE = 10;
 
-    private Random random;
+    private final Random random;
     private List<List<TablesState>> history;
 
     public HistoryManager() {

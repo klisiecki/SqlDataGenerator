@@ -16,13 +16,13 @@ public class TableBase {
 
     private final String name;
     private long dataCount;
-    private long dataCountLimit;
+    private final long dataCountLimit;
     private int resetFactor;
     private CSVWriter writer;
     private int fileNum;
     private List<String> attributesNames;
 
-    private List<TableInstance> instanceList;
+    private final List<TableInstance> instanceList;
 
     public TableBase(String name, List<String> attributesNames, long dataCountLimit) {
         this.name = name;

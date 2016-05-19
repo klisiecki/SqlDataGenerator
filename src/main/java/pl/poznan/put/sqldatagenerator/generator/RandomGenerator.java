@@ -11,10 +11,10 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
+@SuppressWarnings("unchecked")
 public class RandomGenerator {
 
-    private static ThreadLocalRandom random = ThreadLocalRandom.current();
-    private static double doubleMinValue = 0.001;
+    private static final ThreadLocalRandom random = ThreadLocalRandom.current();
 
     /**
      * Returns a pseudorandom value from given {@link RangeSet}.
@@ -61,7 +61,7 @@ public class RandomGenerator {
         if (!range.hasLowerBound()) {
             return Long.MIN_VALUE;
         }
-        double rangeTypeCorrection = range.lowerBoundType() == BoundType.CLOSED ? 0 : doubleMinValue; //TODO consider double ranges
+        double rangeTypeCorrection = range.lowerBoundType() == BoundType.CLOSED ? 0 : 0.0001; //TODO consider double ranges
         return range.lowerEndpoint() + rangeTypeCorrection;
     }
 

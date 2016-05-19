@@ -156,11 +156,11 @@ public class RangeRestriction extends OneAttributeRestriction {
 
     @Override
     public Restriction clone() {
-        return new RangeRestriction(attributes.get(0), TreeRangeSet.create(rangeSet));
+        return new RangeRestriction(getAttribute(), TreeRangeSet.create(rangeSet));
     }
 
     @Override
     public String toString() {
-        return "RangeRestriction[" + attributes.get(0) + ": " + (expression == null ? "" : expression + ", ") + rangeSet + "]";
+        return "RangeRestriction[" + getAttribute() + ": " + (expression == null ? "" : expression + ", ") + rangeSet + "]";
     }
 }

@@ -13,10 +13,11 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import java.util.Collection;
 import java.util.Map;
 
+@SuppressWarnings("unchecked")
 public class Solver {
     private static final Logger logger = LoggerFactory.getLogger(Solver.class);
 
-    private HashMultimap<Attribute, Restriction> restrictionsByAttribute;
+    private final HashMultimap<Attribute, Restriction> restrictionsByAttribute;
 
     public Solver(HashMultimap<Attribute, Restriction> restrictionsByAttribute) {
         this.restrictionsByAttribute = restrictionsByAttribute;

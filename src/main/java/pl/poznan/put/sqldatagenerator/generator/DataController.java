@@ -23,11 +23,11 @@ public class DataController {
 
     private long maxDataRows = 0;
 
-    private Random random;
+    private final Random random;
 
-    private RestrictionsManager restrictionsManager;
-    private HistoryManager positiveHistoryManager;
-    private HistoryManager negativeHistoryManager;
+    private final RestrictionsManager restrictionsManager;
+    private final HistoryManager positiveHistoryManager;
+    private final HistoryManager negativeHistoryManager;
 
     public DataController() {
         this.tableBaseMap = new HashMap<>();

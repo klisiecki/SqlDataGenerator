@@ -5,7 +5,7 @@ import pl.poznan.put.sqldatagenerator.generator.key.KeyGenerator;
 
 public class PrimaryKeyRestriction extends OneAttributeRestriction {
 
-    private KeyGenerator keyGenerator;
+    private final KeyGenerator keyGenerator;
 
     public PrimaryKeyRestriction(Attribute attribute, KeyGenerator keyGenerator) {
         super(attribute);
@@ -22,12 +22,12 @@ public class PrimaryKeyRestriction extends OneAttributeRestriction {
     }
 
     @Override
-    public Restriction clone() {
-        throw new RuntimeException("Cannot copy primary key restriction");
+    public Restriction clone() throws CloneNotSupportedException {
+        throw new CloneNotSupportedException();
     }
 
     @Override
     public String toString() {
-        return "PrimaryKeyRestriction{" + attributes.get(0) + "}";
+        return "PrimaryKeyRestriction{" + getAttribute() + "}";
     }
 }

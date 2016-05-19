@@ -18,4 +18,8 @@ public abstract class OneAttributeRestriction extends Restriction {
         super(null);
         this.attributes = singletonList(attribute);
     }
+
+    public Attribute getAttribute() {
+        return attributes.get(0);
+    }
 }

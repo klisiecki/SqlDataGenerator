@@ -9,7 +9,7 @@ import java.util.Map;
 import static java.util.stream.Collectors.toList;
 
 public class AttributesMap {
-    private static Map<String, Attribute> map = new HashMap<>();
+    private static final Map<String, Attribute> map = new HashMap<>();
 
     public static void add(TableInstance tableInstance, String attributeName, Attribute attribute) {
         map.put(getKey(tableInstance.getAliasName(), attributeName), attribute);

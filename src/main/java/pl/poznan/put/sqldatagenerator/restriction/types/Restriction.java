@@ -7,9 +7,9 @@ import java.util.List;
 
 public abstract class Restriction {
     protected List<Attribute> attributes;
-    protected Expression expression;
+    protected final Expression expression;
 
-    public Restriction(Expression expression) {
+    protected Restriction(Expression expression) {
         this.expression = expression;
     }
 
@@ -19,7 +19,7 @@ public abstract class Restriction {
 
     public abstract Restriction reverse();
 
-    public abstract Restriction clone();
+    public abstract Restriction clone() throws CloneNotSupportedException;
 
     @Override
     public String toString() {
