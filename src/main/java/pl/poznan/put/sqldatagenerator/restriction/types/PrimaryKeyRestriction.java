@@ -22,8 +22,8 @@ public class PrimaryKeyRestriction extends OneAttributeRestriction {
     }
 
     @Override
-    public Restriction clone() throws CloneNotSupportedException {
-        throw new CloneNotSupportedException();
+    public Restriction clone() {
+        throw new RuntimeException("Cannot clone primary key restriction");
     }
 
     @Override

@@ -19,7 +19,7 @@ public abstract class Restriction {
 
     public abstract Restriction reverse();
 
-    public abstract Restriction clone() throws CloneNotSupportedException;
+    public abstract Restriction clone();
 
     @Override
     public String toString() {
