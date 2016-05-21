@@ -20,7 +20,7 @@ public class RestrictionFactory {
                 } else if (expression instanceof InExpression) {
                     return StringRestriction.fromIn((InExpression) expression);
                 } else if (expression instanceof LikeExpression) {
-
+                    return StringRestriction.fromLikeExpression((LikeExpression) expression);
                 }
             } else {
                 if (expression instanceof GreaterThan) {

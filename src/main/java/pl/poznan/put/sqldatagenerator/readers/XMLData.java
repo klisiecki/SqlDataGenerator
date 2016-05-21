@@ -97,6 +97,7 @@ public class XMLData {
                         if (getMaxValue(tableName, attributeName) != null) {
                             stringRestriction.setMaxLength(Integer.parseInt(getMaxValue(tableName, attributeName)));
                         }
+                        restrictionList.add(stringRestriction);
                     } else {
                         throw new RuntimeException("Attribute must have restriction");
                     }

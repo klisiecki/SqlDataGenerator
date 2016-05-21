@@ -21,7 +21,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
+import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static java.util.stream.Collectors.toList;
 
@@ -131,6 +133,15 @@ public class RestrictionsManager {
                                    HashMultimap<Attribute, Restriction> toRemoveRestrictions, HashMultimap<Attribute, Restriction> restrictionsByAttribute) {
         List<RangeRestriction> rangeRestrictions = restrictions.stream()
                 .filter(r -> r instanceof RangeRestriction).map(r -> (RangeRestriction) r).collect(toList());
+        mergeRangeRestrictions(attribute, toRemoveRestrictions, restrictionsByAttribute, rangeRestrictions);
+
+        List<StringRestriction> stringRestrictions = restrictions.stream()
+                .filter(r -> r instanceof StringRestriction).map(r -> (StringRestriction) r).collect(toList());
+        mergeStringRestrictions(attribute, toRemoveRestrictions, restrictionsByAttribute, stringRestrictions);
+    }
+
+    private void mergeRangeRestrictions(Attribute attribute, HashMultimap<Attribute, Restriction> toRemoveRestrictions,
+                                        HashMultimap<Attribute, Restriction> restrictionsByAttribute, List<RangeRestriction> rangeRestrictions) {
         if (rangeRestrictions.size() > 1) {
             RangeSet rangeSet = TreeRangeSet.create();
             //noinspection unchecked
@@ -138,41 +149,42 @@ public class RestrictionsManager {
             rangeRestrictions.forEach(restriction -> {
                 Utils.intersectRangeSets(rangeSet, restriction.getRangeSet());
                 toRemoveRestrictions.put(attribute, restriction);
-
             });
             if (rangeSet.isEmpty()) {
                 throw new RuntimeException("Range for attribute " + attribute.getName() + " is empty");
             }
             restrictionsByAttribute.put(attribute, new RangeRestriction(attribute, rangeSet));
         }
+    }
 
-        List<StringRestriction> stringRestrictions = restrictions.stream()
-                .filter(r -> r instanceof StringRestriction).map(r -> (StringRestriction) r).collect(toList());
+    private void mergeStringRestrictions(Attribute attribute, HashMultimap<Attribute, Restriction> toRemoveRestrictions,
+                                         HashMultimap<Attribute, Restriction> restrictionsByAttribute, List<StringRestriction> stringRestrictions) {
         if (stringRestrictions.size() > 1) {
             StringRestriction first = stringRestrictions.get(0);
             int minLength = first.getMinLength();
             int maxLength = first.getMaxLength();
-            StringRestriction.LikeExpression likeExpression = first.getLikeExpression();
+            StringRestriction.LikeExpressionProperties likeExpressionProperties = first.getLikeExpressionProperties();
             List<String> allowedValues = first.getAllowedValues();
             for (int i = 1; i < stringRestrictions.size(); i++) {
                 StringRestriction restriction = stringRestrictions.get(i);
                 minLength = min(minLength, restriction.getMinLength());
-                maxLength = Math.max(maxLength, restriction.getMaxLength());
-                List<String> resultValues = allowedValues.stream().filter(allowedValue -> restriction.getAllowedValues().contains(allowedValue)).collect(toList());
+                maxLength = max(maxLength, restriction.getMaxLength());
                 toRemoveRestrictions.put(attribute, restriction);
-                allowedValues = resultValues;
-                if (restriction.getLikeExpression() != null) {
-                    likeExpression = restriction.getLikeExpression();
+                if (allowedValues != null) {
+                    allowedValues = allowedValues.stream().filter(containsValuesFrom(restriction)).collect(toList());
+                }
+                if (restriction.getLikeExpressionProperties() != null) {
+                    likeExpressionProperties = restriction.getLikeExpressionProperties();
                 }
             }
             toRemoveRestrictions.put(attribute, first);
-            StringRestriction mergedRestriction = new StringRestriction(attribute);
-            mergedRestriction.setMinLength(minLength);
-            mergedRestriction.setMinLength(maxLength);
-            mergedRestriction.setAllowedValues(allowedValues);
-            mergedRestriction.setLikeExpression(likeExpression);
+            StringRestriction mergedRestriction = new StringRestriction(attribute, minLength, maxLength, likeExpressionProperties, allowedValues);
             restrictionsByAttribute.put(attribute, mergedRestriction);
         }
+    }
+
+    private Predicate<String> containsValuesFrom(StringRestriction restriction) {
+        return value -> restriction.getAllowedValues() == null || restriction.getAllowedValues().contains(value);
     }
 
 }

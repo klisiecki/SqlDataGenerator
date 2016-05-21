@@ -12,7 +12,11 @@ import pl.poznan.put.sqldatagenerator.restriction.types.StringRestriction;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
+
+import static pl.poznan.put.sqldatagenerator.generator.RandomGenerator.randomIndex;
+import static pl.poznan.put.sqldatagenerator.generator.RandomGenerator.randomString;
 
 @SuppressWarnings("unchecked")
 public class Solver {
@@ -50,11 +54,13 @@ public class Solver {
                     PrimaryKeyRestriction primaryKeyRestriction = (PrimaryKeyRestriction) restriction;
                     attribute.setValue(primaryKeyRestriction.getNextValue().toString());
                 } else if (restriction instanceof StringRestriction) {
+                    //TODO handle LIKE expression, better handling of negated restrictions
                     StringRestriction stringRestriction = (StringRestriction) restriction;
-                    if (stringRestriction.getAllowedValues() != null && stringRestriction.getAllowedValues().size() > 0) {
-                        attribute.setValue(stringRestriction.getAllowedValues().get(0)); //TODO random
+                    List<String> allowedValues = stringRestriction.getAllowedValues();
+                    if (allowedValues != null && allowedValues.size() > 0 && !stringRestriction.isNegated()) {
+                        attribute.setValue(allowedValues.get(randomIndex(allowedValues)));
                     } else {
-                        attribute.setValue(RandomGenerator.getString(stringRestriction.getMinLength(), stringRestriction.getMaxLength()));
+                        attribute.setValue(randomString(stringRestriction.getMinLength(), stringRestriction.getMaxLength()));
                     }
                 }
             } else {

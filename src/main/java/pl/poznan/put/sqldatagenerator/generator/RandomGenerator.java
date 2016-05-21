@@ -32,6 +32,10 @@ public class RandomGenerator {
         return random.nextLong(minValue, maxValue);
     }
 
+    public static int randomIndex(List list) {
+        return random.nextInt(list.size());
+    }
+
     public static Double getDouble(RangeSet<Double> rangeSet) {
         Range<Double> range = getRandomRange(rangeSet);
         double minValue = getMinDouble(range);
@@ -91,7 +95,7 @@ public class RandomGenerator {
         return (char) i;
     }
 
-    public static String getString(int minLength, int maxLength) {
+    public static String randomString(int minLength, int maxLength) {
         int length = random.nextInt(minLength, maxLength + 1);
         StringBuilder sb = new StringBuilder(length);
         for (int i = 0; i < length; i++) {
@@ -100,7 +104,7 @@ public class RandomGenerator {
         return sb.toString();
     }
 
-    public static String getString(String from, String to) {
+    public static String randomString(String from, String to) {
         if (from.equals(to)) return from;
         int length = random.nextInt(from.length(), to.length());
         StringBuilder stringBuilder = new StringBuilder(length);
@@ -111,11 +115,11 @@ public class RandomGenerator {
         return stringBuilder.toString();
     }
 
-    public static String getString(RangeSet rangeSet) {
+    public static String randomString(RangeSet rangeSet) {
         Object[] ranges = rangeSet.asRanges().toArray();
         int i = ranges.length == 1 ? 0 : random.nextInt(ranges.length);
         Range range = (Range) ranges[i];
-        return getString(range.lowerEndpoint().toString(), range.upperEndpoint().toString());
+        return randomString(range.lowerEndpoint().toString(), range.upperEndpoint().toString());
 
     }
 }

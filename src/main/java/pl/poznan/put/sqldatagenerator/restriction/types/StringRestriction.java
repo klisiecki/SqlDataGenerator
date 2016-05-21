@@ -1,10 +1,7 @@
 package pl.poznan.put.sqldatagenerator.restriction.types;
 
 import net.sf.jsqlparser.expression.Expression;
-import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
-import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
-import net.sf.jsqlparser.expression.operators.relational.InExpression;
-import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
+import net.sf.jsqlparser.expression.operators.relational.*;
 import net.sf.jsqlparser.schema.Column;
 import org.apache.commons.lang.NotImplementedException;
 import pl.poznan.put.sqldatagenerator.generator.Attribute;
@@ -19,19 +16,19 @@ import static pl.poznan.put.sqldatagenerator.restriction.SQLExpressionsUtils.*;
 
 public class StringRestriction extends OneAttributeRestriction {
 
-    public class LikeExpression {
+    public class LikeExpressionProperties {
         private String like;
         private boolean leftOpen;
         private boolean rightOpen;
 
-        public LikeExpression(String like, boolean leftOpen, boolean rightOpen) {
+        public LikeExpressionProperties(String like, boolean leftOpen, boolean rightOpen) {
             this.like = like;
             this.leftOpen = leftOpen;
             this.rightOpen = rightOpen;
         }
 
-        public LikeExpression(LikeExpression likeExpression) {
-            this(likeExpression.getLike(), likeExpression.isLeftOpen(), likeExpression.isRightOpen());
+        public LikeExpressionProperties(LikeExpressionProperties likeExpressionProperties) {
+            this(likeExpressionProperties.getLike(), likeExpressionProperties.isLeftOpen(), likeExpressionProperties.isRightOpen());
         }
 
         public String getLike() {
@@ -50,7 +47,7 @@ public class StringRestriction extends OneAttributeRestriction {
 
     private int minLength = 0;
     private int maxLength = 20; //TODO max string length
-    private LikeExpression likeExpression;
+    private LikeExpressionProperties likeExpressionProperties;
     private List<String> allowedValues;
     private boolean isNegated;
 
@@ -62,6 +59,14 @@ public class StringRestriction extends OneAttributeRestriction {
     public StringRestriction(Attribute attribute) {
         super(attribute);
         isNegated = false;
+    }
+
+    public StringRestriction(Attribute attribute, int minLength, int maxLength, LikeExpressionProperties likeExpressionProperties, List<String> allowedValues) {
+        this(attribute);
+        this.minLength = minLength;
+        this.maxLength = maxLength;
+        this.likeExpressionProperties = likeExpressionProperties;
+        this.allowedValues = allowedValues;
     }
 
     public int getMinLength() {
@@ -80,12 +85,12 @@ public class StringRestriction extends OneAttributeRestriction {
         this.maxLength = maxLength;
     }
 
-    public LikeExpression getLikeExpression() {
-        return likeExpression;
+    public LikeExpressionProperties getLikeExpressionProperties() {
+        return likeExpressionProperties;
     }
 
-    public void setLikeExpression(LikeExpression likeExpression) {
-        this.likeExpression = likeExpression;
+    public void setLikeExpressionProperties(LikeExpressionProperties likeExpressionProperties) {
+        this.likeExpressionProperties = likeExpressionProperties;
     }
 
     public List<String> getAllowedValues() {
@@ -100,15 +105,10 @@ public class StringRestriction extends OneAttributeRestriction {
         return isNegated;
     }
 
-    public void negate() {
-        this.isNegated = !this.isNegated;
-    }
-
     @Override
     public Restriction reverse() {
-        StringRestriction reversed = (StringRestriction) this.clone();
-        reversed.negate();
-        return reversed;
+        this.isNegated = !this.isNegated;
+        return this;
     }
 
     @Override
@@ -117,8 +117,8 @@ public class StringRestriction extends OneAttributeRestriction {
         clone.setMinLength(minLength);
         clone.setMaxLength(maxLength);
         clone.setAllowedValues(new ArrayList<>(allowedValues));
-        if (likeExpression != null) {
-            clone.setLikeExpression(new LikeExpression(likeExpression));
+        if (likeExpressionProperties != null) {
+            clone.setLikeExpressionProperties(new LikeExpressionProperties(likeExpressionProperties));
         }
         return clone;
     }
@@ -145,5 +145,12 @@ public class StringRestriction extends OneAttributeRestriction {
         throw new NotImplementedException();
     }
 
-
+    @Override
+    public String toString() {
+        return "StringRestriction{" +
+                "length=[" + minLength + "," + maxLength + "]" +
+                (likeExpressionProperties == null ? "" : ", likeExpressionProperties=" + likeExpressionProperties) +
+                (allowedValues == null ? "" : ", allowedValues=" + allowedValues) +
+                ", isNegated=" + isNegated + '}';
+    }
 }
