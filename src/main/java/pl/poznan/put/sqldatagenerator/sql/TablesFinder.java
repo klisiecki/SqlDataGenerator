@@ -45,15 +45,10 @@ public class TablesFinder extends AbstractFinder {
         plainSelect.getFromItem().accept(this);
 
         if (plainSelect.getJoins() != null) {
-            for (Join join : plainSelect.getJoins()) {
-                join.getRightItem().accept(this);
-            }
+            plainSelect.getJoins().forEach(join -> join.getRightItem().accept(this));
         }
         if (plainSelect.getWhere() != null) {
             plainSelect.getWhere().accept(this);
-        }
-        if (plainSelect.getOracleHierarchical() != null) {
-            plainSelect.getOracleHierarchical().accept(this);
         }
     }
 

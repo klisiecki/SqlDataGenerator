@@ -5,10 +5,10 @@ import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
+import org.apache.commons.lang.RandomStringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 @SuppressWarnings("unchecked")
@@ -22,7 +22,7 @@ public class RandomGenerator {
      * @param rangeSet {@link TreeRangeSet} of {@link Long} type. Must not contain empty ranges.
      * @return random {@link Long} value from random {@link Range} in given set.
      */
-    public static Long getLong(RangeSet<Long> rangeSet) {
+    public static Long randomLong(RangeSet<Long> rangeSet) {
         Range<Long> range = getRandomRange(rangeSet);
         long minValue = getMinLong(range);
         long maxValue = getMaxLong(range);
@@ -36,7 +36,7 @@ public class RandomGenerator {
         return random.nextInt(list.size());
     }
 
-    public static Double getDouble(RangeSet<Double> rangeSet) {
+    public static Double randomDouble(RangeSet<Double> rangeSet) {
         Range<Double> range = getRandomRange(rangeSet);
         double minValue = getMinDouble(range);
         double maxValue = getMaxDouble(range);
@@ -84,42 +84,8 @@ public class RandomGenerator {
         return range.upperEndpoint();
     }
 
-    private static char getChar(char from, char to) {
-        Random r = new Random();
-        int offset = 0;
-        if (from <= 90 && to >= 97) offset = 6;
-        int i = r.nextInt(to - from - offset) + from;
-        if (offset != 0 && i >= 91) {
-            i += offset;
-        }
-        return (char) i;
-    }
-
     public static String randomString(int minLength, int maxLength) {
         int length = random.nextInt(minLength, maxLength + 1);
-        StringBuilder sb = new StringBuilder(length);
-        for (int i = 0; i < length; i++) {
-            sb.append(getChar('A', 'z'));
-        }
-        return sb.toString();
-    }
-
-    public static String randomString(String from, String to) {
-        if (from.equals(to)) return from;
-        int length = random.nextInt(from.length(), to.length());
-        StringBuilder stringBuilder = new StringBuilder(length);
-        for (int i = 0; i < length; i++) {
-            stringBuilder.append(getChar('A', 'z')); //TODO change to length ranges
-        }
-
-        return stringBuilder.toString();
-    }
-
-    public static String randomString(RangeSet rangeSet) {
-        Object[] ranges = rangeSet.asRanges().toArray();
-        int i = ranges.length == 1 ? 0 : random.nextInt(ranges.length);
-        Range range = (Range) ranges[i];
-        return randomString(range.lowerEndpoint().toString(), range.upperEndpoint().toString());
-
+        return RandomStringUtils.randomAlphabetic(length);
     }
 }

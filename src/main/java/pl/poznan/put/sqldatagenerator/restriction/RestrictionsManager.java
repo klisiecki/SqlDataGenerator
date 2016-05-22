@@ -165,6 +165,7 @@ public class RestrictionsManager {
             int maxLength = first.getMaxLength();
             StringRestriction.LikeExpressionProperties likeExpressionProperties = first.getLikeExpressionProperties();
             List<String> allowedValues = first.getAllowedValues();
+            boolean isNegated = first.isNegated();
             for (int i = 1; i < stringRestrictions.size(); i++) {
                 StringRestriction restriction = stringRestrictions.get(i);
                 minLength = min(minLength, restriction.getMinLength());
@@ -176,9 +177,13 @@ public class RestrictionsManager {
                 if (restriction.getLikeExpressionProperties() != null) {
                     likeExpressionProperties = restriction.getLikeExpressionProperties();
                 }
+                if (restriction.isNegated()) {
+                    isNegated = true;
+                }
             }
             toRemoveRestrictions.put(attribute, first);
-            StringRestriction mergedRestriction = new StringRestriction(attribute, minLength, maxLength, likeExpressionProperties, allowedValues);
+            StringRestriction mergedRestriction =
+                    new StringRestriction(attribute, minLength, maxLength, likeExpressionProperties, allowedValues, isNegated);
             restrictionsByAttribute.put(attribute, mergedRestriction);
         }
     }

@@ -59,52 +59,64 @@ public class XMLData {
                 List<String> values = getValues(tableName, attributeName);
                 List<Attribute> attributes = AttributesMap.get(tableBaseMap.get(tableName), attributeName);
                 AttributeType attributeType = getType(tableName, attributeName);
-                RangeSet rangeSet = null;
-                KeyGenerator keyGenerator = null;
                 switch (attributeType) {
                     case INTEGER:
-                        if (isPrimaryKey(tableName, attributeName)) {
-                            keyGenerator = new SimpleKeyGenerator(getRowsNum(tableName));
-                        } else if (values == null) {
-                            rangeSet = getIntegerRangeSet(tableName, attributeName);
-                        } else {
-                            rangeSet = TreeRangeSet.create();
-                            for (String valueString : values) {
-                                Long value = Long.parseLong(valueString);
-                                //noinspection unchecked
-                                rangeSet.add(Range.closed(value, value));
-                            }
-                        }
+                        restrictionList.addAll(getIntegerConstraints(tableName, attributeName, values, attributes));
                         break;
                     case FLOAT:
-                        rangeSet = getFloatRangeSet(tableName, attributeName);
+                        restrictionList.addAll(getFloatConstraints(tableName, attributeName, attributes));
                         break;
-                }
-                for (Attribute attribute : attributes) {
-                    if (rangeSet != null) {
-                        restrictionList.add(new RangeRestriction(attribute, rangeSet));
-                    } else if (keyGenerator != null) {
-                        restrictionList.add(new PrimaryKeyRestriction(attribute, keyGenerator));
-                    } else if (attribute.getType() == AttributeType.STRING) {
-                        //TODO improve readability and consistency of this code. Separate class for StringRestriction properties?
-                        StringRestriction stringRestriction = new StringRestriction(attribute);
-                        if (values != null) {
-                            stringRestriction.setAllowedValues(values);
-                        }
-                        if (getMinValue(tableName, attributeName) != null) {
-                            stringRestriction.setMinLength(Integer.parseInt(getMinValue(tableName, attributeName)));
-                        }
-                        if (getMaxValue(tableName, attributeName) != null) {
-                            stringRestriction.setMaxLength(Integer.parseInt(getMaxValue(tableName, attributeName)));
-                        }
-                        restrictionList.add(stringRestriction);
-                    } else {
-                        throw new RuntimeException("Attribute must have restriction");
-                    }
+                    case STRING:
+                        restrictionList.addAll(getStringConstraints(tableName, attributeName, values, attributes));
+                        break;
                 }
             }
         }
         return new Restrictions(restrictionList);
+    }
+
+    private List<Restriction> getIntegerConstraints(String tableName, String attributeName, List<String> values, List<Attribute> attributes) {
+        List<Restriction> restrictionList = new ArrayList<>();
+        RangeSet<Long> rangeSet;
+        if (isPrimaryKey(tableName, attributeName)) {
+            KeyGenerator keyGenerator = new SimpleKeyGenerator(getRowsNum(tableName));
+            attributes.forEach(attribute -> restrictionList.add(new PrimaryKeyRestriction(attribute, keyGenerator)));
+
+        } else if (values == null) {
+            rangeSet = getIntegerRangeSet(tableName, attributeName);
+            attributes.forEach(attribute -> restrictionList.add(new RangeRestriction(attribute, rangeSet)));
+        } else {
+            rangeSet = TreeRangeSet.create();
+            for (String valueString : values) {
+                Long value = Long.parseLong(valueString);
+                rangeSet.add(Range.closed(value, value));
+            }
+            attributes.forEach(attribute -> restrictionList.add(new RangeRestriction(attribute, rangeSet)));
+        }
+        return restrictionList;
+    }
+
+    private List<Restriction> getFloatConstraints(String tableName, String attributeName, List<Attribute> attributes) {
+        List<Restriction> restrictionList = new ArrayList<>();
+        RangeSet<Double> rangeSet = getFloatRangeSet(tableName, attributeName);
+        attributes.forEach(attribute -> restrictionList.add(new RangeRestriction(attribute, rangeSet)));
+        return restrictionList;
+    }
+
+    private List<Restriction> getStringConstraints(String tableName, String attributeName, List<String> values, List<Attribute> attributes) {
+        List<Restriction> restrictionList = new ArrayList<>();
+        for (Attribute attribute : attributes) {
+            StringRestriction stringRestriction = new StringRestriction(attribute);
+            stringRestriction.setAllowedValues(values);
+            if (getMinValue(tableName, attributeName) != null) {
+                stringRestriction.setMinLength(Integer.parseInt(getMinValue(tableName, attributeName)));
+            }
+            if (getMaxValue(tableName, attributeName) != null) {
+                stringRestriction.setMaxLength(Integer.parseInt(getMaxValue(tableName, attributeName)));
+            }
+            restrictionList.add(stringRestriction);
+        }
+        return restrictionList;
     }
 
     private RangeSet<Long> getIntegerRangeSet(String table, String attribute) {

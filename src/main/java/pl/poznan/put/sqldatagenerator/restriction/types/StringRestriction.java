@@ -61,12 +61,13 @@ public class StringRestriction extends OneAttributeRestriction {
         isNegated = false;
     }
 
-    public StringRestriction(Attribute attribute, int minLength, int maxLength, LikeExpressionProperties likeExpressionProperties, List<String> allowedValues) {
+    public StringRestriction(Attribute attribute, int minLength, int maxLength, LikeExpressionProperties likeExpressionProperties, List<String> allowedValues, boolean isNegated) {
         this(attribute);
         this.minLength = minLength;
         this.maxLength = maxLength;
         this.likeExpressionProperties = likeExpressionProperties;
         this.allowedValues = allowedValues;
+        this.isNegated = isNegated;
     }
 
     public int getMinLength() {
@@ -148,7 +149,8 @@ public class StringRestriction extends OneAttributeRestriction {
     @Override
     public String toString() {
         return "StringRestriction{" +
-                "length=[" + minLength + "," + maxLength + "]" +
+                getAttribute() +
+                ", length=[" + minLength + "," + maxLength + "]" +
                 (likeExpressionProperties == null ? "" : ", likeExpressionProperties=" + likeExpressionProperties) +
                 (allowedValues == null ? "" : ", allowedValues=" + allowedValues) +
                 ", isNegated=" + isNegated + '}';
