@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.poznan.put.sqldatagenerator.Configuration;
 import pl.poznan.put.sqldatagenerator.readers.DatabaseProperties;
+import pl.poznan.put.sqldatagenerator.readers.DatabasePropertiesReader;
 import pl.poznan.put.sqldatagenerator.readers.SQLData;
 import pl.poznan.put.sqldatagenerator.restriction.RestrictionsManager;
 import pl.poznan.put.sqldatagenerator.solver.Solver;
@@ -38,7 +39,8 @@ public class Generator {
         this.negativeHistoryManager = new HistoryManager();
     }
 
-    public void initTables(DatabaseProperties databaseProperties, SQLData sqlData) {
+    public void initTables(DatabasePropertiesReader databasePropertiesReader, SQLData sqlData) {
+        DatabaseProperties databaseProperties = new DatabaseProperties(databasePropertiesReader);
         initTableBase(databaseProperties);
 
         for (Table table : sqlData.getTables()) {

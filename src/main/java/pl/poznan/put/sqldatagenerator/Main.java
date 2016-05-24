@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 import pl.poznan.put.sqldatagenerator.generator.Generator;
-import pl.poznan.put.sqldatagenerator.readers.DatabaseProperties;
+import pl.poznan.put.sqldatagenerator.readers.DatabasePropertiesReader;
 import pl.poznan.put.sqldatagenerator.readers.SQLData;
 import pl.poznan.put.sqldatagenerator.readers.XMLDatabasePropertiesReader;
 
@@ -39,11 +39,11 @@ public class Main {
         configuration.setRowsPerFile(ns.getInt("maxRows"));
 
         SQLData sqlData = getSqlData(ns.getString("sqlFile"));
-        DatabaseProperties databaseProperties = getDatabaseProperties(ns.getString("xmlFile"));
+        DatabasePropertiesReader databasePropertiesReader = getXMLDatabasePropertiesReader(ns.getString("xmlFile"));
         createOutputDirectory();
 
         Generator generator = new Generator();
-        generator.initTables(databaseProperties, sqlData);
+        generator.initTables(databasePropertiesReader, sqlData);
         generator.generate();
     }
 
@@ -100,9 +100,9 @@ public class Main {
         return null;
     }
 
-    private static DatabaseProperties getDatabaseProperties(String file) {
+    private static DatabasePropertiesReader getXMLDatabasePropertiesReader(String file) {
         try {
-            return new DatabaseProperties(new XMLDatabasePropertiesReader(file));
+            return new XMLDatabasePropertiesReader(file);
         } catch (ParserConfigurationException | SAXException | IOException e) {
             logger.error("Error reading XML file", e);
             //TODO Throw exception
