@@ -14,9 +14,9 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 
-public class DataController {
+public class Generator {
     private static final Configuration configuration = Configuration.getInstance();
-    private static final Logger logger = LoggerFactory.getLogger(DataController.class);
+    private static final Logger logger = LoggerFactory.getLogger(Generator.class);
 
     private final Map<String, TableBase> tableBaseMap;
     private final Map<String, TableInstance> tableInstanceMap;
@@ -29,7 +29,7 @@ public class DataController {
     private final HistoryManager positiveHistoryManager;
     private final HistoryManager negativeHistoryManager;
 
-    public DataController() {
+    public Generator() {
         this.tableBaseMap = new HashMap<>();
         this.tableInstanceMap = new HashMap<>();
         this.random = new Random();

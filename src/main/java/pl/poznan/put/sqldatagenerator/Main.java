@@ -11,7 +11,7 @@ import net.sourceforge.argparse4j.inf.Namespace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
-import pl.poznan.put.sqldatagenerator.generator.DataController;
+import pl.poznan.put.sqldatagenerator.generator.Generator;
 import pl.poznan.put.sqldatagenerator.readers.DatabaseProperties;
 import pl.poznan.put.sqldatagenerator.readers.SQLData;
 import pl.poznan.put.sqldatagenerator.readers.XMLDatabasePropertiesReader;
@@ -42,9 +42,9 @@ public class Main {
         DatabaseProperties databaseProperties = getDatabaseProperties(ns.getString("xmlFile"));
         createOutputDirectory();
 
-        DataController dataController = new DataController();
-        dataController.initTables(databaseProperties, sqlData);
-        dataController.generate();
+        Generator generator = new Generator();
+        generator.initTables(databaseProperties, sqlData);
+        generator.generate();
     }
 
     private static Namespace initArgumentParser(String[] args) throws ArgumentParserException {
