@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class HistoryManager {
+public class History {
     private static final int HISTORY_SIZE = 10;
 
     private final Random random;
     private List<List<TablesState>> history;
 
-    public HistoryManager() {
+    public History() {
         this.random = new Random();
     }
 
@@ -30,7 +30,7 @@ public class HistoryManager {
         }
     }
 
-    public TablesState get(int index) {
+    public TablesState get(int index, List<String> tables) {
         List<TablesState> tablesStates = history.get(index);
         if (tablesStates.isEmpty()) {
             return null;
