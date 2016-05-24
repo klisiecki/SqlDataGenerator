@@ -69,7 +69,7 @@ public class Generator {
             float progress = (float) iteration / maxDataRows;
             if (Duration.between(lastTimestamp, Instant.now()).toMillis() > 1000) {
                 lastTimestamp = Instant.now();
-                logger.info("Generation progress: {} %", (int) progress * 100);
+                logger.info("Generation progress: {}%", (int) (progress * 100));
             }
             boolean positive = iteration < positiveRows;
             int restrictionsIndex = random.nextInt(restrictionsManager.getListSize(positive));
