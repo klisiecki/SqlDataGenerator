@@ -54,7 +54,6 @@ public class Generator {
         }
         connectKeys(databaseProperties, sqlData);
         maxDataRows = databaseProperties.getMaxRowsNum();
-        tableBaseMap.values().forEach(table -> table.calculateResetFactor(maxDataRows));
 
         restrictionsManager.initialize(sqlData.getCriteria(), databaseProperties.getConstraints(tableBaseMap));
         positiveHistoryManager.initialize(restrictionsManager.getListSize(true));
@@ -67,17 +66,53 @@ public class Generator {
         Instant lastTimestamp = Instant.now();
 
         for (long iteration = 0; iteration < maxDataRows; iteration++) {
+            float progress = (float) iteration / maxDataRows;
             if (Duration.between(lastTimestamp, Instant.now()).toMillis() > 1000) {
                 lastTimestamp = Instant.now();
-                logger.info("Generation progress: {} %", (int) ((double) iteration / maxDataRows * 100));
+                logger.info("Generation progress: {} %", (int) progress * 100);
             }
-            prepareTables(iteration);
-            generateRow(iteration < positiveRows);
-            saveTables(iteration);
+            boolean positive = iteration < positiveRows;
+            int restrictionsIndex = random.nextInt(restrictionsManager.getListSize(positive));
+            prepareTables(restrictionsIndex, positive, progress);
+            generateRow(restrictionsIndex, positive);
+            saveTables(restrictionsIndex, positive);
         }
         tableBaseMap.values().forEach(TableBase::closeTableFile);
 
         logger.info("Generating process done");
+    }
+
+    private void prepareTables(int restrictionsIndex, boolean positive, float progress) {
+        TablesState tablesState = positive ? positiveHistoryManager.get(restrictionsIndex)
+                : negativeHistoryManager.get(restrictionsIndex);
+
+        if (tablesState != null) {
+            tableInstanceMap.values().stream()
+                    .filter(table -> !table.shouldBeGenerated(progress))
+                    .forEach(tableInstance -> tableInstance.setState(tablesState.get(tableInstance.getAliasName())));
+        }
+    }
+
+    private int generateRow(int restrictionsIndex, boolean positive) {
+        new Solver(restrictionsManager.get(positive, restrictionsIndex)).solve();
+        return restrictionsIndex;
+    }
+
+    private void saveTables(int restrictionsIndex, boolean positive) {
+        tableInstanceMap.values().stream()
+                .filter(table -> !table.getState().isSaved())
+                .forEach(TableInstance::save);
+
+        TablesState tablesState = new TablesState();
+        tableInstanceMap.values().forEach(tableInstance ->
+                tablesState.add(tableInstance.getAliasName(), tableInstance.getState()));
+
+        if (positive) {
+            positiveHistoryManager.add(restrictionsIndex, tablesState);
+        } else {
+            negativeHistoryManager.add(restrictionsIndex, tablesState);
+        }
+        tableInstanceMap.values().forEach(TableInstance::clear);
     }
 
     private void initTableBase(DatabaseProperties databaseProperties) {
@@ -126,23 +161,6 @@ public class Generator {
                 throw new RuntimeException("Join on two primary keys or not keys");
             }
         }
-    }
-
-    private void prepareTables(long iteration) {
-        tableInstanceMap.values().stream()
-                .filter(table -> table.shouldBeGenerated(iteration))
-                .forEach(TableInstance::getStateAndClear);
-    }
-
-    private void generateRow(boolean positive) {
-        int restrictionsIndex = random.nextInt(restrictionsManager.getListSize(positive));
-        new Solver(restrictionsManager.get(positive, restrictionsIndex)).solve();
-    }
-
-    private void saveTables(long iteration) {
-        tableInstanceMap.values().stream()
-                .filter(table -> table.shouldBeGenerated(iteration))
-                .forEach(TableInstance::save);
     }
 
     @Override

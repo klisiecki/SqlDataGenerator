@@ -17,7 +17,6 @@ public class TableBase {
     private final String name;
     private long dataCount;
     private final long dataCountLimit;
-    private int resetFactor;
     private CSVWriter writer;
     private int fileNum;
     private List<String> attributesNames;
@@ -49,12 +48,9 @@ public class TableBase {
         return attributesNames;
     }
 
-    public void calculateResetFactor(long maxDataRows) {
-        this.resetFactor = (int) (100 * maxDataRows / (dataCountLimit / instanceList.size()));
-    }
-
-    public boolean shouldBeGenerated(long iteration) {
-        return iteration == 0 || iteration * 100 / resetFactor != (iteration - 1) * 100 / resetFactor;
+    public boolean shouldBeGenerated(float progress) {
+        float tableProgress = (float) dataCount / dataCountLimit;
+        return tableProgress <= progress;
     }
 
     private void initFile() {

@@ -4,7 +4,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class TableInstanceState {
-    private final Map<String, String> attributeValues = new HashMap<>();
+    private final Map<String, String> attributeValues;
+    private boolean isSaved;
+
+    public TableInstanceState() {
+        this.attributeValues = new HashMap<>();
+        this.isSaved = false;
+    }
+
+    public String getValue(String attributeName) {
+        return attributeValues.get(attributeName);
+    }
 
     public void setValue(String attributeName, String value) {
         if (attributeValues.containsKey(attributeName)) {
@@ -13,7 +23,11 @@ public class TableInstanceState {
         attributeValues.put(attributeName, value);
     }
 
-    public String getValue(String attributeName) {
-        return attributeValues.get(attributeName);
+    public boolean isSaved() {
+        return isSaved;
+    }
+
+    public void setSaved(boolean saved) {
+        isSaved = saved;
     }
 }

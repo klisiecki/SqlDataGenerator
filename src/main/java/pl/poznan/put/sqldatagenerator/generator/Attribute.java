@@ -13,6 +13,7 @@ public class Attribute {
         this.name = name;
         this.tableInstance = tableInstance;
         this.type = type;
+        this.isClear = true;
     }
 
     public String getName() {

@@ -32,6 +32,9 @@ public class HistoryManager {
 
     public TablesState get(int index) {
         List<TablesState> tablesStates = history.get(index);
+        if (tablesStates.isEmpty()) {
+            return null;
+        }
         return tablesStates.get(random.nextInt(tablesStates.size()));
     }
 

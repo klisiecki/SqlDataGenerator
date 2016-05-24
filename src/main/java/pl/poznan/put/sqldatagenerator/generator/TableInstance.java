@@ -34,15 +34,16 @@ public class TableInstance {
     }
 
     public void setState(TableInstanceState state) {
+        if (state == null) {
+            throw new RuntimeException("State cannot be null");
+        }
         attributeMap.values().forEach(a -> a.setClear(false));
         this.state = state;
     }
 
-    public TableInstanceState getStateAndClear() {
-        TableInstanceState prevState = state;
+    public void clear() {
         this.state = new TableInstanceState();
         attributeMap.values().forEach(a -> a.setClear(true));
-        return prevState;
     }
 
     /**
@@ -64,11 +65,12 @@ public class TableInstance {
         return aliasName;
     }
 
-    public boolean shouldBeGenerated(long iteration) {
-        return base.shouldBeGenerated(iteration);
+    public boolean shouldBeGenerated(float progress) {
+        return base.shouldBeGenerated(progress);
     }
 
     public void save() {
         base.saveInstance(getValues());
+        state.setSaved(true);
     }
 }
