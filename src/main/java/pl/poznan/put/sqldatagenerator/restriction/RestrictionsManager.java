@@ -157,6 +157,7 @@ public class RestrictionsManager {
         }
     }
 
+    //TODO better merging for StringRestrictions
     private void mergeStringRestrictions(Attribute attribute, HashMultimap<Attribute, Restriction> toRemoveRestrictions,
                                          HashMultimap<Attribute, Restriction> restrictionsByAttribute, List<StringRestriction> stringRestrictions) {
         if (stringRestrictions.size() > 1) {
@@ -173,6 +174,8 @@ public class RestrictionsManager {
                 toRemoveRestrictions.put(attribute, restriction);
                 if (allowedValues != null) {
                     allowedValues = allowedValues.stream().filter(containsValuesFrom(restriction)).collect(toList());
+                } else {
+                    allowedValues = restriction.getAllowedValues();
                 }
                 if (restriction.getLikeExpressionProperties() != null) {
                     likeExpressionProperties = restriction.getLikeExpressionProperties();
