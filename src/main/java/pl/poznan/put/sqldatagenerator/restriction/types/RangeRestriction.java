@@ -113,9 +113,15 @@ public class RangeRestriction extends OneAttributeRestriction {
     private static RangeRestriction getEqualsRangeRestriction(BinaryExpression expression) {
         Column column = getColumn(expression);
         Expression valueExpression = getValueExpression(expression);
-        if (isIntegerValue(valueExpression)) {
+        AttributeType type = AttributesMap.get(column).getType();
+        if (type == AttributeType.INTEGER) {
             RangeSet<Long> rangeSet = TreeRangeSet.create();
             Long value = getLong(valueExpression);
+            rangeSet.add(Range.closed(value, value));
+            return new RangeRestriction(expression, column, rangeSet);
+        } else if (type == AttributeType.FLOAT) {
+            RangeSet<Double> rangeSet = TreeRangeSet.create();
+            Double value = getDouble(valueExpression);
             rangeSet.add(Range.closed(value, value));
             return new RangeRestriction(expression, column, rangeSet);
         } else {

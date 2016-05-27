@@ -28,7 +28,7 @@
 
             <ATTRIBUTE>
                 <NAME>PRICE</NAME>
-                <TYPE>INTEGER</TYPE>
+                <TYPE>FLOAT</TYPE>
                 <MIN_VALUE>1</MIN_VALUE>
                 <MAX_VALUE>10000</MAX_VALUE>
             </ATTRIBUTE>
