@@ -46,6 +46,10 @@ public class Attribute {
         return tableInstance.getBase().getName();
     }
 
+    public String getTableAliasName() {
+        return tableInstance.getAliasName();
+    }
+
     public boolean canBeGenerated() {
         return baseAttribute == null && isClear;
     }

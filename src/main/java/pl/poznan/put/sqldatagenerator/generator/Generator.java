@@ -59,9 +59,9 @@ public class Generator {
 
         restrictionsManager.initialize(sqlData.getCriteria(), databaseProperties.getConstraints(tableBaseMap));
 
-        List<String> tablesNames = tableBaseMap.values().stream().map(TableBase::getName).collect(toList());
-        positiveHistory.initialize(tablesNames, restrictionsManager.getAll(true), sqlData.getJoinEquals());
-        negativeHistory.initialize(tablesNames, restrictionsManager.getAll(false), sqlData.getJoinEquals());
+        List<String> tablesAliasNames = tableInstanceMap.values().stream().map(TableInstance::getAliasName).collect(toList());
+        positiveHistory.initialize(tablesAliasNames, restrictionsManager.getAll(true), sqlData.getJoinEquals());
+        negativeHistory.initialize(tablesAliasNames, restrictionsManager.getAll(false), sqlData.getJoinEquals());
     }
 
     public void generate() {
@@ -105,7 +105,7 @@ public class Generator {
 //                    fromHistoryTableInstance.setState(fromHistoryTableInstance.getState());
 //            }
             for (TableInstance fromHistoryTable : fromHistoryTables) {
-                String name = fromHistoryTable.getBase().getName();
+                String name = fromHistoryTable.getAliasName();
                 if (tablesState.get(name) != null) {
                     fromHistoryTable.setState(tablesState.get(name));
                 }

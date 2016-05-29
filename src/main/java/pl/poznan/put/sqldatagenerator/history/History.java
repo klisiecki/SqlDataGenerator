@@ -17,11 +17,11 @@ public class History {
     public History() {
     }
 
-    public void initialize(List<String> tablesNames, List<HashMultimap<Attribute, Restriction>> restrictionsByAttributeList, List<AttributesPair> attributesPairs) {
+    public void initialize(List<String> tablesAliasNames, List<HashMultimap<Attribute, Restriction>> restrictionsByAttributeList, List<AttributesPair> attributesPairs) {
         int size = restrictionsByAttributeList.size();
         historyGroups = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
-            historyGroups.add(new HistoryGroup(tablesNames));
+            historyGroups.add(new HistoryGroup(tablesAliasNames));
             historyGroups.get(i).addRestrictions(restrictionsByAttributeList.get(i).values());
             historyGroups.get(i).addAttributesPairs(attributesPairs);
         }

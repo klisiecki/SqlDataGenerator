@@ -23,18 +23,20 @@ public class HistoryGroup {
     private final List<TablesState> history;
     private final UndirectedGraph<String, DefaultEdge> graph;
 
-    public HistoryGroup(List<String> tablesNames) {
+    private int historyIndex = 0;
+
+    public HistoryGroup(List<String> tablesAliasNames) {
         this.random = new Random();
         history = new ArrayList<>(HISTORY_SIZE);
         graph = new SimpleGraph<>(DefaultEdge.class);
-        addVertices(tablesNames);
+        addVertices(tablesAliasNames);
     }
 
     public void addState(TablesState tablesState) {
         if (history.size() < HISTORY_SIZE) {
             history.add(tablesState);
         } else {
-            history.add(getReplaceIndex(), tablesState);
+            history.set(getReplaceIndex(), tablesState);
         }
     }
 
@@ -46,10 +48,10 @@ public class HistoryGroup {
         TablesState resultTableState = new TablesState();
         List<Set<String>> connectedComponentsList = getConnectedComponentsWithoutThatTables(dontReturnThisTables);
         for (Set<String> connectedComponent : connectedComponentsList) {
-            TablesState historyEntry = history.get(random.nextInt(history.size()));
-            for (String tableName : connectedComponent) {
-                //TODO TU SKOŃCZYŁEM Tu trzeba pobrać aliasy dla tego tableName i je przekazać poniżej
-                resultTableState.add(tableName, historyEntry.get(tableName));
+            int randomIndex = random.nextInt(history.size());
+            TablesState historyEntry = history.get(randomIndex);
+            for (String tableAliasName : connectedComponent) {
+                resultTableState.add(tableAliasName, historyEntry.get(tableAliasName));
             }
         }
 
@@ -59,18 +61,18 @@ public class HistoryGroup {
 
     public void addRestrictions(Collection<Restriction> restrictionList) {
         for (Restriction restriction : restrictionList) {
-            List<String> tablesNames = new ArrayList<>();
-            restriction.getAttributes().stream().forEach(a -> tablesNames.add(a.getBaseTableName()));
-            addEdges(tablesNames);
+            List<String> tablesAliasNames = new ArrayList<>();
+            restriction.getAttributes().stream().forEach(a -> tablesAliasNames.add(a.getTableAliasName()));
+            addEdges(tablesAliasNames);
         }
     }
 
     public void addAttributesPairs(List<AttributesPair> attributesPairs) {
         for (AttributesPair pair : attributesPairs) {
-            List<String> tablesNames = new ArrayList<>();
-            tablesNames.add(pair.getAttribute1().getBaseTableName());
-            tablesNames.add(pair.getAttribute2().getBaseTableName());
-            addEdges(tablesNames);
+            List<String> tablesAliasNames = new ArrayList<>();
+            tablesAliasNames.add(pair.getAttribute1().getTableAliasName());
+            tablesAliasNames.add(pair.getAttribute2().getTableAliasName());
+            addEdges(tablesAliasNames);
         }
     }
 
@@ -91,7 +93,7 @@ public class HistoryGroup {
 
     private List<Set<String>> getConnectedComponentsWithoutThatTables(List<TableInstance> dontReturnThisTables) {
         UndirectedGraph<String, DefaultEdge> tempGraph = (UndirectedGraph<String, DefaultEdge>) ((AbstractBaseGraph) graph).clone();
-        dontReturnThisTables.stream().forEach(v -> tempGraph.removeVertex(v.getBase().getName()));
+        dontReturnThisTables.stream().forEach(v -> tempGraph.removeVertex(v.getAliasName()));
         return (new ConnectivityInspector(tempGraph)).connectedSets();
     }
 
@@ -100,7 +102,7 @@ public class HistoryGroup {
         UndirectedGraph<String, DefaultEdge> tempGraph = (UndirectedGraph<String, DefaultEdge>) ((AbstractBaseGraph) graph).clone();
         logger.info("Before: {}", tempGraph.edgeSet());
 //        graph.removeVertex("CLIENTS");
-        tempGraph.removeVertex("ORDERS");
+        tempGraph.removeVertex("O");
         logger.info("After: {}", tempGraph.edgeSet());
         List<Set<String>> dupa = (new ConnectivityInspector(tempGraph)).connectedSets();
         logger.info("Connected components:");
@@ -111,7 +113,9 @@ public class HistoryGroup {
 
     //TODO implement better logic i.e. some distribution
     private int getReplaceIndex() {
-        return random.nextInt(HISTORY_SIZE);
+        historyIndex = (++historyIndex) % HISTORY_SIZE;
+        return historyIndex;
+//        return random.nextInt(HISTORY_SIZE);
     }
 
 }
