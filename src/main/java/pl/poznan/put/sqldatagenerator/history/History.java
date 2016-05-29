@@ -1,5 +1,6 @@
 package pl.poznan.put.sqldatagenerator.history;
 
+import com.google.common.collect.Lists;
 import org.jgrapht.UndirectedGraph;
 import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.graph.AbstractBaseGraph;
@@ -8,7 +9,6 @@ import org.jgrapht.graph.SimpleGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.poznan.put.sqldatagenerator.generator.TablesState;
-import pl.poznan.put.sqldatagenerator.restriction.types.Restriction;
 import pl.poznan.put.sqldatagenerator.sql.model.AttributesPair;
 
 import java.util.*;
@@ -58,11 +58,9 @@ public class History {
     }
 
     //TODO method not tested yet
-    public void addRestrictionsToGraph(Collection<Restriction> restrictionList) {
-        for (Restriction restriction : restrictionList) {
-            List<String> tablesAliasNames = new ArrayList<>();
-            restriction.getAttributes().stream().forEach(a -> tablesAliasNames.add(a.getTableAliasName()));
-            addEdges(tablesAliasNames);
+    public void addSetsToGraph(List<Set<String>> connectedTablesAliases) {
+        for (Set<String> set : connectedTablesAliases) {
+            addEdges(set);
         }
     }
 
@@ -76,12 +74,13 @@ public class History {
         vertices.stream().forEach(v -> graph.addVertex(v));
     }
 
-    private void addEdges(List<String> vertices) {
+    private void addEdges(Collection<String> vertices) {
+        List<String> verticesList = Lists.newArrayList(vertices);
         if (vertices.size() > 1) {
             logger.debug("Adding edges: {}", vertices);
             for (int i = 0; i < vertices.size(); i++) {
                 for (int j = i + 1; j < vertices.size(); j++) {
-                    graph.addEdge(vertices.get(i), vertices.get(j));
+                    graph.addEdge(verticesList.get(i), verticesList.get(j));
                 }
             }
         }

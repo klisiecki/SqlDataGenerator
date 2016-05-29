@@ -17,10 +17,7 @@ import pl.poznan.put.sqldatagenerator.restriction.types.RangeRestriction;
 import pl.poznan.put.sqldatagenerator.restriction.types.Restriction;
 import pl.poznan.put.sqldatagenerator.restriction.types.StringRestriction;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Predicate;
 
 import static java.lang.Math.max;
@@ -49,14 +46,21 @@ public class RestrictionsManager {
         }
     }
 
-    public List<HashMultimap<Attribute, Restriction>> getAll(boolean positive) {
-        if (positive) {
-            return positiveRestrictionsByAttributeList;
-        } else {
-            return negativeRestrictionsByAttributeList;
-        }
-    }
+    public List<List<Set<String>>> getConnectedTablesAliases(boolean positive) {
+        List<List<Set<String>>> result = new ArrayList<>();
+        for (int index = 0; index < getListSize(positive); index++) {
+            List<Set<String>> list = new ArrayList<>();
 
+            for (Restriction restriction : get(positive, index).values()) {
+                Set<String> set = new HashSet<>();
+                restriction.getAttributes().stream().forEach(a -> set.add(a.getTableAliasName()));
+                list.add(set);
+            }
+
+            result.add(list);
+        }
+        return result;
+    }
 
     public void initialize(Expression<Restriction> criteria, Restrictions constraints) {
         List<Restrictions> positiveRestrictionsList = new ArrayList<>();
