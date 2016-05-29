@@ -4,7 +4,7 @@ import net.sf.jsqlparser.schema.Table;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.poznan.put.sqldatagenerator.Configuration;
-import pl.poznan.put.sqldatagenerator.history.History;
+import pl.poznan.put.sqldatagenerator.history.HistoryManager;
 import pl.poznan.put.sqldatagenerator.readers.DatabaseProperties;
 import pl.poznan.put.sqldatagenerator.readers.DatabasePropertiesReader;
 import pl.poznan.put.sqldatagenerator.readers.SQLData;
@@ -21,13 +21,13 @@ import static java.util.stream.Collectors.toList;
 public class Generator {
     private static final Configuration configuration = Configuration.getInstance();
     private static final Logger logger = LoggerFactory.getLogger(Generator.class);
+    private static final int PRINT_PROGRESS_DELAY = 100;
 
     private final Map<String, TableBase> tableBaseMap;
     private final Map<String, TableInstance> tableInstanceMap;
     private final Random random;
     private final RestrictionsManager restrictionsManager;
-    private final History positiveHistory;
-    private final History negativeHistory;
+    private final HistoryManager historyManager;
     private long maxDataRows = 0;
 
     public Generator() {
@@ -35,8 +35,7 @@ public class Generator {
         this.tableInstanceMap = new HashMap<>();
         this.random = new Random();
         this.restrictionsManager = new RestrictionsManager();
-        this.positiveHistory = new History();
-        this.negativeHistory = new History();
+        this.historyManager = new HistoryManager();
     }
 
     public void initTables(DatabasePropertiesReader databasePropertiesReader, SQLData sqlData) {
@@ -60,8 +59,7 @@ public class Generator {
         restrictionsManager.initialize(sqlData.getCriteria(), databaseProperties.getConstraints(tableBaseMap));
 
         List<String> tablesAliasNames = tableInstanceMap.values().stream().map(TableInstance::getAliasName).collect(toList());
-        positiveHistory.initialize(tablesAliasNames, restrictionsManager.getAll(true), sqlData.getJoinEquals());
-        negativeHistory.initialize(tablesAliasNames, restrictionsManager.getAll(false), sqlData.getJoinEquals());
+        historyManager.initialize(tablesAliasNames, restrictionsManager, sqlData.getJoinEquals());
     }
 
     public void generate() {
@@ -71,10 +69,8 @@ public class Generator {
 
         for (long iteration = 0; iteration < maxDataRows; iteration++) {
             float progress = (float) iteration / maxDataRows;
-            if (Duration.between(lastTimestamp, Instant.now()).toMillis() > 1000) {
-                lastTimestamp = Instant.now();
-                logger.info("Generation progress: {}%", (int) (progress * 100));
-            }
+            lastTimestamp = printProgress(lastTimestamp, progress);
+
             boolean positive = iteration < positiveRows;
             int restrictionsIndex = random.nextInt(restrictionsManager.getListSize(positive));
             prepareTables(restrictionsIndex, positive, progress);
@@ -86,36 +82,36 @@ public class Generator {
         logger.info("Generating process done");
     }
 
+    private Instant printProgress(Instant lastTimestamp, float progress) {
+        if (Duration.between(lastTimestamp, Instant.now()).toMillis() > PRINT_PROGRESS_DELAY) {
+            lastTimestamp = Instant.now();
+            logger.info("Generation progress: {}%", (int) (progress * 100));
+        }
+        return lastTimestamp;
+    }
+
     private void prepareTables(int restrictionsIndex, boolean positive, float progress) {
-        List<TableInstance> dontReturnThisTables = tableInstanceMap.values().stream()
-                .filter(table -> table.shouldBeGenerated(progress)).collect(toList());
+        List<String> notNeededTableAliasList = tableInstanceMap.values().stream()
+                .filter(table -> table.shouldBeGenerated(progress))
+                .map(TableInstance::getAliasName)
+                .collect(toList());
 
-        List<TableInstance> fromHistoryTables = tableInstanceMap.values().stream()
-                .filter(table -> !table.shouldBeGenerated(progress)).collect(toList());
+        TablesState historyTablesState = historyManager.getState(positive, restrictionsIndex, notNeededTableAliasList);
 
-        List<String> fromHistoryTablesNames = fromHistoryTables.stream().map(TableInstance::getBase).map(TableBase::getName).collect(toList());
-
-
-        TablesState tablesState = positive ? positiveHistory.getState(restrictionsIndex, dontReturnThisTables)
-                : negativeHistory.getState(restrictionsIndex, dontReturnThisTables);
-
-        if (tablesState != null) {
-//            dontReturnThisTables.forEach(tableInstance -> tableInstance.setState(tablesState.get(tableInstance.getAliasName())));
-//            for (TableInstance fromHistoryTableInstance : fromHistoryTables) {
-//                    fromHistoryTableInstance.setState(fromHistoryTableInstance.getState());
-//            }
-            for (TableInstance fromHistoryTable : fromHistoryTables) {
-                String name = fromHistoryTable.getAliasName();
-                if (tablesState.get(name) != null) {
-                    fromHistoryTable.setState(tablesState.get(name));
-                }
-            }
+        if (historyTablesState != null) {
+            tableInstanceMap.values().stream()
+                    .filter(table -> !table.shouldBeGenerated(progress))
+                    .forEach(tableInstance -> {
+                        TableInstanceState historyState = historyTablesState.get(tableInstance.getAliasName());
+                        if (historyState != null) {
+                            tableInstance.setState(historyState);
+                        }
+                    });
         }
     }
 
-    private int generateRow(int restrictionsIndex, boolean positive) {
+    private void generateRow(int restrictionsIndex, boolean positive) {
         new Solver(restrictionsManager.get(positive, restrictionsIndex)).solve();
-        return restrictionsIndex;
     }
 
     private void saveTables(int restrictionsIndex, boolean positive) {
@@ -127,11 +123,7 @@ public class Generator {
         tableInstanceMap.values().forEach(tableInstance ->
                 tablesState.add(tableInstance.getAliasName(), tableInstance.getState()));
 
-        if (positive) {
-            positiveHistory.addState(restrictionsIndex, tablesState);
-        } else {
-            negativeHistory.addState(restrictionsIndex, tablesState);
-        }
+        historyManager.addState(positive, restrictionsIndex, tablesState);
         tableInstanceMap.values().forEach(TableInstance::clear);
     }
 
