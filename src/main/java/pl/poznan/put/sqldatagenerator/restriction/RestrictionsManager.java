@@ -49,6 +49,14 @@ public class RestrictionsManager {
         }
     }
 
+    public List<HashMultimap<Attribute, Restriction>> getAll(boolean positive) {
+        if (positive) {
+            return positiveRestrictionsByAttributeList;
+        } else {
+            return negativeRestrictionsByAttributeList;
+        }
+    }
+
 
     public void initialize(Expression<Restriction> criteria, Restrictions constraints) {
         List<Restrictions> positiveRestrictionsList = new ArrayList<>();
@@ -77,6 +85,7 @@ public class RestrictionsManager {
         } else {
             positiveRestrictionsList.add(Restrictions.fromExpression(dnfForm));
         }
+
         if (cnfForm instanceof And) {
             negativeRestrictionsList.addAll(((NExpression<Restriction>) cnfForm).getChildren().stream()
                     .map(Restrictions::fromExpression).collect(toList()));
