@@ -53,7 +53,9 @@ public class AttributesNamesFinder extends AbstractFinder {
         if (plainSelect.getJoins() != null) {
             for (Join join : plainSelect.getJoins()) {
                 join.getRightItem().accept(this);
-                join.getOnExpression().accept(this);
+                if (join.getOnExpression() != null) {
+                    join.getOnExpression().accept(this);
+                }
             }
         }
         if (plainSelect.getWhere() != null) {
