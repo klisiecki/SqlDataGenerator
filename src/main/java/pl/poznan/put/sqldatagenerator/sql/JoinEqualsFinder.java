@@ -9,7 +9,7 @@ import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
-import pl.poznan.put.sqldatagenerator.exception.SQLSyntaxNotImplementedException;
+import pl.poznan.put.sqldatagenerator.exception.SQLSyntaxNotSupportedException;
 import pl.poznan.put.sqldatagenerator.sql.model.AttributesPair;
 
 import java.util.ArrayList;
@@ -46,7 +46,7 @@ public class JoinEqualsFinder extends AbstractFinder {
 
     @Override
     public void visit(OrExpression orExpression) {
-        throw new SQLSyntaxNotImplementedException("OR not allowed in JOIN ON clause");
+        throw new SQLSyntaxNotSupportedException("OR not allowed in JOIN ON clause");
     }
 
     @Override

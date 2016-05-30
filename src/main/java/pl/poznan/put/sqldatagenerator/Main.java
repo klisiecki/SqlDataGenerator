@@ -11,6 +11,10 @@ import net.sourceforge.argparse4j.inf.Namespace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
+import pl.poznan.put.sqldatagenerator.exception.InvalidInteralStateException;
+import pl.poznan.put.sqldatagenerator.exception.SQLInvalidSyntaxException;
+import pl.poznan.put.sqldatagenerator.exception.SQLSyntaxNotSupportedException;
+import pl.poznan.put.sqldatagenerator.exception.XMLNotValidException;
 import pl.poznan.put.sqldatagenerator.generator.Generator;
 import pl.poznan.put.sqldatagenerator.readers.DatabasePropertiesReader;
 import pl.poznan.put.sqldatagenerator.readers.SQLData;
@@ -31,6 +35,7 @@ public class Main {
         try {
             ns = initArgumentParser(args);
         } catch (ArgumentParserException e) {
+            logger.info("Wrong program arguments");
             return;
         }
 
@@ -38,13 +43,21 @@ public class Main {
         configuration.setSelectivity(ns.getDouble("selectivity"));
         configuration.setRowsPerFile(ns.getInt("maxRows"));
 
-        SQLData sqlData = getSqlData(ns.getString("sqlFile"));
-        DatabasePropertiesReader databasePropertiesReader = getXMLDatabasePropertiesReader(ns.getString("xmlFile"));
-        createOutputDirectory();
+        try {
+            SQLData sqlData = getSqlData(ns.getString("sqlFile"));
+            DatabasePropertiesReader databasePropertiesReader = getXMLDatabasePropertiesReader(ns.getString("xmlFile"));
+            createOutputDirectory();
 
-        Generator generator = new Generator();
-        generator.initTables(databasePropertiesReader, sqlData);
-        generator.generate();
+            Generator generator = new Generator();
+            generator.initTables(databasePropertiesReader, sqlData);
+            generator.generate();
+        } catch (SQLSyntaxNotSupportedException | SQLInvalidSyntaxException | XMLNotValidException e) {
+            logger.info(e.getMessage());
+        } catch (InvalidInteralStateException | IOException e) {
+            logger.error(e.getMessage());
+        } catch (Exception e) {
+            logger.error("Not expected exception occured: {}", e.getMessage());
+        }
     }
 
     private static Namespace initArgumentParser(String[] args) throws ArgumentParserException {
@@ -83,39 +96,28 @@ public class Main {
         }
     }
 
-    private static SQLData getSqlData(String file) {
+    private static SQLData getSqlData(String file) throws IOException {
         try {
             String sql = Utils.readFile(file);
             Statement statement = new CCJSqlParserManager().parse(new StringReader(sql));
             if (statement instanceof Select) {
-                return new SQLData((Select)statement);
+                return new SQLData((Select) statement);
             } else {
-                logger.info("Incorrect statement, must be SELECT");
-                //TODO Throw exception
+                throw new SQLSyntaxNotSupportedException("Incorrect SQL statement, must be SELECT");
             }
-        } catch (IOException | JSQLParserException e) {
-            e.printStackTrace();
-            //TODO Throw exception
+        } catch (JSQLParserException e) {
+            throw new SQLInvalidSyntaxException(e.getCause().getMessage());
         }
-        return null;
     }
 
-    private static DatabasePropertiesReader getXMLDatabasePropertiesReader(String file) {
-        try {
-            return new XMLDatabasePropertiesReader(file);
-        } catch (ParserConfigurationException | SAXException | IOException e) {
-            logger.error("Error reading XML file", e);
-            //TODO Throw exception
-            //TODO separate info for non valid XML file
-        }
-        return null;
+    private static DatabasePropertiesReader getXMLDatabasePropertiesReader(String file) throws IOException, SAXException, ParserConfigurationException {
+        return new XMLDatabasePropertiesReader(file);
     }
 
-    private static void createOutputDirectory() {
+    private static void createOutputDirectory() throws IOException {
         File file = new File(configuration.getOutputPath());
         if(!file.exists() && !file.mkdir()) {
-            logger.error("Unable to create dir {}", configuration.getOutputPath());
-            //TODO Throw exception
+            throw new IOException("Unable to create directory " + configuration.getOutputPath());
         }
     }
 }

@@ -3,7 +3,7 @@ package pl.poznan.put.sqldatagenerator.restriction.types;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.operators.relational.*;
 import net.sf.jsqlparser.schema.Column;
-import org.apache.commons.lang.NotImplementedException;
+import pl.poznan.put.sqldatagenerator.exception.NotImplementedException;
 import pl.poznan.put.sqldatagenerator.generator.Attribute;
 import pl.poznan.put.sqldatagenerator.restriction.SQLExpressionsUtils;
 

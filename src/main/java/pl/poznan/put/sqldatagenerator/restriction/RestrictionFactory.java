@@ -2,6 +2,7 @@ package pl.poznan.put.sqldatagenerator.restriction;
 
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.operators.relational.*;
+import pl.poznan.put.sqldatagenerator.exception.NotImplementedException;
 import pl.poznan.put.sqldatagenerator.restriction.types.RangeRestriction;
 import pl.poznan.put.sqldatagenerator.restriction.types.Restriction;
 import pl.poznan.put.sqldatagenerator.restriction.types.StringRestriction;
@@ -42,7 +43,7 @@ public class RestrictionFactory {
                 }
             }
         }
-        throw new RuntimeException("Instruction " + expression.toString() + " not implemented");
+        throw new NotImplementedException("Instruction " + expression.toString() + " not implemented");
     }
 
 }

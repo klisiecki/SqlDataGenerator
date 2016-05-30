@@ -1,5 +1,7 @@
 package pl.poznan.put.sqldatagenerator.generator;
 
+import pl.poznan.put.sqldatagenerator.exception.InvalidInteralStateException;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,7 +20,7 @@ public class TableInstanceState {
 
     public void setValue(String attributeName, String value) {
         if (attributeValues.containsKey(attributeName)) {
-            throw new RuntimeException("Already set");
+            throw new InvalidInteralStateException("Already set");
         }
         attributeValues.put(attributeName, value);
     }

@@ -9,10 +9,10 @@ import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.operators.relational.*;
 import net.sf.jsqlparser.schema.Column;
 import pl.poznan.put.sqldatagenerator.Utils;
+import pl.poznan.put.sqldatagenerator.exception.NotImplementedException;
 import pl.poznan.put.sqldatagenerator.generator.Attribute;
 import pl.poznan.put.sqldatagenerator.generator.AttributeType;
 import pl.poznan.put.sqldatagenerator.generator.AttributesMap;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import static pl.poznan.put.sqldatagenerator.restriction.SQLExpressionsUtils.*;
 

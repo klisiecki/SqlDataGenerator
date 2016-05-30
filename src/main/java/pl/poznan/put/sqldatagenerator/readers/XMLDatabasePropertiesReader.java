@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+import pl.poznan.put.sqldatagenerator.exception.XMLNotValidException;
 import pl.poznan.put.sqldatagenerator.generator.AttributeType;
 
 import javax.xml.XMLConstants;
@@ -43,7 +44,11 @@ public class XMLDatabasePropertiesReader implements DatabasePropertiesReader {
                 .newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
         Schema schema = schemaFactory.newSchema(getClass().getResource(schemaLocation));
         Validator validator = schema.newValidator();
-        validator.validate(xmlFile);
+        try {
+            validator.validate(xmlFile);
+        } catch (SAXException e) {
+            throw new XMLNotValidException(e.getMessage());
+        }
     }
 
     @Override

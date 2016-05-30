@@ -4,6 +4,8 @@ import net.sf.jsqlparser.schema.Table;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.poznan.put.sqldatagenerator.Configuration;
+import pl.poznan.put.sqldatagenerator.exception.SQLAndXMLNotCompatibleException;
+import pl.poznan.put.sqldatagenerator.exception.SQLSyntaxNotSupportedException;
 import pl.poznan.put.sqldatagenerator.history.HistoryManager;
 import pl.poznan.put.sqldatagenerator.readers.DatabaseProperties;
 import pl.poznan.put.sqldatagenerator.readers.DatabasePropertiesReader;
@@ -46,7 +48,7 @@ public class Generator {
             String tableName = table.getName();
             String aliasName = table.getAlias().getName();
             if (!tableBaseMap.containsKey(tableName)) {
-                throw new RuntimeException("Table " + tableName + " not found in database properties");
+                throw new SQLAndXMLNotCompatibleException("Table " + tableName + " not found in database properties");
             }
 
             TableInstance tableInstance = new TableInstance(tableBaseMap.get(tableName), aliasName);
@@ -149,7 +151,7 @@ public class Generator {
         List<String> missingAttributes = new ArrayList<>(sqlAttributes);
         missingAttributes.removeAll(databaseAttributes);
         if (!missingAttributes.isEmpty()) {
-            throw new RuntimeException("Attributes " + Arrays.toString(missingAttributes.toArray()) + " not found in " + tableName + " definition");
+            throw new SQLAndXMLNotCompatibleException("Attributes " + Arrays.toString(missingAttributes.toArray()) + " not found in " + tableName + " definition");
         }
 
         for (String attributeName : databaseAttributes) {
@@ -170,7 +172,7 @@ public class Generator {
             } else if (databaseProperties.isPrimaryKey(attribute2.getBaseTableName(), attribute2.getName())) {
                 attribute1.setBaseAttribute(attribute2);
             } else {
-                throw new RuntimeException("Join on two primary keys or not keys");
+                throw new SQLSyntaxNotSupportedException("Join on two primary keys or not keys");
             }
         }
     }

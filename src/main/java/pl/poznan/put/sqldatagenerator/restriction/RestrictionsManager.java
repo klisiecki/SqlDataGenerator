@@ -12,6 +12,7 @@ import com.google.common.collect.TreeRangeSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.poznan.put.sqldatagenerator.Utils;
+import pl.poznan.put.sqldatagenerator.exception.InvalidInteralStateException;
 import pl.poznan.put.sqldatagenerator.generator.Attribute;
 import pl.poznan.put.sqldatagenerator.restriction.types.RangeRestriction;
 import pl.poznan.put.sqldatagenerator.restriction.types.Restriction;
@@ -69,16 +70,16 @@ public class RestrictionsManager {
         setSQLCriteria(criteria, positiveRestrictionsList, negativeRestrictionsList);
         setXMLConstraints(constraints, positiveRestrictionsList);
         setXMLConstraints(constraints, negativeRestrictionsList);
-        logger.info("Preparing positive restrictions");
+        logger.debug("Preparing positive restrictions");
         positiveRestrictionsByAttributeList = prepareRestrictions(positiveRestrictionsList);
-        logger.info("Preparing negative restrictions");
+        logger.debug("Preparing negative restrictions");
         negativeRestrictionsByAttributeList = prepareRestrictions(negativeRestrictionsList);
     }
 
     private void setSQLCriteria(Expression<Restriction> criteria, List<Restrictions> positiveRestrictionsList,
                                 List<Restrictions> negativeRestrictionsList) {
         if (!positiveRestrictionsList.isEmpty() || !negativeRestrictionsList.isEmpty()) {
-            throw new RuntimeException("Restrictions already initialized!");
+            throw new InvalidInteralStateException("Restrictions already initialized!");
         }
 
         Expression<Restriction> dnfForm = RuleSet.toDNF(criteria);
@@ -113,7 +114,7 @@ public class RestrictionsManager {
     private List<HashMultimap<Attribute, Restriction>> prepareRestrictions(List<Restrictions> restrictionsList) {
         List<HashMultimap<Attribute, Restriction>> result = new ArrayList<>();
         for (Restrictions restrictions : restrictionsList) {
-            logger.info("Preparing restrictions set:");
+            logger.debug("Preparing restrictions set:");
             HashMultimap<Attribute, Restriction> restrictionsByAttribute = HashMultimap.create();
             for (Restriction restriction : restrictions.getCollection()) {
                 for (Attribute attribute : restriction.getAttributes()) {
@@ -134,7 +135,7 @@ public class RestrictionsManager {
 
             for (Map.Entry<Attribute, Collection<Restriction>> restrictionEntry : restrictionsByAttribute.asMap().entrySet()) {
                 Attribute attribute = restrictionEntry.getKey();
-                logger.info("Restrictions for {}: {}", attribute, restrictionEntry.getValue());
+                logger.debug("Restrictions for {}: {}", attribute, restrictionEntry.getValue());
             }
             result.add(restrictionsByAttribute);
         }
@@ -164,6 +165,7 @@ public class RestrictionsManager {
                 toRemoveRestrictions.put(attribute, restriction);
             });
             if (rangeSet.isEmpty()) {
+                //TODO Are we sure to throw exception? Maybe just skip this restriction?
                 throw new RuntimeException("Range for attribute " + attribute.getName() + " is empty");
             }
             restrictionsByAttribute.put(attribute, new RangeRestriction(attribute, rangeSet));
