@@ -17,9 +17,9 @@ import static pl.poznan.put.sqldatagenerator.restriction.SQLExpressionsUtils.*;
 public class StringRestriction extends OneAttributeRestriction {
 
     public class LikeExpressionProperties {
-        private String like;
-        private boolean leftOpen;
-        private boolean rightOpen;
+        private final String like;
+        private final boolean leftOpen;
+        private final boolean rightOpen;
 
         public LikeExpressionProperties(String like, boolean leftOpen, boolean rightOpen) {
             this.like = like;

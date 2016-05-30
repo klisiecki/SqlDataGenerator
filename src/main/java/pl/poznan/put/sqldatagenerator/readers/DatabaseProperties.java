@@ -25,7 +25,7 @@ import java.util.Map;
 public class DatabaseProperties {
     private static final Logger logger = LoggerFactory.getLogger(DatabaseProperties.class);
 
-    public DatabasePropertiesReader databasePropertiesReader;
+    private final DatabasePropertiesReader databasePropertiesReader;
 
     public DatabaseProperties(DatabasePropertiesReader databasePropertiesReader) {
         this.databasePropertiesReader = databasePropertiesReader;
@@ -134,6 +134,10 @@ public class DatabaseProperties {
 
     public int getT() {
         return databasePropertiesReader.getT();
+    }
+
+    public int getM() {
+        return databasePropertiesReader.getM();
     }
 
     public List<String> getTables() {

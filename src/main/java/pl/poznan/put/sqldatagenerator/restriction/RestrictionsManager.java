@@ -12,7 +12,7 @@ import com.google.common.collect.TreeRangeSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.poznan.put.sqldatagenerator.Utils;
-import pl.poznan.put.sqldatagenerator.exception.InvalidInteralStateException;
+import pl.poznan.put.sqldatagenerator.exception.InvalidInfernalStateException;
 import pl.poznan.put.sqldatagenerator.generator.Attribute;
 import pl.poznan.put.sqldatagenerator.restriction.types.RangeRestriction;
 import pl.poznan.put.sqldatagenerator.restriction.types.Restriction;
@@ -79,7 +79,7 @@ public class RestrictionsManager {
     private void setSQLCriteria(Expression<Restriction> criteria, List<Restrictions> positiveRestrictionsList,
                                 List<Restrictions> negativeRestrictionsList) {
         if (!positiveRestrictionsList.isEmpty() || !negativeRestrictionsList.isEmpty()) {
-            throw new InvalidInteralStateException("Restrictions already initialized!");
+            throw new InvalidInfernalStateException("Restrictions already initialized!");
         }
 
         Expression<Restriction> dnfForm = RuleSet.toDNF(criteria);

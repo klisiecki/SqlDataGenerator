@@ -1,9 +1,9 @@
 package pl.poznan.put.sqldatagenerator.history;
 
 import com.google.common.collect.Lists;
+import org.jgrapht.Graphs;
 import org.jgrapht.UndirectedGraph;
 import org.jgrapht.alg.ConnectivityInspector;
-import org.jgrapht.graph.AbstractBaseGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleGraph;
 import org.slf4j.Logger;
@@ -45,7 +45,7 @@ public class History {
         }
 
         TablesState resultTableState = new TablesState();
-        List<Set<String>> connectedComponentsList = getConnectedComponentsWithoutThatTables(notNeededTableAliasList);
+        List<Set<String>> connectedComponentsList = getConnectedComponentsWithoutTables(notNeededTableAliasList);
         for (Set<String> connectedComponent : connectedComponentsList) {
             int randomIndex = random.nextInt(history.size());
             TablesState historyTableState = history.get(randomIndex);
@@ -59,9 +59,7 @@ public class History {
 
     //TODO method not tested yet
     public void addSetsToGraph(List<Set<String>> connectedTablesAliases) {
-        for (Set<String> set : connectedTablesAliases) {
-            addEdges(set);
-        }
+        connectedTablesAliases.forEach(this::addEdges);
     }
 
     public void addAttributesPairsToGraph(List<AttributesPair> attributesPairs) {
@@ -71,7 +69,7 @@ public class History {
     }
 
     private void addVertices(List<String> vertices) {
-        vertices.stream().forEach(v -> graph.addVertex(v));
+        vertices.stream().forEach(graph::addVertex);
     }
 
     private void addEdges(Collection<String> vertices) {
@@ -86,15 +84,16 @@ public class History {
         }
     }
 
-    private List<Set<String>> getConnectedComponentsWithoutThatTables(List<String> notNeededTableAliasList) {
-        UndirectedGraph<String, DefaultEdge> tempGraph = (UndirectedGraph<String, DefaultEdge>) ((AbstractBaseGraph) graph).clone();
-        notNeededTableAliasList.stream().forEach(v -> tempGraph.removeVertex(v));
-        return (new ConnectivityInspector(tempGraph)).connectedSets();
+    private List<Set<String>> getConnectedComponentsWithoutTables(List<String> notNeededTableAliasList) {
+        UndirectedGraph<String, DefaultEdge> tempGraph = new SimpleGraph<>(DefaultEdge.class);
+        Graphs.addGraph(tempGraph, graph);
+        notNeededTableAliasList.stream().forEach(tempGraph::removeVertex);
+        return new ConnectivityInspector<>(tempGraph).connectedSets();
     }
 
     //TODO implement better logic i.e. some distribution
     private int getReplaceIndex() {
-        historyIndex = (++historyIndex) % HISTORY_SIZE;
+        historyIndex = ++historyIndex % HISTORY_SIZE;
         return historyIndex;
 //        return random.nextInt(HISTORY_SIZE);
     }

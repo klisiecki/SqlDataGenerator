@@ -1,6 +1,6 @@
 package pl.poznan.put.sqldatagenerator.generator;
 
-import pl.poznan.put.sqldatagenerator.exception.InvalidInteralStateException;
+import pl.poznan.put.sqldatagenerator.exception.InvalidInfernalStateException;
 import pl.poznan.put.sqldatagenerator.exception.SQLSyntaxNotSupportedException;
 
 public class Attribute {
@@ -32,10 +32,10 @@ public class Attribute {
 
     public void setValue(String value) {
         if (baseAttribute != null) {
-            throw new InvalidInteralStateException("Attempt to set value of dependent attribute");
+            throw new InvalidInfernalStateException("Attempt to set value of dependent attribute");
         }
         if (!isClear) {
-            throw new InvalidInteralStateException("Value for attribute '" + name + "' already set");
+            throw new InvalidInfernalStateException("Value for attribute '" + name + "' already set");
         }
         isClear = false;
         tableInstance.getState().setValue(name, value);
@@ -65,7 +65,7 @@ public class Attribute {
 
     public void setBaseAttribute(Attribute baseAttribute) {
         if (this.baseAttribute != null) {
-            throw new InvalidInteralStateException("Base attribute already set");
+            throw new InvalidInfernalStateException("Base attribute already set");
         }
         if (type != baseAttribute.getType()) {
             throw new SQLSyntaxNotSupportedException("Dependent attribute must have the same type as base attribute");

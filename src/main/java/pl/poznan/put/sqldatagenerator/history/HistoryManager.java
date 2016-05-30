@@ -20,18 +20,19 @@ public class HistoryManager {
     }
 
     public void initialize(List<String> tablesAliasNames, RestrictionsManager restrictionsManager, List<AttributesPair> attributesPairs) {
-        positiveHistoryList = initHistoryGroups(tablesAliasNames, restrictionsManager.getConnectedTablesAliases(true), attributesPairs);
-        negativeHistoryList = initHistoryGroups(tablesAliasNames, restrictionsManager.getConnectedTablesAliases(false), attributesPairs);
+        positiveHistoryList = initHistory(tablesAliasNames, restrictionsManager.getConnectedTablesAliases(true), attributesPairs);
+        negativeHistoryList = initHistory(tablesAliasNames, restrictionsManager.getConnectedTablesAliases(false), attributesPairs);
     }
 
-    private List<History> initHistoryGroups(List<String> tablesAliasNames, List<List<Set<String>>> connectedTablesAliases, List<AttributesPair> attributesPairs) {
+    private List<History> initHistory(List<String> tablesAliasNames, List<List<Set<String>>> connectedTablesAliases, List<AttributesPair> attributesPairs) {
         int size = connectedTablesAliases.size();
         List<History> historyList = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
             logger.debug("Preparing historyGroup for index {}", i);
-            historyList.add(new History(tablesAliasNames));
-            historyList.get(i).addSetsToGraph(connectedTablesAliases.get(i));
-            historyList.get(i).addAttributesPairsToGraph(attributesPairs);
+            History history = new History(tablesAliasNames);
+            history.addSetsToGraph(connectedTablesAliases.get(i));
+            history.addAttributesPairsToGraph(attributesPairs);
+            historyList.add(i, history);
         }
         return historyList;
     }

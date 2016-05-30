@@ -19,7 +19,7 @@ public class TableBase {
     private final long dataCountLimit;
     private CSVWriter writer;
     private int fileNum;
-    private List<String> attributesNames;
+    private final List<String> attributesNames;
 
     private final List<TableInstance> instanceList;
 

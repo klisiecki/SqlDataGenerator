@@ -18,6 +18,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 
+import static java.time.Instant.now;
 import static java.util.stream.Collectors.toList;
 
 public class Generator {
@@ -67,7 +68,7 @@ public class Generator {
     public void generate() {
         logger.info("Generating process started");
         int positiveRows = (int) (configuration.getSelectivity() * maxDataRows);
-        Instant lastTimestamp = Instant.now();
+        Instant lastTimestamp = now();
 
         for (long iteration = 0; iteration < maxDataRows; iteration++) {
             float progress = (float) iteration / maxDataRows;
@@ -85,8 +86,8 @@ public class Generator {
     }
 
     private Instant printProgress(Instant lastTimestamp, float progress) {
-        if (Duration.between(lastTimestamp, Instant.now()).toMillis() > PRINT_PROGRESS_DELAY) {
-            lastTimestamp = Instant.now();
+        if (Duration.between(lastTimestamp, now()).toMillis() > PRINT_PROGRESS_DELAY) {
+            lastTimestamp = now();
             logger.info("Generation progress: {}%", (int) (progress * 100));
         }
         return lastTimestamp;
@@ -130,7 +131,7 @@ public class Generator {
     }
 
     private void initTableBase(DatabaseProperties databaseProperties) {
-        int m = databaseProperties.databasePropertiesReader.getM();
+        int m = databaseProperties.getM();
         int t = databaseProperties.getT();
         logger.info("m = {}, t = {}", m, t);
 

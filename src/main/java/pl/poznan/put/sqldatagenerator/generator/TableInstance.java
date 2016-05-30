@@ -1,6 +1,6 @@
 package pl.poznan.put.sqldatagenerator.generator;
 
-import pl.poznan.put.sqldatagenerator.exception.InvalidInteralStateException;
+import pl.poznan.put.sqldatagenerator.exception.InvalidInfernalStateException;
 
 import java.util.HashMap;
 import java.util.List;
@@ -37,7 +37,7 @@ public class TableInstance {
 
     public void setState(TableInstanceState state) {
         if (state == null) {
-            throw new InvalidInteralStateException("State cannot be null");
+            throw new InvalidInfernalStateException("State cannot be null");
         }
         attributeMap.values().forEach(a -> a.setClear(false));
         this.state = state;
@@ -54,7 +54,7 @@ public class TableInstance {
     private List<String> getValues() {
         List<String> attributesNames = base.getAttributesNames();
         if (attributesNames.stream().anyMatch(name -> !attributeMap.containsKey(name))) {
-            throw new InvalidInteralStateException("One of given attributes does not match table attributes");
+            throw new InvalidInfernalStateException("One of given attributes does not match table attributes");
         }
         return attributesNames.stream().map(name -> attributeMap.get(name).getValue()).collect(toList());
     }

@@ -11,7 +11,7 @@ import net.sourceforge.argparse4j.inf.Namespace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
-import pl.poznan.put.sqldatagenerator.exception.InvalidInteralStateException;
+import pl.poznan.put.sqldatagenerator.exception.InvalidInfernalStateException;
 import pl.poznan.put.sqldatagenerator.exception.SQLInvalidSyntaxException;
 import pl.poznan.put.sqldatagenerator.exception.SQLSyntaxNotSupportedException;
 import pl.poznan.put.sqldatagenerator.exception.XMLNotValidException;
@@ -53,10 +53,10 @@ public class Main {
             generator.generate();
         } catch (SQLSyntaxNotSupportedException | SQLInvalidSyntaxException | XMLNotValidException e) {
             logger.info(e.getMessage());
-        } catch (InvalidInteralStateException | IOException e) {
+        } catch (InvalidInfernalStateException | IOException e) {
             logger.error(e.getMessage());
         } catch (Exception e) {
-            logger.error("Not expected exception occured: {}", e.getMessage());
+            logger.error("Not expected exception occurred: {}", e.getMessage());
         }
     }
 
