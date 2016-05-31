@@ -3,12 +3,12 @@ package pl.poznan.put.sqldatagenerator.restriction;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.operators.relational.*;
 import pl.poznan.put.sqldatagenerator.exception.NotImplementedException;
+import pl.poznan.put.sqldatagenerator.restriction.types.NullRestriction;
 import pl.poznan.put.sqldatagenerator.restriction.types.RangeRestriction;
 import pl.poznan.put.sqldatagenerator.restriction.types.Restriction;
 import pl.poznan.put.sqldatagenerator.restriction.types.StringRestriction;
 
-import static pl.poznan.put.sqldatagenerator.restriction.SQLExpressionsUtils.isColumnAndValueExpression;
-import static pl.poznan.put.sqldatagenerator.restriction.SQLExpressionsUtils.isStringExpression;
+import static pl.poznan.put.sqldatagenerator.restriction.SQLExpressionsUtils.*;
 
 public class RestrictionFactory {
     public static Restriction createRestriction(Expression expression) {
@@ -42,6 +42,8 @@ public class RestrictionFactory {
                     return RangeRestriction.fromNotEquals((NotEqualsTo) expression);
                 }
             }
+        } else if (isNullExpression(expression)) {
+            return NullRestriction.fromIsNullExpression((IsNullExpression) expression);
         }
         throw new NotImplementedException("Instruction " + expression.toString() + " not implemented");
     }

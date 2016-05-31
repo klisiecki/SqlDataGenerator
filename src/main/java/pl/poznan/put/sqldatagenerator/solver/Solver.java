@@ -5,15 +5,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.poznan.put.sqldatagenerator.exception.NotImplementedException;
 import pl.poznan.put.sqldatagenerator.generator.Attribute;
-import pl.poznan.put.sqldatagenerator.restriction.types.PrimaryKeyRestriction;
-import pl.poznan.put.sqldatagenerator.restriction.types.RangeRestriction;
-import pl.poznan.put.sqldatagenerator.restriction.types.Restriction;
-import pl.poznan.put.sqldatagenerator.restriction.types.StringRestriction;
+import pl.poznan.put.sqldatagenerator.restriction.types.*;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
+import static java.util.Collections.singletonList;
 import static pl.poznan.put.sqldatagenerator.generator.RandomGenerator.*;
 
 public class Solver {
@@ -33,6 +32,18 @@ public class Solver {
             if (!attribute.canBeGenerated()) {
                 continue;
             }
+
+            //TODO better handling NullRestrictions
+            Optional<Restriction> nullRestrictionOptional = restrictions.stream().filter(r -> r instanceof NullRestriction).findFirst();
+            if (nullRestrictionOptional.isPresent()) {
+                NullRestriction nullRestriction = (NullRestriction) nullRestrictionOptional.get();
+                if (nullRestriction.isNegated()) {
+                    restrictions.remove(nullRestriction);
+                } else {
+                    restrictions = singletonList(nullRestriction);
+                }
+            }
+
             if (restrictions.size() == 1) {
                 Restriction restriction = (Restriction) restrictions.toArray()[0];
                 if (restriction instanceof RangeRestriction) {
@@ -42,6 +53,8 @@ public class Solver {
                     attribute.setValue(primaryKeyRestriction.getNextValue().toString());
                 } else if (restriction instanceof StringRestriction) {
                     generateFromStringRestriction(attribute, (StringRestriction) restriction);
+                } else if (restriction instanceof NullRestriction) {
+                    attribute.setValue(null);
                 } else {
                     throw new NotImplementedException();
                 }

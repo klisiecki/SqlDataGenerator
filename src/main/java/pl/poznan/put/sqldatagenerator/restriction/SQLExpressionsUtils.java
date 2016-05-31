@@ -4,6 +4,7 @@ import net.sf.jsqlparser.expression.*;
 import net.sf.jsqlparser.expression.operators.relational.Between;
 import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
 import net.sf.jsqlparser.expression.operators.relational.InExpression;
+import net.sf.jsqlparser.expression.operators.relational.IsNullExpression;
 import net.sf.jsqlparser.schema.Column;
 import pl.poznan.put.sqldatagenerator.generator.AttributesMap;
 import pl.poznan.put.sqldatagenerator.generator.datatypes.InternalType;
@@ -36,6 +37,10 @@ public class SQLExpressionsUtils {
             }
         }
         return false;
+    }
+
+    public static boolean isNullExpression(Expression expression) {
+        return expression instanceof IsNullExpression;
     }
 
     public static boolean isStringExpression(Expression expression) {
