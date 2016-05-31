@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<TABLES xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="pl.poznan.put.sqldatagenerator schema.xsd"
+        xmlns="pl.poznan.put.sqldatagenerator" M="200" T="100">
+    <TABLE>
+        <NAME>RV_ENFCOMPLAINTS_DCA</NAME>
+        <ROWS_NUM>50</ROWS_NUM>
+        <ATTRIBUTES>
+            <ATTRIBUTE>
+                <NAME>ENF_CSE_TYP_ID</NAME>
+                <TYPE>INTEGER</TYPE>
+            </ATTRIBUTE>
+
+            <ATTRIBUTE>
+                <NAME>ENF_REGN_ID</NAME>
+                <TYPE>INTEGER</TYPE>
+            </ATTRIBUTE>
+
+            <ATTRIBUTE>
+                <NAME>BOARDCODE</NAME>
+                <TYPE>VARCHAR</TYPE>
+            </ATTRIBUTE>
+
+            <ATTRIBUTE>
+                <NAME>LICCODE</NAME>
+                <TYPE>VARCHAR</TYPE>
+            </ATTRIBUTE>
+
+            <ATTRIBUTE>
+                <NAME>ACTIVITYDATE</NAME>
+                <TYPE>DATETIME</TYPE>
+            </ATTRIBUTE>
+
+            <ATTRIBUTE>
+                <NAME>PENDINGENDDATE</NAME>
+                <TYPE>DATETIME</TYPE>
+            </ATTRIBUTE>
+
+            <ATTRIBUTE>
+                <NAME>ACTV_STRT_DTE</NAME>
+                <TYPE>DATETIME</TYPE>
+            </ATTRIBUTE>
+
+            <ATTRIBUTE>
+                <NAME>ACTV_END_DTE</NAME>
+                <TYPE>DATETIME</TYPE>
+            </ATTRIBUTE>
+
+            <ATTRIBUTE>
+                <NAME>CATEGORYORDER</NAME>
+                <TYPE>INTEGER</TYPE>
+            </ATTRIBUTE>
+
+            <ATTRIBUTE>
+                <NAME>ROD_REOPENDATE</NAME>
+                <TYPE>DATETIME</TYPE>
+            </ATTRIBUTE>
+
+            <ATTRIBUTE>
+                <NAME>ROD_CLOSEDATE</NAME>
+                <TYPE>DATETIME</TYPE>
+            </ATTRIBUTE>
+
+            <ATTRIBUTE>
+                <NAME>CLOSUREROWNUMBER</NAME>
+                <TYPE>INTEGER</TYPE>
+            </ATTRIBUTE>
+
+
+        </ATTRIBUTES>
+    </TABLE>
+
+
+</TABLES>
