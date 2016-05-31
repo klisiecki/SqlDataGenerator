@@ -1,2 +1,3 @@
-0.1 - first version for HDPiA project
+0.1 - first version
 0.2 - version after application redesign and refactor
+0.3 - working history with graph and Strings handling
