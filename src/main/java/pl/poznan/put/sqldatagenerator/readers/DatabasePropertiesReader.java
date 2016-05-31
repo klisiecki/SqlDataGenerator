@@ -1,6 +1,6 @@
 package pl.poznan.put.sqldatagenerator.readers;
 
-import pl.poznan.put.sqldatagenerator.generator.AttributeType;
+import pl.poznan.put.sqldatagenerator.generator.datatypes.DatabaseType;
 
 import java.util.List;
 
@@ -21,7 +21,7 @@ public interface DatabasePropertiesReader {
 
     String getDistribution(String table);
 
-    AttributeType getType(String table, String attribute);
+    DatabaseType getType(String table, String attribute);
 
     boolean isPrimaryKey(String table, String attribute);
 

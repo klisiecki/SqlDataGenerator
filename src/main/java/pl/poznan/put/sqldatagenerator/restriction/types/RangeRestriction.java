@@ -11,8 +11,8 @@ import net.sf.jsqlparser.schema.Column;
 import pl.poznan.put.sqldatagenerator.Utils;
 import pl.poznan.put.sqldatagenerator.exception.NotImplementedException;
 import pl.poznan.put.sqldatagenerator.generator.Attribute;
-import pl.poznan.put.sqldatagenerator.generator.AttributeType;
 import pl.poznan.put.sqldatagenerator.generator.AttributesMap;
+import pl.poznan.put.sqldatagenerator.generator.datatypes.InternalType;
 
 import static pl.poznan.put.sqldatagenerator.restriction.SQLExpressionsUtils.*;
 
@@ -113,13 +113,13 @@ public class RangeRestriction extends OneAttributeRestriction {
     private static RangeRestriction getEqualsRangeRestriction(BinaryExpression expression) {
         Column column = getColumn(expression);
         Expression valueExpression = getValueExpression(expression);
-        AttributeType type = AttributesMap.get(column).getType();
-        if (type == AttributeType.INTEGER) {
+        InternalType type = AttributesMap.get(column).getInternalType();
+        if (type == InternalType.LONG) {
             RangeSet<Long> rangeSet = TreeRangeSet.create();
             Long value = getLong(valueExpression);
             rangeSet.add(Range.closed(value, value));
             return new RangeRestriction(expression, column, rangeSet);
-        } else if (type == AttributeType.FLOAT) {
+        } else if (type == InternalType.DOUBLE) {
             RangeSet<Double> rangeSet = TreeRangeSet.create();
             Double value = getDouble(valueExpression);
             rangeSet.add(Range.closed(value, value));
@@ -130,8 +130,8 @@ public class RangeRestriction extends OneAttributeRestriction {
     }
 
     private static RangeSet createMaxOrMinRangeSet(Column column, Expression expression, SignType signType, BoundType boundType) {
-        AttributeType type = AttributesMap.get(column).getType();
-        if (type == AttributeType.INTEGER) {
+        InternalType type = AttributesMap.get(column).getInternalType();
+        if (type == InternalType.LONG) {
             RangeSet<Long> rangeSet = TreeRangeSet.create();
             Long value = getLong(expression);
             if (signType == SignType.GREATER_THAN) {
@@ -140,7 +140,7 @@ public class RangeRestriction extends OneAttributeRestriction {
                 rangeSet.add(Range.upTo(value, boundType));
             }
             return rangeSet;
-        } else if (type == AttributeType.FLOAT) {
+        } else if (type == InternalType.DOUBLE) {
             RangeSet<Double> rangeSet = TreeRangeSet.create();
             Double value = getDouble(expression);
             if (signType == SignType.GREATER_THAN) {

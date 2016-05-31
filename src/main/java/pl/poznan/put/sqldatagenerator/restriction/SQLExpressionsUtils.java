@@ -5,8 +5,8 @@ import net.sf.jsqlparser.expression.operators.relational.Between;
 import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
 import net.sf.jsqlparser.expression.operators.relational.InExpression;
 import net.sf.jsqlparser.schema.Column;
-import pl.poznan.put.sqldatagenerator.generator.AttributeType;
 import pl.poznan.put.sqldatagenerator.generator.AttributesMap;
+import pl.poznan.put.sqldatagenerator.generator.datatypes.InternalType;
 
 public class SQLExpressionsUtils {
     public static boolean isColumnAndValueExpression(Expression expression) {
@@ -47,7 +47,7 @@ public class SQLExpressionsUtils {
         } else {
             return false;
         }
-        return AttributesMap.get(column).getType() == AttributeType.STRING;
+        return AttributesMap.get(column).getInternalType() == InternalType.STRING;
     }
 
     public static boolean isColumn(Expression left) {

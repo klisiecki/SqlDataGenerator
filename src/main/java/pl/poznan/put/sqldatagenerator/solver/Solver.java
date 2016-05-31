@@ -53,11 +53,11 @@ public class Solver {
 
     @SuppressWarnings("unchecked")
     private void generateFromRangeRestriction(Attribute attribute, RangeRestriction rangeRestriction) {
-        switch (attribute.getType()) {
-            case INTEGER:
+        switch (attribute.getInternalType()) {
+            case LONG:
                 attribute.setValue(randomLong(rangeRestriction.getRangeSet()).toString());
                 break;
-            case FLOAT:
+            case DOUBLE:
                 attribute.setValue(randomDouble(rangeRestriction.getRangeSet()).toString());
                 break;
             default:

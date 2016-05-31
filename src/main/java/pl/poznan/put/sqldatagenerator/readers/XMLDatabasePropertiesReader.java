@@ -6,7 +6,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import pl.poznan.put.sqldatagenerator.exception.XMLNotValidException;
-import pl.poznan.put.sqldatagenerator.generator.AttributeType;
+import pl.poznan.put.sqldatagenerator.generator.datatypes.DatabaseType;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
@@ -152,9 +152,9 @@ public class XMLDatabasePropertiesReader implements DatabasePropertiesReader {
     }
 
     @Override
-    public AttributeType getType(String table, String attribute) {
+    public DatabaseType getType(String table, String attribute) {
         try {
-            return AttributeType.valueOf(getAttributeProperty(table, attribute, "TYPE"));
+            return DatabaseType.valueOf(getAttributeProperty(table, attribute, "TYPE"));
         } catch (Exception e) {
             e.printStackTrace();
             return null;

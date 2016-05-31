@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import pl.poznan.put.sqldatagenerator.Configuration;
 import pl.poznan.put.sqldatagenerator.exception.SQLAndXMLNotCompatibleException;
 import pl.poznan.put.sqldatagenerator.exception.SQLSyntaxNotSupportedException;
+import pl.poznan.put.sqldatagenerator.generator.datatypes.DatabaseType;
 import pl.poznan.put.sqldatagenerator.history.HistoryManager;
 import pl.poznan.put.sqldatagenerator.readers.DatabaseProperties;
 import pl.poznan.put.sqldatagenerator.readers.DatabasePropertiesReader;
@@ -157,8 +158,8 @@ public class Generator {
 
         for (String attributeName : databaseAttributes) {
             //TODO consider adding only attributes present in SQL (could be configurable)
-            AttributeType attributeType = databaseProperties.getType(tableName, attributeName);
-            Attribute attribute = new Attribute(tableInstance, attributeName, attributeType);
+            DatabaseType databaseType = databaseProperties.getType(tableName, attributeName);
+            Attribute attribute = new Attribute(tableInstance, attributeName, databaseType);
             tableInstance.addAttribute(attribute);
             AttributesMap.add(tableInstance, attributeName, attribute);
         }

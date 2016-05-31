@@ -14,14 +14,14 @@
 
             <ATTRIBUTE>
                 <NAME>NAME</NAME>
-                <TYPE>STRING</TYPE>
+                <TYPE>VARCHAR</TYPE>
                 <MIN_VALUE>3</MIN_VALUE>
                 <MAX_VALUE>10</MAX_VALUE>
             </ATTRIBUTE>
 
             <ATTRIBUTE>
                 <NAME>DESCRIPTION</NAME>
-                <TYPE>STRING</TYPE>
+                <TYPE>VARCHAR</TYPE>
                 <MIN_VALUE>20</MIN_VALUE>
                 <MAX_VALUE>50</MAX_VALUE>
             </ATTRIBUTE>
@@ -35,7 +35,7 @@
 
             <ATTRIBUTE>
                 <NAME>CATEGORY</NAME>
-                <TYPE>STRING</TYPE>
+                <TYPE>VARCHAR</TYPE>
                 <VALUES>
                     <VALUE>AGD</VALUE>
                     <VALUE>RTV</VALUE>
@@ -59,14 +59,14 @@
 
             <ATTRIBUTE>
                 <NAME>FIRST_NAME</NAME>
-                <TYPE>STRING</TYPE>
+                <TYPE>VARCHAR</TYPE>
                 <MIN_VALUE>2</MIN_VALUE>
                 <MAX_VALUE>15</MAX_VALUE>
             </ATTRIBUTE>
 
             <ATTRIBUTE>
                 <NAME>LAST_NAME</NAME>
-                <TYPE>STRING</TYPE>
+                <TYPE>VARCHAR</TYPE>
                 <MIN_VALUE>2</MIN_VALUE>
                 <MAX_VALUE>15</MAX_VALUE>
             </ATTRIBUTE>

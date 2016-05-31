@@ -7,9 +7,10 @@ import com.google.common.collect.TreeRangeSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.poznan.put.sqldatagenerator.generator.Attribute;
-import pl.poznan.put.sqldatagenerator.generator.AttributeType;
 import pl.poznan.put.sqldatagenerator.generator.AttributesMap;
 import pl.poznan.put.sqldatagenerator.generator.TableBase;
+import pl.poznan.put.sqldatagenerator.generator.datatypes.DatabaseType;
+import pl.poznan.put.sqldatagenerator.generator.datatypes.InternalType;
 import pl.poznan.put.sqldatagenerator.generator.key.KeyGenerator;
 import pl.poznan.put.sqldatagenerator.generator.key.SimpleKeyGenerator;
 import pl.poznan.put.sqldatagenerator.restriction.Restrictions;
@@ -37,12 +38,12 @@ public class DatabaseProperties {
             for (String attributeName : databasePropertiesReader.getAttributes(tableName)) {
                 List<String> values = databasePropertiesReader.getValues(tableName, attributeName);
                 List<Attribute> attributes = AttributesMap.get(tableBaseMap.get(tableName), attributeName);
-                AttributeType attributeType = databasePropertiesReader.getType(tableName, attributeName);
-                switch (attributeType) {
-                    case INTEGER:
+                InternalType internalType = databasePropertiesReader.getType(tableName, attributeName).getInternalType();
+                switch (internalType) {
+                    case LONG:
                         restrictionList.addAll(getIntegerConstraints(tableName, attributeName, values, attributes));
                         break;
-                    case FLOAT:
+                    case DOUBLE:
                         restrictionList.addAll(getFloatConstraints(tableName, attributeName, attributes));
                         break;
                     case STRING:
@@ -152,7 +153,7 @@ public class DatabaseProperties {
         return databasePropertiesReader.getAttributes(tableName);
     }
 
-    public AttributeType getType(String tableName, String attributeName) {
+    public DatabaseType getType(String tableName, String attributeName) {
         return databasePropertiesReader.getType(tableName, attributeName);
     }
 

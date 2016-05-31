@@ -57,6 +57,7 @@ public class Main {
             logger.error(e.getMessage());
         } catch (Exception e) {
             logger.error("Not expected exception occurred: {}", e.getMessage());
+            e.printStackTrace();
         }
     }
 

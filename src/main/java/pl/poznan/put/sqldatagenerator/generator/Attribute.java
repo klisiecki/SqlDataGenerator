@@ -2,20 +2,22 @@ package pl.poznan.put.sqldatagenerator.generator;
 
 import pl.poznan.put.sqldatagenerator.exception.InvalidInternalStateException;
 import pl.poznan.put.sqldatagenerator.exception.SQLSyntaxNotSupportedException;
+import pl.poznan.put.sqldatagenerator.generator.datatypes.DatabaseType;
+import pl.poznan.put.sqldatagenerator.generator.datatypes.InternalType;
 
 public class Attribute {
 
     private final String name;
-    private final AttributeType type;
+    private final DatabaseType databaseType;
     private Attribute baseAttribute;
     private final TableInstance tableInstance;
 
     private boolean isClear;
 
-    public Attribute(TableInstance tableInstance, String name, AttributeType type) {
+    public Attribute(TableInstance tableInstance, String name, DatabaseType databaseType) {
         this.name = name;
         this.tableInstance = tableInstance;
-        this.type = type;
+        this.databaseType = databaseType;
         this.isClear = true;
     }
 
@@ -41,8 +43,12 @@ public class Attribute {
         tableInstance.getState().setValue(name, value);
     }
 
-    public AttributeType getType() {
-        return type;
+    public DatabaseType getDatabaseType() {
+        return databaseType;
+    }
+
+    public InternalType getInternalType() {
+        return databaseType.getInternalType();
     }
 
     public String getBaseTableName() {
@@ -67,8 +73,8 @@ public class Attribute {
         if (this.baseAttribute != null) {
             throw new InvalidInternalStateException("Base attribute already set");
         }
-        if (type != baseAttribute.getType()) {
-            throw new SQLSyntaxNotSupportedException("Dependent attribute must have the same type as base attribute");
+        if (getInternalType() != baseAttribute.getInternalType()) {
+            throw new SQLSyntaxNotSupportedException("Dependent attribute must have the same internalType as base attribute");
         }
         this.baseAttribute = baseAttribute;
     }

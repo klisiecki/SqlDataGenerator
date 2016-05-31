@@ -69,7 +69,7 @@
         <xs:restriction base="xs:string">
             <xs:enumeration value="INTEGER"/>
             <xs:enumeration value="FLOAT"/>
-            <xs:enumeration value="STRING"/>
+            <xs:enumeration value="VARCHAR"/>
             <xs:enumeration value="DATE"/>
         </xs:restriction>
     </xs:simpleType>
