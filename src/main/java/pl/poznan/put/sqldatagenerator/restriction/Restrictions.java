@@ -1,7 +1,7 @@
 package pl.poznan.put.sqldatagenerator.restriction;
 
 import com.bpodgursky.jbool_expressions.*;
-import pl.poznan.put.sqldatagenerator.exception.InvalidInfernalStateException;
+import pl.poznan.put.sqldatagenerator.exception.InvalidInternalStateException;
 import pl.poznan.put.sqldatagenerator.restriction.types.Restriction;
 
 import java.util.ArrayList;
@@ -38,7 +38,7 @@ public class Restrictions {
         } else if (expression instanceof Variable) {
             return new Restrictions(new ArrayList<>(singletonList(((Variable<Restriction>) expression).getValue().clone())));
         } else {
-            throw new InvalidInfernalStateException(expression.getClass() + " not supported here");
+            throw new InvalidInternalStateException(expression.getClass() + " not supported here");
         }
     }
 
