@@ -93,6 +93,11 @@
                 <NAME>CLIENT_ID</NAME>
                 <TYPE>INTEGER</TYPE>
             </ATTRIBUTE>
+
+            <ATTRIBUTE>
+                <NAME>DATETIME</NAME>
+                <TYPE>DATETIME</TYPE>
+            </ATTRIBUTE>
         </ATTRIBUTES>
     </TABLE>
 </TABLES>

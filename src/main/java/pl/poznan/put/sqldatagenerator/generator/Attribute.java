@@ -2,6 +2,7 @@ package pl.poznan.put.sqldatagenerator.generator;
 
 import pl.poznan.put.sqldatagenerator.exception.InvalidInternalStateException;
 import pl.poznan.put.sqldatagenerator.exception.SQLSyntaxNotSupportedException;
+import pl.poznan.put.sqldatagenerator.generator.datatypes.DataTypesConverter;
 import pl.poznan.put.sqldatagenerator.generator.datatypes.DatabaseType;
 import pl.poznan.put.sqldatagenerator.generator.datatypes.InternalType;
 
@@ -30,6 +31,10 @@ public class Attribute {
             return baseAttribute.getValue();
         }
         return tableInstance.getState().getValue(name);
+    }
+
+    public String getDatabaseValue() {
+        return DataTypesConverter.getDatabaseType(getValue(), getInternalType(), getDatabaseType());
     }
 
     public void setValue(String value) {

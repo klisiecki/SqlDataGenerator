@@ -12,6 +12,8 @@ import pl.poznan.put.sqldatagenerator.Utils;
 import pl.poznan.put.sqldatagenerator.exception.NotImplementedException;
 import pl.poznan.put.sqldatagenerator.generator.Attribute;
 import pl.poznan.put.sqldatagenerator.generator.AttributesMap;
+import pl.poznan.put.sqldatagenerator.generator.datatypes.DataTypesConverter;
+import pl.poznan.put.sqldatagenerator.generator.datatypes.DatabaseType;
 import pl.poznan.put.sqldatagenerator.generator.datatypes.InternalType;
 
 import static pl.poznan.put.sqldatagenerator.restriction.SQLExpressionsUtils.*;
@@ -80,10 +82,11 @@ public class RangeRestriction extends OneAttributeRestriction {
         if (in.getRightItemsList() instanceof ExpressionList) {
             ExpressionList list = (ExpressionList) in.getRightItemsList();
             Expression first = list.getExpressions().get(0);
+            DatabaseType databaseType = AttributesMap.get(column).getDatabaseType();
             if (isIntegerValue(first)) {
                 RangeSet<Long> rangeSet = TreeRangeSet.create();
                 for (Expression e : list.getExpressions()) {
-                    Long value = getLong(e);
+                    Long value = DataTypesConverter.getInternalLong(e, databaseType);
                     rangeSet.add(Range.closed(value, value));
                 }
                 return new RangeRestriction(in, column, rangeSet);
@@ -113,13 +116,14 @@ public class RangeRestriction extends OneAttributeRestriction {
     private static RangeRestriction getEqualsRangeRestriction(BinaryExpression expression) {
         Column column = getColumn(expression);
         Expression valueExpression = getValueExpression(expression);
-        InternalType type = AttributesMap.get(column).getInternalType();
-        if (type == InternalType.LONG) {
+        InternalType internalType = AttributesMap.get(column).getInternalType();
+        DatabaseType databaseType = AttributesMap.get(column).getDatabaseType();
+        if (internalType == InternalType.LONG) {
             RangeSet<Long> rangeSet = TreeRangeSet.create();
-            Long value = getLong(valueExpression);
+            Long value = DataTypesConverter.getInternalLong(valueExpression, databaseType);
             rangeSet.add(Range.closed(value, value));
             return new RangeRestriction(expression, column, rangeSet);
-        } else if (type == InternalType.DOUBLE) {
+        } else if (internalType == InternalType.DOUBLE) {
             RangeSet<Double> rangeSet = TreeRangeSet.create();
             Double value = getDouble(valueExpression);
             rangeSet.add(Range.closed(value, value));
@@ -131,9 +135,10 @@ public class RangeRestriction extends OneAttributeRestriction {
 
     private static RangeSet createMaxOrMinRangeSet(Column column, Expression expression, SignType signType, BoundType boundType) {
         InternalType type = AttributesMap.get(column).getInternalType();
+        DatabaseType databaseType = AttributesMap.get(column).getDatabaseType();
         if (type == InternalType.LONG) {
             RangeSet<Long> rangeSet = TreeRangeSet.create();
-            Long value = getLong(expression);
+            Long value = DataTypesConverter.getInternalLong(expression, databaseType);
             if (signType == SignType.GREATER_THAN) {
                 rangeSet.add(Range.downTo(value, boundType));
             } else if (signType == SignType.MINOR_THAN) {

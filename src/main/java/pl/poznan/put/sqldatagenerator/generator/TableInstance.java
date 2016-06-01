@@ -56,7 +56,7 @@ public class TableInstance {
         if (attributesNames.stream().anyMatch(name -> !attributeMap.containsKey(name))) {
             throw new InvalidInternalStateException("One of given attributes does not match table attributes");
         }
-        return attributesNames.stream().map(name -> attributeMap.get(name).getValue()).collect(toList());
+        return attributesNames.stream().map(name -> attributeMap.get(name).getDatabaseValue()).collect(toList());
     }
 
     public TableBase getBase() {
