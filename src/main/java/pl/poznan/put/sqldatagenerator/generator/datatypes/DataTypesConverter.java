@@ -31,8 +31,13 @@ public class DataTypesConverter {
     }
 
     public static String getDatabaseType(String input, InternalType internalType, DatabaseType databaseType) {
-        if (InternalType.LONG.equals(internalType) && DatabaseType.DATETIME.equals(databaseType)) {
-            return new SimpleDateFormat("dd-MMM-yy hh.mm.ss", Locale.ENGLISH).format(new Date(Long.valueOf(input)));
+        if (input == null) return input;
+        try {
+            if (InternalType.LONG.equals(internalType) && DatabaseType.DATETIME.equals(databaseType)) {
+                return new SimpleDateFormat("dd-MMM-yy hh.mm.ss", Locale.ENGLISH).format(new Date(Long.valueOf(input)));
+            }
+        } catch (NumberFormatException e) {
+            e.getStackTrace();
         }
         //TODO implement all
         return input;
@@ -40,7 +45,7 @@ public class DataTypesConverter {
 
 
     public static Long getLongFromDatetime(String input) throws ParseException {
-        Date date = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").parse(input);
+        Date date = new SimpleDateFormat("yyyy/MM/dd HH.mm.ss").parse(input);
         return date.getTime();
     }
 }

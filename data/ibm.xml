@@ -4,26 +4,40 @@
         xmlns="pl.poznan.put.sqldatagenerator" M="200" T="100">
     <TABLE>
         <NAME>RV_ENFCOMPLAINTS_DCA</NAME>
-        <ROWS_NUM>50</ROWS_NUM>
+        <ROWS_NUM>1000</ROWS_NUM>
         <ATTRIBUTES>
+            <ATTRIBUTE>
+                <NAME>ID</NAME>
+                <TYPE>INTEGER</TYPE>
+                <PRIMARY_KEY>true</PRIMARY_KEY>
+            </ATTRIBUTE>
+
             <ATTRIBUTE>
                 <NAME>ENF_CSE_TYP_ID</NAME>
                 <TYPE>INTEGER</TYPE>
+                <MIN_VALUE>0</MIN_VALUE>
+                <MAX_VALUE>100</MAX_VALUE>
             </ATTRIBUTE>
 
             <ATTRIBUTE>
                 <NAME>ENF_REGN_ID</NAME>
                 <TYPE>INTEGER</TYPE>
+                <MIN_VALUE>0</MIN_VALUE>
+                <MAX_VALUE>10000</MAX_VALUE>
             </ATTRIBUTE>
 
             <ATTRIBUTE>
                 <NAME>BOARDCODE</NAME>
                 <TYPE>VARCHAR</TYPE>
+                <MIN_VALUE>0</MIN_VALUE>
+                <MAX_VALUE>5</MAX_VALUE>
             </ATTRIBUTE>
 
             <ATTRIBUTE>
                 <NAME>LICCODE</NAME>
                 <TYPE>VARCHAR</TYPE>
+                <MIN_VALUE>0</MIN_VALUE>
+                <MAX_VALUE>5</MAX_VALUE>
             </ATTRIBUTE>
 
             <ATTRIBUTE>
@@ -49,6 +63,8 @@
             <ATTRIBUTE>
                 <NAME>CATEGORYORDER</NAME>
                 <TYPE>INTEGER</TYPE>
+                <MIN_VALUE>0</MIN_VALUE>
+                <MAX_VALUE>150</MAX_VALUE>
             </ATTRIBUTE>
 
             <ATTRIBUTE>
@@ -64,6 +80,8 @@
             <ATTRIBUTE>
                 <NAME>CLOSUREROWNUMBER</NAME>
                 <TYPE>INTEGER</TYPE>
+                <MIN_VALUE>-1000000</MIN_VALUE>
+                <MAX_VALUE>1000000</MAX_VALUE>
             </ATTRIBUTE>
 
 

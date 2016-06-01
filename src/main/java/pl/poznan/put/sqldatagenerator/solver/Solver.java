@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static java.util.Collections.singletonList;
 import static pl.poznan.put.sqldatagenerator.generator.RandomGenerator.*;
@@ -38,7 +39,7 @@ public class Solver {
             if (nullRestrictionOptional.isPresent()) {
                 NullRestriction nullRestriction = (NullRestriction) nullRestrictionOptional.get();
                 if (nullRestriction.isNegated()) {
-                    restrictions.remove(nullRestriction);
+                    restrictions.removeAll(restrictions.stream().filter(r -> r instanceof NullRestriction).collect(Collectors.toList()));
                 } else {
                     restrictions = singletonList(nullRestriction);
                 }
