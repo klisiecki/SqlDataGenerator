@@ -12,31 +12,37 @@ import pl.poznan.put.sqldatagenerator.generator.datatypes.InternalType;
 public class SQLExpressionsUtils {
     public static boolean isColumnAndValueExpression(Expression expression) {
         if (expression instanceof BinaryExpression) {
-            BinaryExpression binaryExpression = (BinaryExpression) expression;
-            Expression left = binaryExpression.getLeftExpression();
-            Expression right = binaryExpression.getRightExpression();
-            if (isColumn(left) && isSimpleValue(right) || isColumn(right) && isSimpleValue(left)) {
-                return true;
-            }
+            return isColumnAndValueBinaryExpression((BinaryExpression) expression);
         } else if (expression instanceof InExpression) {
-            InExpression inExpression = (InExpression) expression;
-            if (isColumn(inExpression.getLeftExpression()) && inExpression.getRightItemsList() instanceof ExpressionList) {
-                ExpressionList expressionList = (ExpressionList) inExpression.getRightItemsList();
-                for (Expression exp : expressionList.getExpressions()) {
-                    if (!isSimpleValue(exp)) {
-                        return false;
-                    }
-                }
-                return true;
-            }
+            return isColumnAndValueInExpression((InExpression) expression);
         } else if (expression instanceof Between) {
-            Between between = (Between) expression;
-            if (isColumn(between.getLeftExpression()) && isNumberValue(between.getBetweenExpressionStart())
-                    && isNumberValue(between.getBetweenExpressionEnd())) {
-                return true;
-            }
+            return isColumnAndValueBetween((Between) expression);
         }
         return false;
+    }
+
+    private static boolean isColumnAndValueBetween(Between between) {
+        return isColumn(between.getLeftExpression()) && isNumberValue(between.getBetweenExpressionStart())
+                && isNumberValue(between.getBetweenExpressionEnd());
+    }
+
+    private static boolean isColumnAndValueInExpression(InExpression inExpression) {
+        if (isColumn(inExpression.getLeftExpression()) && inExpression.getRightItemsList() instanceof ExpressionList) {
+            ExpressionList expressionList = (ExpressionList) inExpression.getRightItemsList();
+            for (Expression exp : expressionList.getExpressions()) {
+                if (!isSimpleValue(exp)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean isColumnAndValueBinaryExpression(BinaryExpression binaryExpression) {
+        Expression left = binaryExpression.getLeftExpression();
+        Expression right = binaryExpression.getRightExpression();
+        return isColumn(left) && isSimpleValue(right) || isColumn(right) && isSimpleValue(left);
     }
 
     public static boolean isNullExpression(Expression expression) {

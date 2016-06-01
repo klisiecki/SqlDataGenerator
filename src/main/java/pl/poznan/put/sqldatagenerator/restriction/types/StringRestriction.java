@@ -61,7 +61,8 @@ public class StringRestriction extends OneAttributeRestriction {
         isNegated = false;
     }
 
-    public StringRestriction(Attribute attribute, int minLength, int maxLength, LikeExpressionProperties likeExpressionProperties, List<String> allowedValues, boolean isNegated) {
+    public StringRestriction(Attribute attribute, int minLength, int maxLength,
+                             LikeExpressionProperties likeExpressionProperties, List<String> allowedValues, boolean isNegated) {
         this(attribute);
         this.minLength = minLength;
         this.maxLength = maxLength;

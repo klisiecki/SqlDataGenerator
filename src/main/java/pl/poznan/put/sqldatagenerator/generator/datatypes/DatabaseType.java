@@ -6,7 +6,7 @@ public enum DatabaseType {
     INTEGER(InternalType.LONG),
     FLOAT(InternalType.DOUBLE);
 
-    private InternalType internalType;
+    private final InternalType internalType;
 
     DatabaseType(InternalType internalType) {
         this.internalType = internalType;

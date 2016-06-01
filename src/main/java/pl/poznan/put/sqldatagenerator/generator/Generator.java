@@ -4,7 +4,7 @@ import net.sf.jsqlparser.schema.Table;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.poznan.put.sqldatagenerator.Configuration;
-import pl.poznan.put.sqldatagenerator.exception.SQLAndXMLNotCompatibleException;
+import pl.poznan.put.sqldatagenerator.exception.SQLNotCompatibleWithDatabaseException;
 import pl.poznan.put.sqldatagenerator.exception.SQLSyntaxNotSupportedException;
 import pl.poznan.put.sqldatagenerator.generator.datatypes.DatabaseType;
 import pl.poznan.put.sqldatagenerator.history.HistoryManager;
@@ -50,7 +50,7 @@ public class Generator {
             String tableName = table.getName();
             String aliasName = table.getAlias().getName();
             if (!tableBaseMap.containsKey(tableName)) {
-                throw new SQLAndXMLNotCompatibleException("Table " + tableName + " not found in database properties");
+                throw new SQLNotCompatibleWithDatabaseException("Table " + tableName + " not found in database properties");
             }
 
             TableInstance tableInstance = new TableInstance(tableBaseMap.get(tableName), aliasName);
@@ -153,7 +153,7 @@ public class Generator {
         List<String> missingAttributes = new ArrayList<>(sqlAttributes);
         missingAttributes.removeAll(databaseAttributes);
         if (!missingAttributes.isEmpty()) {
-            throw new SQLAndXMLNotCompatibleException("Attributes " + Arrays.toString(missingAttributes.toArray()) + " not found in " + tableName + " definition");
+            throw new SQLNotCompatibleWithDatabaseException("Attributes " + Arrays.toString(missingAttributes.toArray()) + " not found in " + tableName + " definition");
         }
 
         for (String attributeName : databaseAttributes) {
