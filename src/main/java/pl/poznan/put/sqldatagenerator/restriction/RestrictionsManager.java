@@ -9,6 +9,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
+import com.google.common.util.concurrent.SimpleTimeLimiter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.poznan.put.sqldatagenerator.Utils;
@@ -23,6 +24,7 @@ import java.util.function.Predicate;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.stream.Collectors.toList;
 
 public class RestrictionsManager {
@@ -83,7 +85,13 @@ public class RestrictionsManager {
         }
 
         Expression<Restriction> dnfForm = RuleSet.toDNF(criteria);
-        Expression<Restriction> cnfForm = RuleSet.toCNF(criteria);
+        Expression<Restriction> cnfForm = null;
+        try {
+            //TODO parametrize time limit & add count limit for negative restrictions
+            cnfForm = new SimpleTimeLimiter().callWithTimeout(() -> RuleSet.toCNF(criteria), 5, SECONDS, true);
+        } catch (Exception ignore) {
+        }
+
         if (dnfForm instanceof Or) {
             positiveRestrictionsList.addAll(((NExpression<Restriction>) dnfForm).getChildren().stream()
                     .map(Restrictions::fromExpression).collect(toList()));
@@ -91,14 +99,17 @@ public class RestrictionsManager {
             positiveRestrictionsList.add(Restrictions.fromExpression(dnfForm));
         }
 
-        if (cnfForm instanceof And) {
-            negativeRestrictionsList.addAll(((NExpression<Restriction>) cnfForm).getChildren().stream()
-                    .map(Restrictions::fromExpression).collect(toList()));
+        if (cnfForm != null) {
+            if (cnfForm instanceof And) {
+                negativeRestrictionsList.addAll(((NExpression<Restriction>) cnfForm).getChildren().stream()
+                        .map(Restrictions::fromExpression).collect(toList()));
+            } else {
+                negativeRestrictionsList.add(Restrictions.fromExpression(cnfForm));
+            }
+            negativeRestrictionsList.forEach(Restrictions::reverserAll);
         } else {
-            negativeRestrictionsList.add(Restrictions.fromExpression(cnfForm));
+            logger.info("Couldn't initialize negative restrictions. Negative rows will be random and may actually match given query");
         }
-        negativeRestrictionsList.forEach(Restrictions::reverserAll);
-
     }
 
     private void setXMLConstraints(Restrictions constraints, List<Restrictions> restrictionsList) {
