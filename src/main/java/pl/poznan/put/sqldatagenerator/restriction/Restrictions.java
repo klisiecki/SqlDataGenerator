@@ -33,10 +33,21 @@ public class Restrictions {
     public static Restrictions fromExpression(Expression<Restriction> expression) {
         if (expression instanceof NExpression) {
             List<Expression<Restriction>> children = ((NExpression<Restriction>) expression).getChildren();
-            List<Restriction> list = children.stream().map(e -> ((Variable<Restriction>) e).getValue().clone()).collect(toList());
+            List<Restriction> list = children.stream().map(e -> (getRestriction(e))).collect(toList());
             return new Restrictions(list);
-        } else if (expression instanceof Variable) {
-            return new Restrictions(new ArrayList<>(singletonList(((Variable<Restriction>) expression).getValue().clone())));
+        } else if (expression instanceof Variable || expression instanceof Not) {
+            return new Restrictions(new ArrayList<>(singletonList(getRestriction(expression))));
+        } else {
+            throw new InvalidInternalStateException(expression.getClass() + " not supported here");
+        }
+    }
+
+    private static Restriction getRestriction(Expression<Restriction> expression) {
+        if (expression instanceof Variable) {
+            return ((Variable<Restriction>) expression).getValue().clone();
+        } else if (expression instanceof Not) {
+            Expression<Restriction> e = ((Not<Restriction>) expression).getE();
+            return getRestriction(e).reverse();
         } else {
             throw new InvalidInternalStateException(expression.getClass() + " not supported here");
         }

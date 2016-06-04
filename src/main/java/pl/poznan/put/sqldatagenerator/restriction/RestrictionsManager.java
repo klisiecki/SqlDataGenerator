@@ -1,15 +1,14 @@
 package pl.poznan.put.sqldatagenerator.restriction;
 
-import com.bpodgursky.jbool_expressions.And;
 import com.bpodgursky.jbool_expressions.Expression;
 import com.bpodgursky.jbool_expressions.NExpression;
+import com.bpodgursky.jbool_expressions.Not;
 import com.bpodgursky.jbool_expressions.Or;
 import com.bpodgursky.jbool_expressions.rules.RuleSet;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
-import com.google.common.util.concurrent.SimpleTimeLimiter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.poznan.put.sqldatagenerator.Utils;
@@ -24,7 +23,6 @@ import java.util.function.Predicate;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.stream.Collectors.toList;
 
 public class RestrictionsManager {
@@ -84,31 +82,19 @@ public class RestrictionsManager {
             throw new InvalidInternalStateException("Restrictions already initialized!");
         }
 
-        Expression<Restriction> dnfForm = RuleSet.toDNF(criteria);
-        Expression<Restriction> cnfForm = null;
-        try {
-            //TODO parametrize time limit & add count limit for negative restrictions
-            cnfForm = new SimpleTimeLimiter().callWithTimeout(() -> RuleSet.toCNF(criteria), 5, SECONDS, true);
-        } catch (Exception ignore) {
-        }
+        Expression<Restriction> positiveDNF = RuleSet.toDNF(criteria);
+        Expression<Restriction> negativeDNF = RuleSet.toDNF(Not.of(criteria));
 
-        if (dnfForm instanceof Or) {
-            positiveRestrictionsList.addAll(((NExpression<Restriction>) dnfForm).getChildren().stream()
+        addRestrictions(positiveRestrictionsList, positiveDNF);
+        addRestrictions(negativeRestrictionsList, negativeDNF);
+    }
+
+    private void addRestrictions(List<Restrictions> restrictionsList, Expression<Restriction> expression) {
+        if (expression instanceof Or) {
+            restrictionsList.addAll(((NExpression<Restriction>) expression).getChildren().stream()
                     .map(Restrictions::fromExpression).collect(toList()));
         } else {
-            positiveRestrictionsList.add(Restrictions.fromExpression(dnfForm));
-        }
-
-        if (cnfForm != null) {
-            if (cnfForm instanceof And) {
-                negativeRestrictionsList.addAll(((NExpression<Restriction>) cnfForm).getChildren().stream()
-                        .map(Restrictions::fromExpression).collect(toList()));
-            } else {
-                negativeRestrictionsList.add(Restrictions.fromExpression(cnfForm));
-            }
-            negativeRestrictionsList.forEach(Restrictions::reverserAll);
-        } else {
-            logger.info("Couldn't initialize negative restrictions. Negative rows will be random and may actually match given query");
+            restrictionsList.add(Restrictions.fromExpression(expression));
         }
     }
 
