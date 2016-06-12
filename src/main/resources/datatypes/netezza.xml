@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<DATATYPES xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="pl.poznan.put.sqldatagenerator ../datatypeSchema.xsd"
+           xmlns="pl.poznan.put.sqldatagenerator">
+
+    <DATATYPE>
+        <NAME>VARCHAR</NAME>
+        <BASETYPE>STRING</BASETYPE>
+        <MIN_VALUE>1</MIN_VALUE>
+        <MAX_VALUE>64000</MAX_VALUE>
+    </DATATYPE>
+
+    <DATATYPE>
+        <NAME>CHAR</NAME>
+        <ALIAS_FOR>VARCHAR</ALIAS_FOR>
+    </DATATYPE>
+
+    <DATATYPE>
+        <NAME>INTEGER</NAME>
+        <BASETYPE>INTEGER</BASETYPE>
+        <MIN_VALUE>–2147483648</MIN_VALUE>
+        <MAX_VALUE>2147483647</MAX_VALUE>
+    </DATATYPE>
+
+    <DATATYPE>
+        <NAME>REAL</NAME>
+        <BASETYPE>DOUBLE</BASETYPE>
+        <MIN_VALUE>–2147483648</MIN_VALUE>
+        <MAX_VALUE>2147483647</MAX_VALUE>
+    </DATATYPE>
+
+    <DATATYPE>
+        <NAME>TIMESTAMP</NAME>
+        <BASETYPE>DATETIME</BASETYPE>
+        <MIN_VALUE>–2147483648</MIN_VALUE>
+        <MAX_VALUE>2147483647</MAX_VALUE>
+    </DATATYPE>
+
+</DATATYPES>
