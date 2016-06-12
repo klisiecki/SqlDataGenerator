@@ -93,7 +93,7 @@ public class RangeRestriction extends OneAttributeRestriction {
             } else if (isDoubleValue(first)) {
                 RangeSet<Double> rangeSet = TreeRangeSet.create();
                 for (Expression e : list.getExpressions()) {
-                    Double value = getDouble(e);
+                    Double value = DataTypesConverter.getInternalDouble(e, databaseType);
                     rangeSet.add(Range.closed(value, value));
                 }
                 return new RangeRestriction(in, column, rangeSet);
@@ -125,7 +125,7 @@ public class RangeRestriction extends OneAttributeRestriction {
             return new RangeRestriction(expression, column, rangeSet);
         } else if (internalType == InternalType.DOUBLE) {
             RangeSet<Double> rangeSet = TreeRangeSet.create();
-            Double value = getDouble(valueExpression);
+            Double value = DataTypesConverter.getInternalDouble(valueExpression, databaseType);
             rangeSet.add(Range.closed(value, value));
             return new RangeRestriction(expression, column, rangeSet);
         } else {
@@ -147,7 +147,7 @@ public class RangeRestriction extends OneAttributeRestriction {
             return rangeSet;
         } else if (type == InternalType.DOUBLE) {
             RangeSet<Double> rangeSet = TreeRangeSet.create();
-            Double value = getDouble(expression);
+            Double value = DataTypesConverter.getInternalDouble(expression, databaseType);
             if (signType == SignType.GREATER_THAN) {
                 rangeSet.add(Range.downTo(value, boundType));
             } else if (signType == SignType.MINOR_THAN) {

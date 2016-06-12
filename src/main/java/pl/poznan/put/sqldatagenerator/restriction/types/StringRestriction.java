@@ -5,14 +5,17 @@ import net.sf.jsqlparser.expression.operators.relational.*;
 import net.sf.jsqlparser.schema.Column;
 import pl.poznan.put.sqldatagenerator.exception.NotImplementedException;
 import pl.poznan.put.sqldatagenerator.generator.Attribute;
-import pl.poznan.put.sqldatagenerator.restriction.SQLExpressionsUtils;
+import pl.poznan.put.sqldatagenerator.generator.AttributesMap;
+import pl.poznan.put.sqldatagenerator.generator.datatypes.DataTypesConverter;
+import pl.poznan.put.sqldatagenerator.generator.datatypes.DatabaseType;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.util.Collections.singletonList;
-import static pl.poznan.put.sqldatagenerator.restriction.SQLExpressionsUtils.*;
+import static pl.poznan.put.sqldatagenerator.restriction.SQLExpressionsUtils.getColumn;
+import static pl.poznan.put.sqldatagenerator.restriction.SQLExpressionsUtils.getValueExpression;
 
 public class StringRestriction extends OneAttributeRestriction {
 
@@ -126,8 +129,10 @@ public class StringRestriction extends OneAttributeRestriction {
     }
 
     public static StringRestriction fromEquals(EqualsTo equalsTo) {
-        StringRestriction restriction = new StringRestriction(equalsTo, getColumn(equalsTo));
-        restriction.setAllowedValues(singletonList(getString(getValueExpression(equalsTo))));
+        Column column = getColumn(equalsTo);
+        DatabaseType databaseType = AttributesMap.get(column).getDatabaseType();
+        StringRestriction restriction = new StringRestriction(equalsTo, column);
+        restriction.setAllowedValues(singletonList(DataTypesConverter.getInternalString(getValueExpression(equalsTo), databaseType)));
         return restriction;
     }
 
@@ -136,9 +141,11 @@ public class StringRestriction extends OneAttributeRestriction {
     }
 
     public static StringRestriction fromIn(InExpression inExpression) {
-        StringRestriction restriction = new StringRestriction(inExpression, (Column) inExpression.getLeftExpression());
+        Column column = (Column) inExpression.getLeftExpression();
+        DatabaseType databaseType = AttributesMap.get(column).getDatabaseType();
+        StringRestriction restriction = new StringRestriction(inExpression, column);
         List<Expression> expressions = ((ExpressionList) inExpression.getRightItemsList()).getExpressions();
-        List<String> values = expressions.stream().map(SQLExpressionsUtils::getString).collect(Collectors.toList());
+        List<String> values = expressions.stream().map(a -> DataTypesConverter.getInternalString(a, databaseType)).collect(Collectors.toList());
         restriction.setAllowedValues(values);
         return restriction;
     }

@@ -30,6 +30,20 @@ public class DataTypesConverter {
         }
     }
 
+    public static Double getInternalDouble(Expression expression, DatabaseType databaseType) {
+        if (databaseType == DatabaseType.FLOAT) {
+            return SQLExpressionsUtils.getDouble(expression);
+        }
+        throw new InvalidInternalStateException("Invalid conversion request");
+    }
+
+    public static String getInternalString(Expression expression, DatabaseType databaseType) {
+        if (databaseType == DatabaseType.VARCHAR) {
+            return SQLExpressionsUtils.getString(expression);
+        }
+        throw new InvalidInternalStateException("Invalid conversion request");
+    }
+
     public static String getDatabaseType(String input, InternalType internalType, DatabaseType databaseType) {
         if (input == null) {
             return null;
@@ -42,7 +56,7 @@ public class DataTypesConverter {
     }
 
 
-    public static Long getLongFromDatetime(String input) throws ParseException {
+    private static Long getLongFromDatetime(String input) throws ParseException {
         Date date = new SimpleDateFormat("yyyy/MM/dd HH.mm.ss").parse(input);
         return date.getTime();
     }
