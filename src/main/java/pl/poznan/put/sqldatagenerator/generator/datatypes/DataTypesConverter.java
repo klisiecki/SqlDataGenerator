@@ -14,7 +14,7 @@ import java.util.Locale;
 public class DataTypesConverter {
     public static Long getInternalLong(Expression expression, DatabaseType databaseType) {
         try {
-            switch (databaseType) {
+            switch (databaseType.getType()) {
                 case DATETIME:
                     if (expression instanceof StringValue) {
                         return getLongFromDatetime(((StringValue) expression).getValue());
@@ -31,30 +31,29 @@ public class DataTypesConverter {
     }
 
     public static Double getInternalDouble(Expression expression, DatabaseType databaseType) {
-        if (databaseType == DatabaseType.FLOAT) {
+        if (databaseType.getType() == DatabaseType.Type.FLOAT) {
             return SQLExpressionsUtils.getDouble(expression);
         }
         throw new InvalidInternalStateException("Invalid conversion request");
     }
 
     public static String getInternalString(Expression expression, DatabaseType databaseType) {
-        if (databaseType == DatabaseType.VARCHAR) {
+        if (databaseType.getType() == DatabaseType.Type.VARCHAR) {
             return SQLExpressionsUtils.getString(expression);
         }
         throw new InvalidInternalStateException("Invalid conversion request");
     }
 
-    public static String getDatabaseType(String input, InternalType internalType, DatabaseType databaseType) {
+    public static String getDatabaseValue(String input, InternalType internalType, DatabaseType databaseType) {
         if (input == null) {
             return null;
         }
-        if (internalType == InternalType.LONG && databaseType == DatabaseType.DATETIME) {
+        if (internalType == InternalType.LONG && databaseType.getType() == DatabaseType.Type.DATETIME) {
             return new SimpleDateFormat("dd-MMM-yy hh.mm.ss", Locale.ENGLISH).format(new Date(Long.valueOf(input)));
         }
         //TODO implement all
         return input;
     }
-
 
     private static Long getLongFromDatetime(String input) throws ParseException {
         Date date = new SimpleDateFormat("yyyy/MM/dd HH.mm.ss").parse(input);

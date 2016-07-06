@@ -1,20 +1,36 @@
 package pl.poznan.put.sqldatagenerator.generator.datatypes;
 
-public enum DatabaseType {
-    VARCHAR(InternalType.STRING),
-    DATETIME(InternalType.LONG),
-    INTEGER(InternalType.LONG),
-    FLOAT(InternalType.DOUBLE);
+public class DatabaseType {
+    public enum Type {
+        VARCHAR(InternalType.STRING),
+        DATETIME(InternalType.LONG),
+        INTEGER(InternalType.LONG),
+        FLOAT(InternalType.DOUBLE);
 
-    private final InternalType internalType;
+        private final InternalType internalType;
 
-    DatabaseType(InternalType internalType) {
-        this.internalType = internalType;
+        Type(InternalType internalType) {
+            this.internalType = internalType;
+        }
+
+        public InternalType getInternalType() {
+            return internalType;
+        }
+    }
+
+    private Type type;
+    private Integer scale;
+
+    public DatabaseType(Type type, Integer scale) {
+        this.type = type;
+        this.scale = scale;
+    }
+
+    public Type getType() {
+        return type;
     }
 
     public InternalType getInternalType() {
-        return internalType;
+        return type.getInternalType();
     }
-
-
 }

@@ -21,7 +21,7 @@ public interface DatabasePropertiesReader {
 
     String getDistribution(String table);
 
-    DatabaseType getType(String table, String attribute);
+    DatabaseType getDatabaseType(String table, String attribute);
 
     boolean isPrimaryKey(String table, String attribute);
 

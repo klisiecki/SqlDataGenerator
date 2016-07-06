@@ -38,7 +38,7 @@ public class DatabaseProperties {
             for (String attributeName : databasePropertiesReader.getAttributes(tableName)) {
                 List<String> values = databasePropertiesReader.getValues(tableName, attributeName);
                 List<Attribute> attributes = AttributesMap.get(tableBaseMap.get(tableName), attributeName);
-                InternalType internalType = databasePropertiesReader.getType(tableName, attributeName).getInternalType();
+                InternalType internalType = databasePropertiesReader.getDatabaseType(tableName, attributeName).getInternalType();
                 switch (internalType) {
                     case LONG:
                         restrictionList.addAll(getIntegerConstraints(tableName, attributeName, values, attributes));
@@ -154,7 +154,7 @@ public class DatabaseProperties {
     }
 
     public DatabaseType getType(String tableName, String attributeName) {
-        return databasePropertiesReader.getType(tableName, attributeName);
+        return databasePropertiesReader.getDatabaseType(tableName, attributeName);
     }
 
     public boolean isPrimaryKey(String tableName, String attributeName) {

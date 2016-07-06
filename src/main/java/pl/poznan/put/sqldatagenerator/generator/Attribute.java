@@ -34,7 +34,7 @@ public class Attribute {
     }
 
     public String getDatabaseValue() {
-        return DataTypesConverter.getDatabaseType(getValue(), getInternalType(), getDatabaseType());
+        return DataTypesConverter.getDatabaseValue(getValue(), getInternalType(), getDatabaseType());
     }
 
     public void setValue(String value) {

@@ -41,7 +41,7 @@
             <xs:all>
                 <xs:element name="NAME" type="xs:string"/>
                 <xs:element name="NULL_PERCENTAGE" type="percentage_type" minOccurs="0" />
-                <xs:element name="TYPE" type="data_type" />
+                <xs:element name="TYPE" type="xsd:string"/>
                 <xs:element name="MIN_VALUE" type="xs:integer" minOccurs="0" />
                 <xs:element name="MAX_VALUE" type="xs:integer" minOccurs="0" />
                 <xs:element ref="unique_group" minOccurs="0" maxOccurs="1"/>
@@ -63,17 +63,7 @@
 
     <xs:element name="PRIMARY_KEY" substitutionGroup="unique_group"  type="xs:boolean">
     </xs:element>
-    
-    
-    <xs:simpleType name="data_type">
-        <xs:restriction base="xs:string">
-            <xs:enumeration value="INTEGER"/>
-            <xs:enumeration value="FLOAT"/>
-            <xs:enumeration value="VARCHAR"/>
-            <xs:enumeration value="DATETIME"/>
-        </xs:restriction>
-    </xs:simpleType>
-    
+
     <xs:simpleType name="percentage_type">
         <xs:restriction base="xs:float">
             <xs:minInclusive value="0" />

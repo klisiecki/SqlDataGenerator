@@ -152,13 +152,46 @@ public class XMLDatabasePropertiesReader implements DatabasePropertiesReader {
     }
 
     @Override
-    public DatabaseType getType(String table, String attribute) {
+    public DatabaseType getDatabaseType(String table, String attribute) {
         try {
-            return DatabaseType.valueOf(getAttributeProperty(table, attribute, "TYPE"));
+            String type = getAttributeProperty(table, attribute, "TYPE");
+            String typeName = getTypeName(type);
+            Integer scale = getSecondParam(type);
+            return new DatabaseType(DatabaseType.Type.valueOf(typeName), scale);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
+    }
+
+    private String getTypeName(String type) {
+        int parenthesisPos = type.indexOf('(');
+        return parenthesisPos < 0 ? type : type.substring(0, parenthesisPos);
+    }
+
+    private Integer getFirstParam(String type) {
+        String[] typeParams = getTypeParams(type);
+        if (typeParams != null) {
+            return Integer.valueOf(typeParams[0]);
+        }
+        return null;
+    }
+
+    private Integer getSecondParam(String type) {
+        String[] typeParams = getTypeParams(type);
+        if (typeParams != null && typeParams.length > 1) {
+            return Integer.valueOf(typeParams[1]);
+        }
+        return null;
+    }
+
+    private String[] getTypeParams(String type) {
+        int parenthesisPos = type.indexOf('(');
+        if (parenthesisPos > 0) {
+            String parameters = type.substring(parenthesisPos + 1, type.length() - 1);
+            return parameters.split(",");
+        }
+        return null;
     }
 
     @Override
