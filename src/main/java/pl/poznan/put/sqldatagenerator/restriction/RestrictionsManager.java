@@ -181,8 +181,8 @@ public class RestrictionsManager {
             boolean isNegated = first.isNegated();
             for (int i = 1; i < stringRestrictions.size(); i++) {
                 StringRestriction restriction = stringRestrictions.get(i);
-                minLength = min(minLength, restriction.getMinLength());
-                maxLength = max(maxLength, restriction.getMaxLength());
+                minLength = max(minLength, restriction.getMinLength());
+                maxLength = min(maxLength, restriction.getMaxLength());
                 toRemoveRestrictions.put(attribute, restriction);
                 if (allowedValues != null) {
                     allowedValues = allowedValues.stream().filter(containsValuesFrom(restriction)).collect(toList());
