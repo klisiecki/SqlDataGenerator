@@ -19,8 +19,8 @@ public class DataTypesConverter {
 
     private static final Configuration configuration = Configuration.getInstance();
 
-    private static final String inputDateFormat = configuration.getStringProperty(INPUT_DATE_FORMAT, "yyyy/MM/dd HH.mm.ss");
-    private static final String outputDateFormat = configuration.getStringProperty(OUTPUT_DATE_FORMAT, "dd-MMM-yy hh.mm.ss");
+    private static final String inputDateFormat = configuration.getStringProperty(INPUT_DATE_FORMAT, "yyyy-MM-dd HH:mm:ss");
+    private static final String outputDateFormat = configuration.getStringProperty(OUTPUT_DATE_FORMAT, "yyyy-MM-dd HH:mm:ss");
 
     public static Long getInternalLong(Expression expression, DatabaseType databaseType) {
         try {

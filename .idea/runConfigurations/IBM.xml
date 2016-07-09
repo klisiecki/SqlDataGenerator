@@ -8,7 +8,7 @@
     </extension>
     <option name="MAIN_CLASS_NAME" value="pl.poznan.put.sqldatagenerator.Main" />
     <option name="VM_PARAMETERS" value="" />
-    <option name="PROGRAM_PARAMETERS" value="--xmlFile data/ibm.xml --sqlFile data/ibm.sql --output data/ibmOutput --selectivity 0.69" />
+    <option name="PROGRAM_PARAMETERS" value="--xmlFile data/ibm_1/ibm.xml --sqlFile data/ibm_1/ibm.sql --output data/ibm_1/output --selectivity 0.69 --properties $PROJECT_DIR$/generator.properties" />
     <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
     <option name="ALTERNATIVE_JRE_PATH" />
