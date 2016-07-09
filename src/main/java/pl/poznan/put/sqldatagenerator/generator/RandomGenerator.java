@@ -29,7 +29,7 @@ public class RandomGenerator {
         List<Long> cumulativeProbabilities = new ArrayList<>();
         long prevProbability = 0;
         for (Range<Long> longRange : rangesList) {
-            long width = longRange.upperEndpoint() - longRange.lowerEndpoint() + 1;
+            long width = getLongRangeWidth(longRange);
             long end = width + prevProbability;
             cumulativeProbabilities.add(end);
             prevProbability = end;
@@ -54,7 +54,7 @@ public class RandomGenerator {
         List<Long> cumulativeProbabilities = new ArrayList<>();
         long prevProbability = 0;
         for (Range<Double> longRange : rangesList) {
-            long width = (longRange.upperEndpoint().longValue() - longRange.lowerEndpoint().longValue()) * 1000 + 1;
+            long width = getDoubleRangeWidth(longRange);
             long end = width + prevProbability;
             cumulativeProbabilities.add(end);
             prevProbability = end;
@@ -66,6 +66,15 @@ public class RandomGenerator {
             return minValue;
         }
         return random.nextDouble(minValue, maxValue);
+    }
+
+    private static long getLongRangeWidth(Range<Long> longRange) {
+        return getMaxLong(longRange) / 3 - getMinLong(longRange) / 3 + 1;
+    }
+
+    private static long getDoubleRangeWidth(Range<Double> doubleRange) {
+        return (long) (Math.min(getMaxDouble(doubleRange), Long.MAX_VALUE) / 3 -
+                Math.max(getMinDouble(doubleRange), Long.MIN_VALUE) / 3 + 1);
     }
 
     private static Range getRandomRange(List<Range> ranges, List<Long> probabilities) {
@@ -89,9 +98,9 @@ public class RandomGenerator {
 
     private static double getMinDouble(Range<Double> range) {
         if (!range.hasLowerBound()) {
-            return Long.MIN_VALUE;
+            return -Double.MAX_VALUE;
         }
-        double rangeTypeCorrection = range.lowerBoundType() == BoundType.CLOSED ? 0 : 0.0001; //TODO consider double ranges
+        double rangeTypeCorrection = range.lowerBoundType() == BoundType.CLOSED ? 0 : Double.MIN_VALUE;
         return range.lowerEndpoint() + rangeTypeCorrection;
     }
 
