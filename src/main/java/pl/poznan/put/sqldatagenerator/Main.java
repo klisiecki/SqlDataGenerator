@@ -11,6 +11,7 @@ import net.sourceforge.argparse4j.inf.Namespace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
+import pl.poznan.put.sqldatagenerator.configuration.Configuration;
 import pl.poznan.put.sqldatagenerator.exception.*;
 import pl.poznan.put.sqldatagenerator.generator.Generator;
 import pl.poznan.put.sqldatagenerator.readers.DatabasePropertiesReader;
@@ -38,7 +39,7 @@ public class Main {
 
         configuration.setOutputPath(ns.getString("output"));
         configuration.setSelectivity(ns.getDouble("selectivity"));
-        configuration.setRowsPerFile(ns.getInt("maxRows"));
+        configuration.setPropertiesLocation(ns.getString("properties"));
 
         try {
             SQLData sqlData = getSqlData(ns.getString("sqlFile"));
@@ -84,11 +85,10 @@ public class Main {
                 .type(Double.class)
                 .help("Expected selectivity");
 
-        parser.addArgument("--maxRows")
+        parser.addArgument("--properties")
                 .setDefault(10000)
-                .type(Integer.class)
-                .help("Max number of rows in output file");
-
+                .type(String.class)
+                .help("Path to file with additional properties");
 
         try {
             return parser.parseArgs(args);

@@ -3,7 +3,7 @@ package pl.poznan.put.sqldatagenerator.generator;
 import net.sf.jsqlparser.schema.Table;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import pl.poznan.put.sqldatagenerator.Configuration;
+import pl.poznan.put.sqldatagenerator.configuration.Configuration;
 import pl.poznan.put.sqldatagenerator.exception.SQLNotCompatibleWithDatabaseException;
 import pl.poznan.put.sqldatagenerator.exception.SQLSyntaxNotSupportedException;
 import pl.poznan.put.sqldatagenerator.generator.datatypes.DatabaseType;

@@ -1,7 +1,8 @@
 package pl.poznan.put.sqldatagenerator.generator;
 
 import com.opencsv.CSVWriter;
-import pl.poznan.put.sqldatagenerator.Configuration;
+import pl.poznan.put.sqldatagenerator.configuration.Configuration;
+import pl.poznan.put.sqldatagenerator.configuration.ConfigurationKeys;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -13,6 +14,8 @@ import java.util.List;
  */
 public class TableBase {
     private final Configuration configuration = Configuration.getInstance();
+
+    private final int rowsPerFile = configuration.getIntegerProperty(ConfigurationKeys.MAX_ROWS_PER_FILE, 100000);
 
     private final String name;
     private long dataCount;
@@ -79,7 +82,7 @@ public class TableBase {
     }
 
     public void saveInstance(List<String> values) {
-        if (dataCount % configuration.getRowsPerFile() == 0) {
+        if (dataCount % rowsPerFile == 0) {
             initFile();
             fileNum++;
         }

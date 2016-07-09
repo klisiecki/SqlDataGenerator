@@ -3,6 +3,7 @@ package pl.poznan.put.sqldatagenerator.restriction.types;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.operators.relational.*;
 import net.sf.jsqlparser.schema.Column;
+import pl.poznan.put.sqldatagenerator.configuration.Configuration;
 import pl.poznan.put.sqldatagenerator.exception.NotImplementedException;
 import pl.poznan.put.sqldatagenerator.generator.Attribute;
 import pl.poznan.put.sqldatagenerator.generator.AttributesMap;
@@ -14,6 +15,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.util.Collections.singletonList;
+import static pl.poznan.put.sqldatagenerator.configuration.ConfigurationKeys.MAX_STRING_LENGTH;
+import static pl.poznan.put.sqldatagenerator.configuration.ConfigurationKeys.MIN_STRING_LENGTH;
 import static pl.poznan.put.sqldatagenerator.restriction.SQLExpressionsUtils.getColumn;
 import static pl.poznan.put.sqldatagenerator.restriction.SQLExpressionsUtils.getValueExpression;
 
@@ -45,23 +48,27 @@ public class StringRestriction extends OneAttributeRestriction {
         public boolean isRightOpen() {
             return rightOpen;
         }
-
     }
 
-    private int minLength = 0;
-    private int maxLength = 20; //TODO max string length
+    private static final Configuration configuration = Configuration.getInstance();
+
+    private static final Integer DEFAULT_MIN_LENGTH = configuration.getIntegerProperty(MIN_STRING_LENGTH, 5);
+    private static final Integer DEFAULT_MAX_LENGTH = configuration.getIntegerProperty(MAX_STRING_LENGTH, 20);
+
+    private int minLength;
+    private int maxLength;
     private LikeExpressionProperties likeExpressionProperties;
     private List<String> allowedValues;
     private boolean isNegated;
 
     protected StringRestriction(Expression expression, Column column) {
         super(expression, column);
-        isNegated = false;
+        initDefault();
     }
 
     public StringRestriction(Attribute attribute) {
         super(attribute);
-        isNegated = false;
+        initDefault();
     }
 
     public StringRestriction(Attribute attribute, int minLength, int maxLength,
@@ -72,6 +79,12 @@ public class StringRestriction extends OneAttributeRestriction {
         this.likeExpressionProperties = likeExpressionProperties;
         this.allowedValues = allowedValues;
         this.isNegated = isNegated;
+    }
+
+    private void initDefault() {
+        isNegated = false;
+        minLength = DEFAULT_MIN_LENGTH;
+        maxLength = DEFAULT_MAX_LENGTH;
     }
 
     public int getMinLength() {

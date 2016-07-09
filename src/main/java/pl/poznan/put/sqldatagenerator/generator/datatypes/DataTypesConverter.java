@@ -2,6 +2,7 @@ package pl.poznan.put.sqldatagenerator.generator.datatypes;
 
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.StringValue;
+import pl.poznan.put.sqldatagenerator.configuration.Configuration;
 import pl.poznan.put.sqldatagenerator.exception.InvalidInternalStateException;
 import pl.poznan.put.sqldatagenerator.exception.SQLNotCompatibleWithDatabaseException;
 import pl.poznan.put.sqldatagenerator.restriction.SQLExpressionsUtils;
@@ -11,7 +12,16 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import static pl.poznan.put.sqldatagenerator.configuration.ConfigurationKeys.INPUT_DATE_FORMAT;
+import static pl.poznan.put.sqldatagenerator.configuration.ConfigurationKeys.OUTPUT_DATE_FORMAT;
+
 public class DataTypesConverter {
+
+    private static final Configuration configuration = Configuration.getInstance();
+
+    private static final String inputDateFormat = configuration.getStringProperty(INPUT_DATE_FORMAT, "yyyy/MM/dd HH.mm.ss");
+    private static final String outputDateFormat = configuration.getStringProperty(OUTPUT_DATE_FORMAT, "dd-MMM-yy hh.mm.ss");
+
     public static Long getInternalLong(Expression expression, DatabaseType databaseType) {
         try {
             switch (databaseType.getType()) {
@@ -49,14 +59,14 @@ public class DataTypesConverter {
             return null;
         }
         if (internalType == InternalType.LONG && databaseType.getType() == DatabaseType.Type.DATETIME) {
-            return new SimpleDateFormat("dd-MMM-yy hh.mm.ss", Locale.ENGLISH).format(new Date(Long.valueOf(input)));
+            return new SimpleDateFormat(outputDateFormat, Locale.ENGLISH).format(new Date(Long.valueOf(input)));
         }
         //TODO implement all
         return input;
     }
 
     private static Long getLongFromDatetime(String input) throws ParseException {
-        Date date = new SimpleDateFormat("yyyy/MM/dd HH.mm.ss").parse(input);
+        Date date = new SimpleDateFormat(inputDateFormat).parse(input);
         return date.getTime();
     }
 }

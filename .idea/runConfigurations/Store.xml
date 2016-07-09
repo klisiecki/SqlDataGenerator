@@ -8,7 +8,7 @@
     </extension>
     <option name="MAIN_CLASS_NAME" value="pl.poznan.put.sqldatagenerator.Main" />
     <option name="VM_PARAMETERS" value="" />
-    <option name="PROGRAM_PARAMETERS" value="--xmlFile data/store.xml --sqlFile data/store.sql --output data/storeOutput --selectivity 0.69 --maxRows 100000" />
+    <option name="PROGRAM_PARAMETERS" value="--xmlFile data/store.xml --sqlFile data/store.sql --output data/storeOutput --selectivity 0.69 --properties $PROJECT_DIR$/generator.properties" />
     <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
     <option name="ALTERNATIVE_JRE_PATH" />
