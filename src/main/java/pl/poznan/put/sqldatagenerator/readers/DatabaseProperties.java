@@ -133,14 +133,6 @@ public class DatabaseProperties {
         return databasePropertiesReader.getMaxRowsNum();
     }
 
-    public int getT() {
-        return databasePropertiesReader.getT();
-    }
-
-    public int getM() {
-        return databasePropertiesReader.getM();
-    }
-
     public List<String> getTables() {
         return databasePropertiesReader.getTables();
     }

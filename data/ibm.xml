@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <TABLES xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="pl.poznan.put.sqldatagenerator schema.xsd"
-        xmlns="pl.poznan.put.sqldatagenerator" M="200" T="100">
+        xmlns="pl.poznan.put.sqldatagenerator">
     <TABLE>
         <NAME>RV_ENFCOMPLAINTS_DCA</NAME>
         <ROWS_NUM>1000</ROWS_NUM>

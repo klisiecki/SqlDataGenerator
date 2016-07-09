@@ -52,32 +52,6 @@ public class XMLDatabasePropertiesReader implements DatabasePropertiesReader {
     }
 
     @Override
-    public Integer getM() {
-        Integer result = null;
-        XPathExpression e = getXPathExpression("/TABLES/@M");
-        try {
-            result = Integer.parseInt(e.evaluate(document));
-        } catch (XPathExpressionException e1) {
-            e1.printStackTrace();
-        } catch (NumberFormatException ignore) {
-        }
-        return result;
-    }
-
-    @Override
-    public Integer getT() {
-        Integer result = null;
-        XPathExpression e = getXPathExpression("/TABLES/@T");
-        try {
-            result = Integer.parseInt(e.evaluate(document));
-        } catch (XPathExpressionException e1) {
-            e1.printStackTrace();
-        } catch (NumberFormatException ignore) {
-        }
-        return result;
-    }
-
-    @Override
     public Integer getMaxRowsNum() {
         XPathExpression expr = getXPathExpression("//TABLE/ROWS_NUM/text()[not(. < //TABLE/ROWS_NUM/text())][1]");
         Integer result;

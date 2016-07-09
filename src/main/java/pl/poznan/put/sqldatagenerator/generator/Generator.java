@@ -132,15 +132,8 @@ public class Generator {
     }
 
     private void initTableBase(DatabaseProperties databaseProperties) {
-        int m = databaseProperties.getM();
-        int t = databaseProperties.getT();
-        logger.info("m = {}, t = {}", m, t);
-
         for (String tableName : databaseProperties.getTables()) {
             long count = databaseProperties.getRowsNum(tableName);
-            if (count > m) {
-                count = count * t / 100;
-            }
             tableBaseMap.put(tableName, new TableBase(tableName, databaseProperties.getAttributes(tableName), count));
         }
     }

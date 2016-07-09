@@ -5,10 +5,6 @@ import pl.poznan.put.sqldatagenerator.generator.datatypes.DatabaseType;
 import java.util.List;
 
 public interface DatabasePropertiesReader {
-    Integer getM();
-
-    Integer getT();
-
     Integer getMaxRowsNum();
 
     List<String> getTables();
