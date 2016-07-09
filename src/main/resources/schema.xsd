@@ -18,8 +18,8 @@
             <xs:all>
                 <xs:element name="NAME" type="xs:string" />
                 <xs:element name="ROWS_NUM" type="xs:integer" />
-                <xs:element name="DISTRIBUTION" type="xs:string" minOccurs="0" />
-                <xs:element name="MIN_ROW_SIZE" type="xs:integer" minOccurs="0" />
+                <!--<xs:element name="DISTRIBUTION" type="xs:string" minOccurs="0" />-->
+                <!--<xs:element name="MIN_ROW_SIZE" type="xs:integer" minOccurs="0" />-->
                 <xs:element ref="ATTRIBUTES" minOccurs="1"/>
             </xs:all>
         </xs:complexType>
@@ -38,7 +38,7 @@
         <xs:complexType>
             <xs:all>
                 <xs:element name="NAME" type="xs:string"/>
-                <xs:element name="NULL_PERCENTAGE" type="percentage_type" minOccurs="0" />
+                <!--<xs:element name="NULL_PERCENTAGE" type="percentage_type" minOccurs="0" />-->
                 <xs:element name="TYPE" type="xsd:string"/>
                 <xs:element name="MIN_VALUE" type="xs:integer" minOccurs="0" />
                 <xs:element name="MAX_VALUE" type="xs:integer" minOccurs="0" />
@@ -50,24 +50,24 @@
 
     <xs:element name="unique_group" abstract="true"/>
 
-    <xs:element name="UNIQUE_PERCENTAGE" substitutionGroup="unique_group">
-        <xs:complexType>
-            <xs:all>
-                <xs:element name="MIN" type="percentage_type" minOccurs="0" />
-                <xs:element name="MAX" type="percentage_type" minOccurs="0" />
-            </xs:all>
-        </xs:complexType>
-    </xs:element>
+    <!--<xs:element name="UNIQUE_PERCENTAGE" substitutionGroup="unique_group">-->
+    <!--<xs:complexType>-->
+    <!--<xs:all>-->
+    <!--<xs:element name="MIN" type="percentage_type" minOccurs="0" />-->
+    <!--<xs:element name="MAX" type="percentage_type" minOccurs="0" />-->
+    <!--</xs:all>-->
+    <!--</xs:complexType>-->
+    <!--</xs:element>-->
 
     <xs:element name="PRIMARY_KEY" substitutionGroup="unique_group"  type="xs:boolean">
     </xs:element>
 
-    <xs:simpleType name="percentage_type">
-        <xs:restriction base="xs:float">
-            <xs:minInclusive value="0" />
-            <xs:maxInclusive value="100" />
-        </xs:restriction>
-    </xs:simpleType>
+    <!--<xs:simpleType name="percentage_type">-->
+    <!--<xs:restriction base="xs:float">-->
+    <!--<xs:minInclusive value="0" />-->
+    <!--<xs:maxInclusive value="100" />-->
+    <!--</xs:restriction>-->
+    <!--</xs:simpleType>-->
 
     <xs:element name="VALUES">
         <xs:complexType>

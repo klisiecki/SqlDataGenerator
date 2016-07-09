@@ -14,11 +14,8 @@ import org.xml.sax.SAXException;
 import pl.poznan.put.sqldatagenerator.configuration.Configuration;
 import pl.poznan.put.sqldatagenerator.exception.*;
 import pl.poznan.put.sqldatagenerator.generator.Generator;
-import pl.poznan.put.sqldatagenerator.readers.DatabasePropertiesReader;
-import pl.poznan.put.sqldatagenerator.readers.SQLData;
-import pl.poznan.put.sqldatagenerator.readers.XMLDatabasePropertiesReader;
+import pl.poznan.put.sqldatagenerator.readers.*;
 
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
@@ -43,11 +40,13 @@ public class Main {
 
         try {
             SQLData sqlData = getSqlData(ns.getString("sqlFile"));
-            DatabasePropertiesReader databasePropertiesReader = getXMLDatabasePropertiesReader(ns.getString("xmlFile"));
+            DatabaseSchemaReader databaseSchemaReader = new XMLDatabaseSchemaReader(ns.getString("xmlFile"));
+            // TODO move to properties
+            DatabaseTypesReader databaseTypesReader = new XMLDatabaseTypesReader("src/main/resources/datatypes/netezza.xml");
             createOutputDirectory();
 
             Generator generator = new Generator();
-            generator.initTables(databasePropertiesReader, sqlData);
+            generator.initTables(databaseSchemaReader, databaseTypesReader, sqlData);
             generator.generate();
         } catch (SQLSyntaxNotSupportedException | SQLInvalidSyntaxException | XMLNotValidException
                 | SQLNotCompatibleWithDatabaseException e) {
@@ -110,10 +109,6 @@ public class Main {
         } catch (JSQLParserException e) {
             throw new SQLInvalidSyntaxException(e.getCause().getMessage());
         }
-    }
-
-    private static DatabasePropertiesReader getXMLDatabasePropertiesReader(String file) throws IOException, SAXException, ParserConfigurationException {
-        return new XMLDatabasePropertiesReader(file);
     }
 
     private static void createOutputDirectory() throws IOException {

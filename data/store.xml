@@ -29,8 +29,8 @@
             <ATTRIBUTE>
                 <NAME>PRICE</NAME>
                 <TYPE>FLOAT</TYPE>
-                <MIN_VALUE>1</MIN_VALUE>
-                <MAX_VALUE>10000</MAX_VALUE>
+                <MIN_VALUE>10</MIN_VALUE>
+                <MAX_VALUE>20</MAX_VALUE>
             </ATTRIBUTE>
 
             <ATTRIBUTE>
@@ -96,7 +96,7 @@
 
             <ATTRIBUTE>
                 <NAME>DATETIME</NAME>
-                <TYPE>DATETIME</TYPE>
+                <TYPE>TIMESTAMP</TYPE>
             </ATTRIBUTE>
         </ATTRIBUTES>
     </TABLE>

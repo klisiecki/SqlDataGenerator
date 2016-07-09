@@ -20,8 +20,8 @@
                 <xs:choice>
                     <xs:sequence>
                         <xs:element name="BASETYPE" type="xs:string"/>
-                        <xs:element name="MIN_VALUE" type="xs:long" minOccurs="0"/>
-                        <xs:element name="MAX_VALUE" type="xs:long" minOccurs="0"/>
+                        <xs:element name="MIN_VALUE" type="xs:long"/>
+                        <xs:element name="MAX_VALUE" type="xs:long"/>
                     </xs:sequence>
                     <xs:element name="ALIAS_FOR" type="xs:string"/>
                 </xs:choice>

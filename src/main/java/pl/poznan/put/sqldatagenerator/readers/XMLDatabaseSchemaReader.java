@@ -6,7 +6,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import pl.poznan.put.sqldatagenerator.exception.XMLNotValidException;
-import pl.poznan.put.sqldatagenerator.generator.datatypes.DatabaseType;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
@@ -23,14 +22,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class XMLDatabasePropertiesReader implements DatabasePropertiesReader {
-    private static final Logger logger = LoggerFactory.getLogger(XMLDatabasePropertiesReader.class);
+public class XMLDatabaseSchemaReader implements DatabaseSchemaReader {
+    private static final Logger logger = LoggerFactory.getLogger(XMLDatabaseSchemaReader.class);
 
     private final static String schemaLocation = "/schema.xsd";
     private final XPathFactory xPathfactory = XPathFactory.newInstance();
     private Document document;
 
-    public XMLDatabasePropertiesReader(String fileName) throws ParserConfigurationException, IOException, SAXException {
+    public XMLDatabaseSchemaReader(String fileName) throws ParserConfigurationException, IOException, SAXException {
         validate(fileName);
         logger.info("{} is valid", fileName);
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -99,73 +98,35 @@ public class XMLDatabasePropertiesReader implements DatabasePropertiesReader {
         return result;
     }
 
-    @Override
-    public Integer getMinRowSize(String table) {
-        XPathExpression expr = getXPathExpression(
-                String.format("//TABLE[NAME/text()='%s']/MIN_ROW_SIZE/text()", table));
-        Integer result;
-        try {
-            result = Integer.parseInt(expr.evaluate(document));
-        } catch (Exception e) {
-            return null;
-        }
-        return result;
-    }
+//    @Override
+//    public Integer getMinRowSize(String table) {
+//        XPathExpression expr = getXPathExpression(
+//                String.format("//TABLE[NAME/text()='%s']/MIN_ROW_SIZE/text()", table));
+//        Integer result;
+//        try {
+//            result = Integer.parseInt(expr.evaluate(document));
+//        } catch (Exception e) {
+//            return null;
+//        }
+//        return result;
+//    }
+//
+//    @Override
+//    public String getDistribution(String table) {
+//        XPathExpression expr = getXPathExpression(
+//                String.format("//TABLE[NAME/text()='%s']/DISTRIBUTION/text()", table));
+//        String result;
+//        try {
+//            result = expr.evaluate(document);
+//        } catch (Exception e) {
+//            return null;
+//        }
+//        return result;
+//    }
 
     @Override
-    public String getDistribution(String table) {
-        XPathExpression expr = getXPathExpression(
-                String.format("//TABLE[NAME/text()='%s']/DISTRIBUTION/text()", table));
-        String result;
-        try {
-            result = expr.evaluate(document);
-        } catch (Exception e) {
-            return null;
-        }
-        return result;
-    }
-
-    @Override
-    public DatabaseType getDatabaseType(String table, String attribute) {
-        try {
-            String type = getAttributeProperty(table, attribute, "TYPE");
-            String typeName = getTypeName(type);
-            Integer scale = getSecondParam(type);
-            return new DatabaseType(DatabaseType.Type.valueOf(typeName), scale);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    private String getTypeName(String type) {
-        int parenthesisPos = type.indexOf('(');
-        return parenthesisPos < 0 ? type : type.substring(0, parenthesisPos);
-    }
-
-    private Integer getFirstParam(String type) {
-        String[] typeParams = getTypeParams(type);
-        if (typeParams != null) {
-            return Integer.valueOf(typeParams[0]);
-        }
-        return null;
-    }
-
-    private Integer getSecondParam(String type) {
-        String[] typeParams = getTypeParams(type);
-        if (typeParams != null && typeParams.length > 1) {
-            return Integer.valueOf(typeParams[1]);
-        }
-        return null;
-    }
-
-    private String[] getTypeParams(String type) {
-        int parenthesisPos = type.indexOf('(');
-        if (parenthesisPos > 0) {
-            String parameters = type.substring(parenthesisPos + 1, type.length() - 1);
-            return parameters.split(",");
-        }
-        return null;
+    public String getType(String table, String attribute) {
+        return getAttributeProperty(table, attribute, "TYPE");
     }
 
     @Override
@@ -173,10 +134,10 @@ public class XMLDatabasePropertiesReader implements DatabasePropertiesReader {
         return "true".equals(getAttributeProperty(table, attribute, "PRIMARY_KEY"));
     }
 
-    @Override
-    public Float getNullPercentage(String table, String attribute) {
-        return getFloatAttributeProperty(table, attribute, "NULL_PERCENTAGE");
-    }
+//    @Override
+//    public Float getNullPercentage(String table, String attribute) {
+//        return getFloatAttributeProperty(table, attribute, "NULL_PERCENTAGE");
+//    }
 
     @Override
     public String getMinValue(String table, String attribute) {
@@ -196,15 +157,15 @@ public class XMLDatabasePropertiesReader implements DatabasePropertiesReader {
         return values.size() == 0 ? null : values;
     }
 
-    @Override
-    public Float getMinUniquePercentage(String table, String attribute) {
-        return getFloatAttributeProperty(table, attribute, "UNIQUE_PERCENTAGE/MIN");
-    }
-
-    @Override
-    public Float getMaxUniquePercentage(String table, String attribute) {
-        return getFloatAttributeProperty(table, attribute, "UNIQUE_PERCENTAGE/MAX");
-    }
+//    @Override
+//    public Float getMinUniquePercentage(String table, String attribute) {
+//        return getFloatAttributeProperty(table, attribute, "UNIQUE_PERCENTAGE/MIN");
+//    }
+//
+//    @Override
+//    public Float getMaxUniquePercentage(String table, String attribute) {
+//        return getFloatAttributeProperty(table, attribute, "UNIQUE_PERCENTAGE/MAX");
+//    }
 
     private Float getFloatAttributeProperty(String table, String attribute, String property) {
         try {

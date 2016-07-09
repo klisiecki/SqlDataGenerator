@@ -1,6 +1,5 @@
 package pl.poznan.put.sqldatagenerator.readers;
 
-import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
@@ -26,19 +25,21 @@ import java.util.Map;
 public class DatabaseProperties {
     private static final Logger logger = LoggerFactory.getLogger(DatabaseProperties.class);
 
-    private final DatabasePropertiesReader databasePropertiesReader;
+    private final DatabaseSchemaReader databaseSchemaReader;
+    private final DatabaseTypesReader databaseTypesReader;
 
-    public DatabaseProperties(DatabasePropertiesReader databasePropertiesReader) {
-        this.databasePropertiesReader = databasePropertiesReader;
+    public DatabaseProperties(DatabaseSchemaReader databaseSchemaReader, DatabaseTypesReader databaseTypesReader) {
+        this.databaseSchemaReader = databaseSchemaReader;
+        this.databaseTypesReader = databaseTypesReader;
     }
 
     public Restrictions getConstraints(Map<String, TableBase> tableBaseMap) {
         List<Restriction> restrictionList = new ArrayList<>();
-        for (String tableName : databasePropertiesReader.getTables()) {
-            for (String attributeName : databasePropertiesReader.getAttributes(tableName)) {
-                List<String> values = databasePropertiesReader.getValues(tableName, attributeName);
+        for (String tableName : databaseSchemaReader.getTables()) {
+            for (String attributeName : databaseSchemaReader.getAttributes(tableName)) {
+                List<String> values = databaseSchemaReader.getValues(tableName, attributeName);
                 List<Attribute> attributes = AttributesMap.get(tableBaseMap.get(tableName), attributeName);
-                InternalType internalType = databasePropertiesReader.getDatabaseType(tableName, attributeName).getInternalType();
+                InternalType internalType = getType(tableName, attributeName).getInternalType();
                 switch (internalType) {
                     case LONG:
                         restrictionList.addAll(getIntegerConstraints(tableName, attributeName, values, attributes));
@@ -58,8 +59,8 @@ public class DatabaseProperties {
     private List<Restriction> getIntegerConstraints(String tableName, String attributeName, List<String> values, List<Attribute> attributes) {
         List<Restriction> restrictionList = new ArrayList<>();
         RangeSet<Long> rangeSet;
-        if (databasePropertiesReader.isPrimaryKey(tableName, attributeName)) {
-            KeyGenerator keyGenerator = new SimpleKeyGenerator(databasePropertiesReader.getRowsNum(tableName));
+        if (databaseSchemaReader.isPrimaryKey(tableName, attributeName)) {
+            KeyGenerator keyGenerator = new SimpleKeyGenerator(databaseSchemaReader.getRowsNum(tableName));
             attributes.forEach(attribute -> restrictionList.add(new PrimaryKeyRestriction(attribute, keyGenerator)));
 
         } else if (values == null) {
@@ -78,15 +79,11 @@ public class DatabaseProperties {
 
     private RangeSet<Long> getIntegerRangeSet(String table, String attribute) {
         RangeSet<Long> rangeSet = TreeRangeSet.create();
-        Range<Long> range = Range.all();
-        String minValue = databasePropertiesReader.getMinValue(table, attribute);
-        String maxValue = databasePropertiesReader.getMaxValue(table, attribute);
-        if (minValue != null) {
-            range = range.intersection(Range.downTo(Long.valueOf(minValue), BoundType.CLOSED));
-        }
-        if (maxValue != null) {
-            range = range.intersection(Range.upTo(Long.valueOf(maxValue), BoundType.CLOSED));
-        }
+
+        Long minValue = getMinValue(table, attribute).longValue();
+        Long maxValue = getMaxValue(table, attribute).longValue();
+        Range<Long> range = Range.closed(minValue, maxValue);
+
         rangeSet.add(range);
         return rangeSet;
     }
@@ -100,15 +97,11 @@ public class DatabaseProperties {
 
     private RangeSet<Double> getFloatRangeSet(String table, String attribute) {
         RangeSet<Double> rangeSet = TreeRangeSet.create();
-        Range<Double> range = Range.all();
-        String minValue = databasePropertiesReader.getMinValue(table, attribute);
-        String maxValue = databasePropertiesReader.getMaxValue(table, attribute);
-        if (minValue != null) {
-            range = range.intersection(Range.downTo(Double.valueOf(minValue), BoundType.CLOSED));
-        }
-        if (maxValue != null) {
-            range = range.intersection(Range.upTo(Double.valueOf(maxValue), BoundType.CLOSED));
-        }
+
+        Double minValue = getMinValue(table, attribute);
+        Double maxValue = getMaxValue(table, attribute);
+        Range<Double> range = Range.closed(minValue, maxValue);
+
         rangeSet.add(range);
         return rangeSet;
     }
@@ -118,38 +111,107 @@ public class DatabaseProperties {
         for (Attribute attribute : attributes) {
             StringRestriction stringRestriction = new StringRestriction(attribute);
             stringRestriction.setAllowedValues(values);
-            if (databasePropertiesReader.getMinValue(tableName, attributeName) != null) {
-                stringRestriction.setMinLength(Integer.parseInt(databasePropertiesReader.getMinValue(tableName, attributeName)));
-            }
-            if (databasePropertiesReader.getMaxValue(tableName, attributeName) != null) {
-                stringRestriction.setMaxLength(Integer.parseInt(databasePropertiesReader.getMaxValue(tableName, attributeName)));
-            }
+
+            stringRestriction.setMinLength(getMinValue(tableName, attributeName).intValue());
+            stringRestriction.setMaxLength(getMaxValue(tableName, attributeName).intValue());
+
             restrictionList.add(stringRestriction);
         }
         return restrictionList;
     }
 
+    private Double getMinValue(String tableName, String attributeName) {
+        String typeName = getTypeName(tableName, attributeName);
+        Double result = databaseTypesReader.getMinValue(typeName);
+
+        String schemaMinValueString = databaseSchemaReader.getMinValue(tableName, attributeName);
+        if (schemaMinValueString != null) {
+            Double schemaMinValue = Double.valueOf(schemaMinValueString);
+            result = Math.max(result, schemaMinValue);
+        }
+
+        return result;
+    }
+
+    private Double getMaxValue(String tableName, String attributeName) {
+        String typeName = getTypeName(tableName, attributeName);
+        Double result = databaseTypesReader.getMaxValue(typeName);
+
+        String schemaMaxValueString = databaseSchemaReader.getMaxValue(tableName, attributeName);
+        if (schemaMaxValueString != null) {
+            Double schemaMaxValue = Double.valueOf(schemaMaxValueString);
+            result = Math.min(result, schemaMaxValue);
+        }
+
+        Integer precision = getFirstParam(tableName, attributeName);
+        if (precision != null) {
+            if (!databaseTypesReader.getBaseType(typeName).equals("VARCHAR")) {
+                precision = (int) Math.pow(10, precision);
+            }
+            result = Math.min(result, precision);
+        }
+
+        return result;
+    }
+
     public long getMaxRowsNum() {
-        return databasePropertiesReader.getMaxRowsNum();
+        return databaseSchemaReader.getMaxRowsNum();
     }
 
     public List<String> getTables() {
-        return databasePropertiesReader.getTables();
+        return databaseSchemaReader.getTables();
     }
 
     public long getRowsNum(String tableName) {
-        return databasePropertiesReader.getRowsNum(tableName);
+        return databaseSchemaReader.getRowsNum(tableName);
     }
 
     public List<String> getAttributes(String tableName) {
-        return databasePropertiesReader.getAttributes(tableName);
-    }
-
-    public DatabaseType getType(String tableName, String attributeName) {
-        return databasePropertiesReader.getDatabaseType(tableName, attributeName);
+        return databaseSchemaReader.getAttributes(tableName);
     }
 
     public boolean isPrimaryKey(String tableName, String attributeName) {
-        return databasePropertiesReader.isPrimaryKey(tableName, attributeName);
+        return databaseSchemaReader.isPrimaryKey(tableName, attributeName);
+    }
+
+    public DatabaseType getType(String tableName, String attributeName) {
+        String originalTypeName = getTypeName(tableName, attributeName);
+        Integer scale = getSecondParam(tableName, attributeName);
+
+        String typeName = databaseTypesReader.getBaseType(originalTypeName);
+        return new DatabaseType(DatabaseType.Type.valueOf(typeName), scale);
+    }
+
+    private String getTypeName(String tableName, String attributeName) {
+        String type = databaseSchemaReader.getType(tableName, attributeName);
+        int parenthesisPos = type.indexOf('(');
+        return parenthesisPos < 0 ? type : type.substring(0, parenthesisPos);
+    }
+
+    private Integer getFirstParam(String tableName, String attributeName) {
+        String type = databaseSchemaReader.getType(tableName, attributeName);
+        String[] typeParams = getTypeParams(type);
+        if (typeParams != null) {
+            return Integer.valueOf(typeParams[0]);
+        }
+        return null;
+    }
+
+    private Integer getSecondParam(String tableName, String attributeName) {
+        String type = databaseSchemaReader.getType(tableName, attributeName);
+        String[] typeParams = getTypeParams(type);
+        if (typeParams != null && typeParams.length > 1) {
+            return Integer.valueOf(typeParams[1]);
+        }
+        return null;
+    }
+
+    private String[] getTypeParams(String type) {
+        int parenthesisPos = type.indexOf('(');
+        if (parenthesisPos > 0) {
+            String parameters = type.substring(parenthesisPos + 1, type.length() - 1);
+            return parameters.split(",");
+        }
+        return null;
     }
 }
