@@ -9,6 +9,7 @@ import org.apache.commons.lang.RandomStringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
 @SuppressWarnings("unchecked")
@@ -23,7 +24,17 @@ public class RandomGenerator {
      * @return random {@link Long} value from random {@link Range} in given set.
      */
     public static Long randomLong(RangeSet<Long> rangeSet) {
-        Range<Long> range = getRandomRange(rangeSet);
+        Set<Range<Long>> ranges = rangeSet.asRanges();
+        List<Range> rangesList = new ArrayList<>(ranges);
+        List<Long> cumulativeProbabilities = new ArrayList<>();
+        long prevProbability = 0;
+        for (Range<Long> longRange : rangesList) {
+            long width = longRange.upperEndpoint() - longRange.lowerEndpoint() + 1;
+            long end = width + prevProbability;
+            cumulativeProbabilities.add(end);
+            prevProbability = end;
+        }
+        Range<Long> range = getRandomRange(rangesList, cumulativeProbabilities);
         long minValue = getMinLong(range);
         long maxValue = getMaxLong(range);
         if (minValue == maxValue) {
@@ -36,8 +47,19 @@ public class RandomGenerator {
         return random.nextInt(list.size());
     }
 
+    //TODO remove duplicated code if possible
     public static Double randomDouble(RangeSet<Double> rangeSet) {
-        Range<Double> range = getRandomRange(rangeSet);
+        Set<Range<Double>> ranges = rangeSet.asRanges();
+        List<Range> rangesList = new ArrayList<>(ranges);
+        List<Long> cumulativeProbabilities = new ArrayList<>();
+        long prevProbability = 0;
+        for (Range<Double> longRange : rangesList) {
+            long width = (longRange.upperEndpoint().longValue() - longRange.lowerEndpoint().longValue()) * 1000 + 1;
+            long end = width + prevProbability;
+            cumulativeProbabilities.add(end);
+            prevProbability = end;
+        }
+        Range<Double> range = getRandomRange(rangesList, cumulativeProbabilities);
         double minValue = getMinDouble(range);
         double maxValue = getMaxDouble(range);
         if (minValue == maxValue) {
@@ -46,11 +68,15 @@ public class RandomGenerator {
         return random.nextDouble(minValue, maxValue);
     }
 
-    private static Range getRandomRange(RangeSet rangeSet) {
-        List<Range> ranges = new ArrayList<>();
-        ranges.addAll(rangeSet.asRanges());
-        int i = ranges.size() == 1 ? 0 : random.nextInt(ranges.size());
-        return ranges.get(i);
+    private static Range getRandomRange(List<Range> ranges, List<Long> probabilities) {
+        long max = probabilities.get(probabilities.size() - 1);
+        long probabilityIndex = random.nextLong(max);
+        int i = 0;
+        long sum = 0;
+        while (sum < probabilityIndex) {
+            sum += probabilities.get(i++);
+        }
+        return ranges.get(Math.max(0, i - 1));
     }
 
     private static long getMinLong(Range<Long> range) {
