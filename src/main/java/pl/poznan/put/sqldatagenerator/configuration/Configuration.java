@@ -14,7 +14,7 @@ public class Configuration {
 
     private String outputPath;
     private double selectivity = 0.5;
-    private Properties properties;
+    private final Properties properties;
 
     private static Configuration instance;
 

@@ -10,20 +10,25 @@ import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
 import pl.poznan.put.sqldatagenerator.configuration.Configuration;
 import pl.poznan.put.sqldatagenerator.exception.*;
 import pl.poznan.put.sqldatagenerator.generator.Generator;
 import pl.poznan.put.sqldatagenerator.readers.*;
+import pl.poznan.put.sqldatagenerator.util.Utils;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 
+import static pl.poznan.put.sqldatagenerator.configuration.ConfigurationKeys.DATABASE_TYPES_DESCRIPTION;
+
 
 public class Main {
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
     private static final Configuration configuration = Configuration.getInstance();
+
+    private static final String databaseTypesDescription = configuration.getStringProperty(DATABASE_TYPES_DESCRIPTION,
+            "src/main/resources/datatypes/netezza.xml");
 
     public static void main(String[] args) {
         Namespace ns;
@@ -41,12 +46,11 @@ public class Main {
         try {
             SQLData sqlData = getSqlData(ns.getString("sqlFile"));
             DatabaseSchemaReader databaseSchemaReader = new XMLDatabaseSchemaReader(ns.getString("xmlFile"));
-            // TODO move to properties
-            DatabaseTypesReader databaseTypesReader = new XMLDatabaseTypesReader("src/main/resources/datatypes/netezza.xml");
+            DatabaseTypesReader databaseTypesReader = new XMLDatabaseTypesReader(databaseTypesDescription);
             createOutputDirectory();
 
             Generator generator = new Generator();
-            generator.initTables(databaseSchemaReader, databaseTypesReader, sqlData);
+            generator.initTables(new DatabaseProperties(databaseSchemaReader, databaseTypesReader), sqlData);
             generator.generate();
         } catch (SQLSyntaxNotSupportedException | SQLInvalidSyntaxException | XMLNotValidException
                 | SQLNotCompatibleWithDatabaseException e) {

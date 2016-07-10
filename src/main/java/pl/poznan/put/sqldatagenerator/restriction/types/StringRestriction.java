@@ -1,5 +1,6 @@
 package pl.poznan.put.sqldatagenerator.restriction.types;
 
+import com.google.common.collect.Range;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.operators.relational.*;
 import net.sf.jsqlparser.schema.Column;
@@ -55,27 +56,25 @@ public class StringRestriction extends OneAttributeRestriction {
     private static final Integer DEFAULT_MIN_LENGTH = configuration.getIntegerProperty(MIN_STRING_LENGTH, 5);
     private static final Integer DEFAULT_MAX_LENGTH = configuration.getIntegerProperty(MAX_STRING_LENGTH, 20);
 
-    private int minLength;
-    private int maxLength;
+    private Range<Integer> allowedLength;
     private LikeExpressionProperties likeExpressionProperties;
     private List<String> allowedValues;
     private boolean isNegated;
 
-    protected StringRestriction(Expression expression, Column column) {
+    private StringRestriction(Expression expression, Column column) {
         super(expression, column);
         initDefault();
     }
 
-    public StringRestriction(Attribute attribute) {
+    private StringRestriction(Attribute attribute) {
         super(attribute);
         initDefault();
     }
 
-    public StringRestriction(Attribute attribute, int minLength, int maxLength,
+    public StringRestriction(Attribute attribute, Range<Integer> allowedLength,
                              LikeExpressionProperties likeExpressionProperties, List<String> allowedValues, boolean isNegated) {
         this(attribute);
-        this.minLength = minLength;
-        this.maxLength = maxLength;
+        this.allowedLength = allowedLength;
         this.likeExpressionProperties = likeExpressionProperties;
         this.allowedValues = allowedValues;
         this.isNegated = isNegated;
@@ -83,24 +82,23 @@ public class StringRestriction extends OneAttributeRestriction {
 
     private void initDefault() {
         isNegated = false;
-        minLength = DEFAULT_MIN_LENGTH;
-        maxLength = DEFAULT_MAX_LENGTH;
+        this.allowedLength = Range.closed(DEFAULT_MIN_LENGTH, DEFAULT_MAX_LENGTH);
     }
 
     public int getMinLength() {
-        return minLength;
+        return allowedLength.lowerEndpoint();
     }
 
     public void setMinLength(int minLength) {
-        this.minLength = minLength;
+        this.allowedLength = Range.closed(minLength, getMaxLength());
     }
 
     public int getMaxLength() {
-        return maxLength;
+        return allowedLength.upperEndpoint();
     }
 
     public void setMaxLength(Integer maxLength) {
-        this.maxLength = maxLength;
+        this.allowedLength = Range.closed(getMinLength(), maxLength);
     }
 
     public LikeExpressionProperties getLikeExpressionProperties() {
@@ -132,8 +130,8 @@ public class StringRestriction extends OneAttributeRestriction {
     @Override
     public Restriction clone() {
         StringRestriction clone = new StringRestriction(this.getAttribute());
-        clone.setMinLength(minLength);
-        clone.setMaxLength(maxLength);
+        clone.setMinLength(getMinLength());
+        clone.setMaxLength(getMaxLength());
         clone.setAllowedValues(new ArrayList<>(allowedValues));
         if (likeExpressionProperties != null) {
             clone.setLikeExpressionProperties(new LikeExpressionProperties(likeExpressionProperties));
@@ -171,7 +169,7 @@ public class StringRestriction extends OneAttributeRestriction {
     public String toString() {
         return "StringRestriction{" +
                 getAttribute() +
-                ", length=[" + minLength + "," + maxLength + "]" +
+                ", length=[" + allowedLength + "]" +
                 (likeExpressionProperties == null ? "" : ", likeExpressionProperties=" + likeExpressionProperties) +
                 (allowedValues == null ? "" : ", allowedValues=" + allowedValues) +
                 ", isNegated=" + isNegated + '}';

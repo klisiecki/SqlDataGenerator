@@ -1,7 +1,6 @@
 package pl.poznan.put.sqldatagenerator.generator;
 
 
-import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
@@ -11,6 +10,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
+
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+import static pl.poznan.put.sqldatagenerator.util.RangeUtils.*;
 
 @SuppressWarnings("unchecked")
 public class RandomGenerator {
@@ -73,8 +76,8 @@ public class RandomGenerator {
     }
 
     private static long getDoubleRangeWidth(Range<Double> doubleRange) {
-        return (long) (Math.min(getMaxDouble(doubleRange), Long.MAX_VALUE) / 3 -
-                Math.max(getMinDouble(doubleRange), Long.MIN_VALUE) / 3 + 1);
+        return (long) (min(getMaxDouble(doubleRange), Long.MAX_VALUE) / 3 -
+                max(getMinDouble(doubleRange), Long.MIN_VALUE) / 3 + 1);
     }
 
     private static Range getRandomRange(List<Range> ranges, List<Long> probabilities) {
@@ -85,38 +88,7 @@ public class RandomGenerator {
         while (sum < probabilityIndex) {
             sum += probabilities.get(i++);
         }
-        return ranges.get(Math.max(0, i - 1));
-    }
-
-    private static long getMinLong(Range<Long> range) {
-        if (!range.hasLowerBound()) {
-            return Long.MIN_VALUE;
-        }
-        int rangeTypeCorrection = range.lowerBoundType() == BoundType.CLOSED ? 0 : 1;
-        return range.lowerEndpoint() + rangeTypeCorrection;
-    }
-
-    private static double getMinDouble(Range<Double> range) {
-        if (!range.hasLowerBound()) {
-            return -Double.MAX_VALUE;
-        }
-        double rangeTypeCorrection = range.lowerBoundType() == BoundType.CLOSED ? 0 : Double.MIN_VALUE;
-        return range.lowerEndpoint() + rangeTypeCorrection;
-    }
-
-    private static long getMaxLong(Range<Long> range) {
-        if (!range.hasUpperBound()) {
-            return Long.MAX_VALUE;
-        }
-        int rangeTypeCorrection = range.upperBoundType() == BoundType.CLOSED ? 1 : 0;
-        return range.upperEndpoint() + rangeTypeCorrection;
-    }
-
-    private static double getMaxDouble(Range<Double> range) {
-        if (!range.hasUpperBound()) {
-            return Double.MAX_VALUE;
-        }
-        return range.upperEndpoint();
+        return ranges.get(max(0, i - 1));
     }
 
     public static String randomString(int minLength, int maxLength) {

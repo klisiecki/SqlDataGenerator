@@ -8,13 +8,13 @@ import net.sf.jsqlparser.expression.BinaryExpression;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.operators.relational.*;
 import net.sf.jsqlparser.schema.Column;
-import pl.poznan.put.sqldatagenerator.Utils;
 import pl.poznan.put.sqldatagenerator.exception.NotImplementedException;
 import pl.poznan.put.sqldatagenerator.generator.Attribute;
 import pl.poznan.put.sqldatagenerator.generator.AttributesMap;
 import pl.poznan.put.sqldatagenerator.generator.datatypes.DataTypesConverter;
 import pl.poznan.put.sqldatagenerator.generator.datatypes.DatabaseType;
 import pl.poznan.put.sqldatagenerator.generator.datatypes.InternalType;
+import pl.poznan.put.sqldatagenerator.util.RangeUtils;
 
 import static pl.poznan.put.sqldatagenerator.restriction.SQLExpressionsUtils.*;
 
@@ -73,7 +73,7 @@ public class RangeRestriction extends OneAttributeRestriction {
         Column column = (Column) between.getLeftExpression();
         RangeSet left = createMaxOrMinRangeSet(column, between.getBetweenExpressionStart(), SignType.GREATER_THAN, BoundType.CLOSED);
         RangeSet right = createMaxOrMinRangeSet(column, between.getBetweenExpressionEnd(), SignType.MINOR_THAN, BoundType.CLOSED);
-        Utils.intersectRangeSets(left, right);
+        RangeUtils.intersectRangeSets(left, right);
         return new RangeRestriction(between, column, left);
     }
 

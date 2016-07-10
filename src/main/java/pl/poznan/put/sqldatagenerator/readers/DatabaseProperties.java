@@ -22,6 +22,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+
 public class DatabaseProperties {
     private static final Logger logger = LoggerFactory.getLogger(DatabaseProperties.class);
 
@@ -106,15 +109,12 @@ public class DatabaseProperties {
         return rangeSet;
     }
 
-    private List<Restriction> getStringConstraints(String tableName, String attributeName, List<String> values, List<Attribute> attributes) {
+    private List<Restriction> getStringConstraints(String tableName, String attributeName, List<String> allowedValues, List<Attribute> attributes) {
         List<Restriction> restrictionList = new ArrayList<>();
         for (Attribute attribute : attributes) {
-            StringRestriction stringRestriction = new StringRestriction(attribute);
-            stringRestriction.setAllowedValues(values);
-
-            stringRestriction.setMinLength(getMinValue(tableName, attributeName).intValue());
-            stringRestriction.setMaxLength(getMaxValue(tableName, attributeName).intValue());
-
+            Range<Integer> allowedLength = Range.closed(getMinValue(tableName, attributeName).intValue(),
+                    getMaxValue(tableName, attributeName).intValue());
+            StringRestriction stringRestriction = new StringRestriction(attribute, allowedLength, null, allowedValues, false);
             restrictionList.add(stringRestriction);
         }
         return restrictionList;
@@ -127,9 +127,8 @@ public class DatabaseProperties {
         String schemaMinValueString = databaseSchemaReader.getMinValue(tableName, attributeName);
         if (schemaMinValueString != null) {
             Double schemaMinValue = Double.valueOf(schemaMinValueString);
-            result = Math.max(result, schemaMinValue);
+            result = max(result, schemaMinValue);
         }
-
         return result;
     }
 
@@ -140,7 +139,7 @@ public class DatabaseProperties {
         String schemaMaxValueString = databaseSchemaReader.getMaxValue(tableName, attributeName);
         if (schemaMaxValueString != null) {
             Double schemaMaxValue = Double.valueOf(schemaMaxValueString);
-            result = Math.min(result, schemaMaxValue);
+            result = min(result, schemaMaxValue);
         }
 
         Integer precision = getFirstParam(tableName, attributeName);
@@ -148,9 +147,8 @@ public class DatabaseProperties {
             if (!databaseTypesReader.getBaseType(typeName).equals("VARCHAR")) {
                 precision = (int) Math.pow(10, precision);
             }
-            result = Math.min(result, precision);
+            result = min(result, precision);
         }
-
         return result;
     }
 
@@ -177,7 +175,6 @@ public class DatabaseProperties {
     public DatabaseType getType(String tableName, String attributeName) {
         String originalTypeName = getTypeName(tableName, attributeName);
         Integer scale = getSecondParam(tableName, attributeName);
-
         String typeName = databaseTypesReader.getBaseType(originalTypeName);
         return new DatabaseType(DatabaseType.Type.valueOf(typeName), scale);
     }

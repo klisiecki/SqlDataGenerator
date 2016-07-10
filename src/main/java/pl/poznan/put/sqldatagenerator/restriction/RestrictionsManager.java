@@ -11,12 +11,12 @@ import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import pl.poznan.put.sqldatagenerator.Utils;
 import pl.poznan.put.sqldatagenerator.exception.InvalidInternalStateException;
 import pl.poznan.put.sqldatagenerator.generator.Attribute;
 import pl.poznan.put.sqldatagenerator.restriction.types.RangeRestriction;
 import pl.poznan.put.sqldatagenerator.restriction.types.Restriction;
 import pl.poznan.put.sqldatagenerator.restriction.types.StringRestriction;
+import pl.poznan.put.sqldatagenerator.util.RangeUtils;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -158,7 +158,7 @@ public class RestrictionsManager {
             //noinspection unchecked
             rangeSet.add(Range.all());
             rangeRestrictions.forEach(restriction -> {
-                Utils.intersectRangeSets(rangeSet, restriction.getRangeSet());
+                RangeUtils.intersectRangeSets(rangeSet, restriction.getRangeSet());
                 toRemoveRestrictions.put(attribute, restriction);
             });
             if (rangeSet.isEmpty()) {
@@ -198,7 +198,7 @@ public class RestrictionsManager {
             }
             toRemoveRestrictions.put(attribute, first);
             StringRestriction mergedRestriction =
-                    new StringRestriction(attribute, minLength, maxLength, likeExpressionProperties, allowedValues, isNegated);
+                    new StringRestriction(attribute, Range.closed(minLength, maxLength), likeExpressionProperties, allowedValues, isNegated);
             restrictionsByAttribute.put(attribute, mergedRestriction);
         }
     }

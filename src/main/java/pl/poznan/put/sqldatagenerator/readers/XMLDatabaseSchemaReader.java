@@ -2,52 +2,21 @@ package pl.poznan.put.sqldatagenerator.readers;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-import pl.poznan.put.sqldatagenerator.exception.XMLNotValidException;
 
-import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Source;
-import javax.xml.transform.stream.StreamSource;
-import javax.xml.validation.Schema;
-import javax.xml.validation.SchemaFactory;
-import javax.xml.validation.Validator;
-import javax.xml.xpath.*;
-import java.io.File;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class XMLDatabaseSchemaReader implements DatabaseSchemaReader {
+public class XMLDatabaseSchemaReader extends AbstractXMLReader implements DatabaseSchemaReader {
     private static final Logger logger = LoggerFactory.getLogger(XMLDatabaseSchemaReader.class);
 
-    private final static String schemaLocation = "/schema.xsd";
-    private final XPathFactory xPathfactory = XPathFactory.newInstance();
-    private Document document;
-
     public XMLDatabaseSchemaReader(String fileName) throws ParserConfigurationException, IOException, SAXException {
-        validate(fileName);
-        logger.info("{} is valid", fileName);
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder = factory.newDocumentBuilder();
-        document = builder.parse(fileName);
-    }
-
-    private void validate(String fileName) throws IOException, SAXException {
-        Source xmlFile = new StreamSource(new File(fileName));
-        SchemaFactory schemaFactory = SchemaFactory
-                .newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-        Schema schema = schemaFactory.newSchema(getClass().getResource(schemaLocation));
-        Validator validator = schema.newValidator();
-        try {
-            validator.validate(xmlFile);
-        } catch (SAXException e) {
-            throw new XMLNotValidException(e.getMessage());
-        }
+        super(fileName, "/schema.xsd");
     }
 
     @Override
@@ -195,27 +164,4 @@ public class XMLDatabaseSchemaReader implements DatabaseSchemaReader {
         return result.equals("") ? null : result;
     }
 
-    private List<String> getList(XPathExpression expr) {
-        List<String> result = new ArrayList<>();
-        NodeList nodes;
-        try {
-            nodes = (NodeList) expr.evaluate(document, XPathConstants.NODESET);
-            for (int i = 0; i < nodes.getLength(); i++) {
-                result.add(nodes.item(i).getNodeValue());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return result;
-    }
-
-    private XPathExpression getXPathExpression(String expr) {
-        XPath xpath = xPathfactory.newXPath();
-        try {
-            return xpath.compile(expr);
-        } catch (XPathExpressionException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
 }

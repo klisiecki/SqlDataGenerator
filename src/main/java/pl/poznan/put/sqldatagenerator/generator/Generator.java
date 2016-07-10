@@ -9,8 +9,6 @@ import pl.poznan.put.sqldatagenerator.exception.SQLSyntaxNotSupportedException;
 import pl.poznan.put.sqldatagenerator.generator.datatypes.DatabaseType;
 import pl.poznan.put.sqldatagenerator.history.HistoryManager;
 import pl.poznan.put.sqldatagenerator.readers.DatabaseProperties;
-import pl.poznan.put.sqldatagenerator.readers.DatabaseSchemaReader;
-import pl.poznan.put.sqldatagenerator.readers.DatabaseTypesReader;
 import pl.poznan.put.sqldatagenerator.readers.SQLData;
 import pl.poznan.put.sqldatagenerator.restriction.RestrictionsManager;
 import pl.poznan.put.sqldatagenerator.solver.Solver;
@@ -43,9 +41,7 @@ public class Generator {
         this.historyManager = new HistoryManager();
     }
 
-    public void initTables(DatabaseSchemaReader databaseSchemaReader, DatabaseTypesReader databaseTypesReader,
-                           SQLData sqlData) {
-        DatabaseProperties databaseProperties = new DatabaseProperties(databaseSchemaReader, databaseTypesReader);
+    public void initTables(DatabaseProperties databaseProperties, SQLData sqlData) {
         initTableBase(databaseProperties);
 
         for (Table table : sqlData.getTables()) {
@@ -84,7 +80,6 @@ public class Generator {
             saveTables(restrictionsIndex, positive);
         }
         tableBaseMap.values().forEach(TableBase::closeTableFile);
-
         logger.info("Generating process done");
     }
 
