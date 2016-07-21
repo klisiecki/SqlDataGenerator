@@ -54,7 +54,7 @@ public class RestrictionsManager {
 
             for (Restriction restriction : get(positive, index).values()) {
                 Set<String> set = new HashSet<>();
-                restriction.getAttributes().stream().forEach(a -> set.add(a.getTableAliasName()));
+                restriction.getAttributes().forEach(a -> set.add(a.getTableAliasName()));
                 list.add(set);
             }
 
@@ -67,7 +67,9 @@ public class RestrictionsManager {
         List<Restrictions> positiveRestrictionsList = new ArrayList<>();
         List<Restrictions> negativeRestrictionsList = new ArrayList<>();
 
-        setSQLCriteria(criteria, positiveRestrictionsList, negativeRestrictionsList);
+        if (criteria != null) {
+            setSQLCriteria(criteria, positiveRestrictionsList, negativeRestrictionsList);
+        }
         setXMLConstraints(constraints, positiveRestrictionsList);
         setXMLConstraints(constraints, negativeRestrictionsList);
         logger.debug("Preparing positive restrictions");
@@ -111,6 +113,7 @@ public class RestrictionsManager {
     private List<HashMultimap<Attribute, Restriction>> prepareRestrictions(List<Restrictions> restrictionsList) {
         List<HashMultimap<Attribute, Restriction>> result = new ArrayList<>();
         for (Restrictions restrictions : restrictionsList) {
+            boolean restrictionsOk = true;
             logger.debug("Preparing restrictions set:");
             HashMultimap<Attribute, Restriction> restrictionsByAttribute = HashMultimap.create();
             for (Restriction restriction : restrictions.getCollection()) {
@@ -121,7 +124,8 @@ public class RestrictionsManager {
             HashMultimap<Attribute, Restriction> toRemoveRestrictions = HashMultimap.create();
             for (Map.Entry<Attribute, Collection<Restriction>> restrictionEntry : restrictionsByAttribute.asMap().entrySet()) {
                 Attribute attribute = restrictionEntry.getKey();
-                mergeRestrictions(attribute, restrictionEntry.getValue(), toRemoveRestrictions, restrictionsByAttribute);
+                restrictionsOk = restrictionsOk &&
+                        mergeRestrictions(attribute, restrictionEntry.getValue(), toRemoveRestrictions, restrictionsByAttribute);
             }
 
             for (Map.Entry<Attribute, Restriction> attributeRestrictionEntry : toRemoveRestrictions.entries()) {
@@ -134,25 +138,32 @@ public class RestrictionsManager {
                 Attribute attribute = restrictionEntry.getKey();
                 logger.debug("Restrictions for {}: {}", attribute, restrictionEntry.getValue());
             }
-            result.add(restrictionsByAttribute);
+            if (restrictionsOk) {
+                result.add(restrictionsByAttribute);
+            }
         }
         return result;
     }
 
     //TODO to consider: move merging logic to restrictions classes
-    private void mergeRestrictions(Attribute attribute, Collection<Restriction> restrictions,
-                                   HashMultimap<Attribute, Restriction> toRemoveRestrictions, HashMultimap<Attribute, Restriction> restrictionsByAttribute) {
+    private boolean mergeRestrictions(Attribute attribute, Collection<Restriction> restrictions,
+                                      HashMultimap<Attribute, Restriction> toRemoveRestrictions, HashMultimap<Attribute, Restriction> restrictionsByAttribute) {
         List<RangeRestriction> rangeRestrictions = restrictions.stream()
                 .filter(r -> r instanceof RangeRestriction).map(r -> (RangeRestriction) r).collect(toList());
-        mergeRangeRestrictions(attribute, toRemoveRestrictions, restrictionsByAttribute, rangeRestrictions);
+        if (!mergeRangeRestrictions(attribute, toRemoveRestrictions, restrictionsByAttribute, rangeRestrictions)) {
+            return false;
+        }
 
         List<StringRestriction> stringRestrictions = restrictions.stream()
                 .filter(r -> r instanceof StringRestriction).map(r -> (StringRestriction) r).collect(toList());
-        mergeStringRestrictions(attribute, toRemoveRestrictions, restrictionsByAttribute, stringRestrictions);
+        if (!mergeStringRestrictions(attribute, toRemoveRestrictions, restrictionsByAttribute, stringRestrictions)) {
+            return false;
+        }
+        return true;
     }
 
-    private void mergeRangeRestrictions(Attribute attribute, HashMultimap<Attribute, Restriction> toRemoveRestrictions,
-                                        HashMultimap<Attribute, Restriction> restrictionsByAttribute, List<RangeRestriction> rangeRestrictions) {
+    private boolean mergeRangeRestrictions(Attribute attribute, HashMultimap<Attribute, Restriction> toRemoveRestrictions,
+                                           HashMultimap<Attribute, Restriction> restrictionsByAttribute, List<RangeRestriction> rangeRestrictions) {
         if (rangeRestrictions.size() > 1) {
             RangeSet rangeSet = TreeRangeSet.create();
             //noinspection unchecked
@@ -162,16 +173,16 @@ public class RestrictionsManager {
                 toRemoveRestrictions.put(attribute, restriction);
             });
             if (rangeSet.isEmpty()) {
-                //TODO Are we sure to throw exception? Maybe just skip this restriction?
-                throw new RuntimeException("Range for attribute " + attribute.getName() + " is empty");
+                return false;
             }
             restrictionsByAttribute.put(attribute, new RangeRestriction(attribute, rangeSet));
         }
+        return true;
     }
 
     //TODO better merging for StringRestrictions
-    private void mergeStringRestrictions(Attribute attribute, HashMultimap<Attribute, Restriction> toRemoveRestrictions,
-                                         HashMultimap<Attribute, Restriction> restrictionsByAttribute, List<StringRestriction> stringRestrictions) {
+    private boolean mergeStringRestrictions(Attribute attribute, HashMultimap<Attribute, Restriction> toRemoveRestrictions,
+                                            HashMultimap<Attribute, Restriction> restrictionsByAttribute, List<StringRestriction> stringRestrictions) {
         if (stringRestrictions.size() > 1) {
             StringRestriction first = stringRestrictions.get(0);
             int minLength = first.getMinLength();
@@ -201,6 +212,7 @@ public class RestrictionsManager {
                     new StringRestriction(attribute, Range.closed(minLength, maxLength), likeExpressionProperties, allowedValues, isNegated);
             restrictionsByAttribute.put(attribute, mergedRestriction);
         }
+        return true;
     }
 
     private Predicate<String> containsValuesFrom(StringRestriction restriction) {

@@ -57,7 +57,6 @@ public class History {
         return resultTableState;
     }
 
-    //TODO method not tested yet
     public void addSetsToGraph(List<Set<String>> connectedTablesAliases) {
         connectedTablesAliases.forEach(this::addEdges);
     }
@@ -69,7 +68,7 @@ public class History {
     }
 
     private void addVertices(List<String> vertices) {
-        vertices.stream().forEach(graph::addVertex);
+        vertices.forEach(graph::addVertex);
     }
 
     private void addEdges(Collection<String> vertices) {
@@ -87,7 +86,7 @@ public class History {
     private List<Set<String>> getConnectedComponentsWithoutTables(List<String> notNeededTableAliasList) {
         UndirectedGraph<String, DefaultEdge> tempGraph = new SimpleGraph<>(DefaultEdge.class);
         Graphs.addGraph(tempGraph, graph);
-        notNeededTableAliasList.stream().forEach(tempGraph::removeVertex);
+        notNeededTableAliasList.forEach(tempGraph::removeVertex);
         return new ConnectivityInspector<>(tempGraph).connectedSets();
     }
 
