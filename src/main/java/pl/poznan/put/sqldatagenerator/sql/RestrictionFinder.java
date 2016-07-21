@@ -1,9 +1,7 @@
 package pl.poznan.put.sqldatagenerator.sql;
 
-import com.bpodgursky.jbool_expressions.And;
-import com.bpodgursky.jbool_expressions.Expression;
-import com.bpodgursky.jbool_expressions.Or;
-import com.bpodgursky.jbool_expressions.Variable;
+import com.bpodgursky.jbool_expressions.*;
+import net.sf.jsqlparser.expression.BinaryExpression;
 import net.sf.jsqlparser.expression.Parenthesis;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
@@ -48,6 +46,9 @@ public class RestrictionFinder extends AbstractFinder {
         RestrictionFinder finder2 = new RestrictionFinder();
         andExpression.getRightExpression().accept(finder2);
         result = And.of(finder1.getResult(), finder2.getResult());
+        if (andExpression.isNot()) {
+            result = Not.of(result);
+        }
     }
 
     @Override
@@ -57,6 +58,9 @@ public class RestrictionFinder extends AbstractFinder {
         RestrictionFinder finder2 = new RestrictionFinder();
         orExpression.getRightExpression().accept(finder2);
         result = Or.of(finder1.getResult(), finder2.getResult());
+        if (orExpression.isNot()) {
+            result = Not.of(result);
+        }
     }
 
     @Override
@@ -64,11 +68,26 @@ public class RestrictionFinder extends AbstractFinder {
         RestrictionFinder finder = new RestrictionFinder();
         parenthesis.getExpression().accept(finder);
         result = finder.getResult();
+        if (parenthesis.isNot()) {
+            result = Not.of(result);
+        }
     }
-
 
     private void processExpression(net.sf.jsqlparser.expression.Expression expression) {
         result = Variable.of(RestrictionFactory.createRestriction(expression));
+        boolean not = false;
+        if (expression instanceof BinaryExpression) {
+            not = ((BinaryExpression) expression).isNot();
+        } else if (expression instanceof InExpression) {
+            not = ((InExpression) expression).isNot();
+        } else if (expression instanceof Between) {
+            not = ((Between) expression).isNot();
+        } else if (expression instanceof IsNullExpression) {
+            not = ((IsNullExpression) expression).isNot();
+        }
+        if (not) {
+            result = Not.of(result);
+        }
     }
 
 

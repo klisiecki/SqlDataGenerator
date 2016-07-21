@@ -14,9 +14,8 @@ public class NullRestriction extends OneAttributeRestriction {
         this.isNegated = isNegated;
     }
 
-    public NullRestriction(Expression expression, Column column, boolean isNegated) {
+    public NullRestriction(Expression expression, Column column) {
         super(expression, column);
-        this.isNegated = isNegated;
     }
 
     public boolean isNegated() {
@@ -35,7 +34,7 @@ public class NullRestriction extends OneAttributeRestriction {
     }
 
     public static NullRestriction fromIsNullExpression(IsNullExpression isNullExpression) {
-        return new NullRestriction(isNullExpression, (Column) isNullExpression.getLeftExpression(), isNullExpression.isNot());
+        return new NullRestriction(isNullExpression, (Column) isNullExpression.getLeftExpression());
     }
 
     @Override
