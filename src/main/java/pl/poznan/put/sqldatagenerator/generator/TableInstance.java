@@ -10,16 +10,16 @@ import static java.util.stream.Collectors.toList;
 
 /**
  * Class representing single occurrence of table in JOIN clause.
- * One table may be used multiple times in JOIN and all of this occurrences refers to the same {@link TableBase} object
+ * One table may be used multiple times in JOIN and all of this occurrences refers to the same {@link BaseTable} object
  */
 public class TableInstance {
-    private final TableBase base;
+    private final BaseTable base;
 
     private final String aliasName;
     private final Map<String, Attribute> attributeMap;
     private TableInstanceState state;
 
-    public TableInstance(TableBase base, String aliasName) {
+    public TableInstance(BaseTable base, String aliasName) {
         this.base = base;
         this.aliasName = aliasName;
         this.attributeMap = new HashMap<>();
@@ -59,7 +59,7 @@ public class TableInstance {
         return attributesNames.stream().map(name -> attributeMap.get(name).getDatabaseValue()).collect(toList());
     }
 
-    public TableBase getBase() {
+    public BaseTable getBase() {
         return base;
     }
 

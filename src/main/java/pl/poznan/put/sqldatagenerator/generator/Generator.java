@@ -26,7 +26,7 @@ public class Generator {
     private static final Logger logger = LoggerFactory.getLogger(Generator.class);
     private static final int PRINT_PROGRESS_DELAY = 100;
 
-    private final Map<String, TableBase> tableBaseMap;
+    private final Map<String, BaseTable> tableBaseMap;
     private final Map<String, TableInstance> tableInstanceMap;
     private final Random random;
     private final RestrictionsManager restrictionsManager;
@@ -79,7 +79,7 @@ public class Generator {
             generateRow(restrictionsIndex, positive);
             saveTables(restrictionsIndex, positive);
         }
-        tableBaseMap.values().forEach(TableBase::closeTableFile);
+        tableBaseMap.values().forEach(BaseTable::closeTableFile);
         logger.info("Generating process done");
     }
 
@@ -131,7 +131,7 @@ public class Generator {
     private void initTableBase(DatabaseProperties databaseProperties) {
         for (String tableName : databaseProperties.getTables()) {
             long count = databaseProperties.getRowsNum(tableName);
-            tableBaseMap.put(tableName, new TableBase(tableName, databaseProperties.getAttributes(tableName), count));
+            tableBaseMap.put(tableName, new BaseTable(tableName, databaseProperties.getAttributes(tableName), count));
         }
     }
 

@@ -23,8 +23,8 @@ public class AttributesMap {
         return get(column.getTable().getName(), column.getColumnName());
     }
 
-    public static List<Attribute> get(TableBase tableBase, String attributeName) {
-        return tableBase.getInstances().stream()
+    public static List<Attribute> get(BaseTable baseTable, String attributeName) {
+        return baseTable.getInstances().stream()
                 .map(tableInstance -> get(tableInstance.getAliasName(), attributeName)).collect(toList());
     }
 

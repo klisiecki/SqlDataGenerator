@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * Class representing single table in database
  */
-public class TableBase {
+public class BaseTable {
     private final Configuration configuration = Configuration.getInstance();
 
     private final int rowsPerFile = configuration.getIntegerProperty(ConfigurationKeys.MAX_ROWS_PER_FILE, 100000);
@@ -26,7 +26,7 @@ public class TableBase {
 
     private final List<TableInstance> instanceList;
 
-    public TableBase(String name, List<String> attributesNames, long dataCountLimit) {
+    public BaseTable(String name, List<String> attributesNames, long dataCountLimit) {
         this.name = name;
         this.dataCountLimit = dataCountLimit;
         this.dataCount = 0;

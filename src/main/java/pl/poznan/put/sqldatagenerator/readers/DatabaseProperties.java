@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.poznan.put.sqldatagenerator.generator.Attribute;
 import pl.poznan.put.sqldatagenerator.generator.AttributesMap;
-import pl.poznan.put.sqldatagenerator.generator.TableBase;
+import pl.poznan.put.sqldatagenerator.generator.BaseTable;
 import pl.poznan.put.sqldatagenerator.generator.datatypes.DatabaseType;
 import pl.poznan.put.sqldatagenerator.generator.datatypes.InternalType;
 import pl.poznan.put.sqldatagenerator.generator.key.KeyGenerator;
@@ -36,7 +36,7 @@ public class DatabaseProperties {
         this.databaseTypesReader = databaseTypesReader;
     }
 
-    public Restrictions getConstraints(Map<String, TableBase> tableBaseMap) {
+    public Restrictions getConstraints(Map<String, BaseTable> tableBaseMap) {
         List<Restriction> restrictionList = new ArrayList<>();
         for (String tableName : databaseSchemaReader.getTables()) {
             for (String attributeName : databaseSchemaReader.getAttributes(tableName)) {
