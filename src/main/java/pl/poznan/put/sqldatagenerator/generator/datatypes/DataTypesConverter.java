@@ -12,8 +12,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import static pl.poznan.put.sqldatagenerator.configuration.ConfigurationKeys.INPUT_DATE_FORMAT;
-import static pl.poznan.put.sqldatagenerator.configuration.ConfigurationKeys.OUTPUT_DATE_FORMAT;
+import static pl.poznan.put.sqldatagenerator.configuration.ConfigurationKeys.*;
 
 public class DataTypesConverter {
 
@@ -21,6 +20,7 @@ public class DataTypesConverter {
 
     private static final String inputDateFormat = configuration.getStringProperty(INPUT_DATE_FORMAT, "yyyy-MM-dd HH:mm:ss");
     private static final String outputDateFormat = configuration.getStringProperty(OUTPUT_DATE_FORMAT, "yyyy-MM-dd HH:mm:ss");
+    private static final String nullValue = configuration.getStringProperty(DATABASE_NULL_VALUE, "NULL");
 
     public static Long getInternalLong(Expression expression, DatabaseType databaseType) {
         try {
@@ -56,7 +56,7 @@ public class DataTypesConverter {
 
     public static String getDatabaseValue(String input, InternalType internalType, DatabaseType databaseType) {
         if (input == null) {
-            return null;
+            return nullValue;
         }
         if (internalType == InternalType.LONG && databaseType.getType() == DatabaseType.Type.DATETIME) {
             return new SimpleDateFormat(outputDateFormat, Locale.ENGLISH).format(new Date(Long.valueOf(input)));
