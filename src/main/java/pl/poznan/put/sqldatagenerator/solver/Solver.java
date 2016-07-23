@@ -1,10 +1,10 @@
 package pl.poznan.put.sqldatagenerator.solver;
 
-import com.google.common.collect.HashMultimap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.poznan.put.sqldatagenerator.exception.NotImplementedException;
 import pl.poznan.put.sqldatagenerator.generator.Attribute;
+import pl.poznan.put.sqldatagenerator.restriction.RestrictionsByAttribute;
 import pl.poznan.put.sqldatagenerator.restriction.types.*;
 
 import java.util.Collection;
@@ -19,15 +19,15 @@ import static pl.poznan.put.sqldatagenerator.generator.RandomGenerator.*;
 public class Solver {
     private static final Logger logger = LoggerFactory.getLogger(Solver.class);
 
-    private final HashMultimap<Attribute, Restriction> restrictionsByAttribute;
+    private final RestrictionsByAttribute restrictionsByAttribute;
 
-    public Solver(HashMultimap<Attribute, Restriction> restrictionsByAttribute) {
+    public Solver(RestrictionsByAttribute restrictionsByAttribute) {
         this.restrictionsByAttribute = restrictionsByAttribute;
     }
 
     public void solve() {
         logger.debug("Solving {}", restrictionsByAttribute.values());
-        for (Map.Entry<Attribute, Collection<Restriction>> restrictionEntry : restrictionsByAttribute.asMap().entrySet()) {
+        for (Map.Entry<Attribute, Collection<Restriction>> restrictionEntry : restrictionsByAttribute.groupedEntries()) {
             Attribute attribute = restrictionEntry.getKey();
             Collection<Restriction> restrictions = restrictionEntry.getValue();
             if (!attribute.canBeGenerated()) {

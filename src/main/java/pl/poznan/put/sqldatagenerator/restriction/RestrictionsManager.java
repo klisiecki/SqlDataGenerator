@@ -5,7 +5,6 @@ import com.bpodgursky.jbool_expressions.NExpression;
 import com.bpodgursky.jbool_expressions.Not;
 import com.bpodgursky.jbool_expressions.Or;
 import com.bpodgursky.jbool_expressions.rules.RuleSet;
-import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
@@ -29,10 +28,10 @@ import static java.util.stream.Collectors.toList;
 public class RestrictionsManager {
     private static final Logger logger = LoggerFactory.getLogger(RestrictionsManager.class);
 
-    private List<HashMultimap<Attribute, Restriction>> positiveRestrictionsByAttributeList;
-    private List<HashMultimap<Attribute, Restriction>> negativeRestrictionsByAttributeList;
+    private List<RestrictionsByAttribute> positiveRestrictionsByAttributeList;
+    private List<RestrictionsByAttribute> negativeRestrictionsByAttributeList;
 
-    public HashMultimap<Attribute, Restriction> get(boolean positive, int index) {
+    public RestrictionsByAttribute get(boolean positive, int index) {
         if (positive) {
             return positiveRestrictionsByAttributeList.get(index);
         } else {
@@ -111,19 +110,19 @@ public class RestrictionsManager {
         }
     }
 
-    private List<HashMultimap<Attribute, Restriction>> prepareRestrictions(List<Restrictions> restrictionsList) {
-        List<HashMultimap<Attribute, Restriction>> result = new ArrayList<>();
+    private List<RestrictionsByAttribute> prepareRestrictions(List<Restrictions> restrictionsList) {
+        List<RestrictionsByAttribute> result = new ArrayList<>();
         for (Restrictions restrictions : restrictionsList) {
             boolean restrictionsOk = true;
             logger.debug("Preparing restrictions set:");
-            HashMultimap<Attribute, Restriction> restrictionsByAttribute = HashMultimap.create();
+            RestrictionsByAttribute restrictionsByAttribute = new RestrictionsByAttribute();
             for (Restriction restriction : restrictions.getCollection()) {
                 for (Attribute attribute : restriction.getAttributes()) {
                     restrictionsByAttribute.put(attribute, restriction);
                 }
             }
-            HashMultimap<Attribute, Restriction> toRemoveRestrictions = HashMultimap.create();
-            for (Map.Entry<Attribute, Collection<Restriction>> restrictionEntry : restrictionsByAttribute.asMap().entrySet()) {
+            RestrictionsByAttribute toRemoveRestrictions = new RestrictionsByAttribute();
+            for (Map.Entry<Attribute, Collection<Restriction>> restrictionEntry : restrictionsByAttribute.groupedEntries()) {
                 Attribute attribute = restrictionEntry.getKey();
                 restrictionsOk = restrictionsOk &&
                         mergeRestrictions(attribute, restrictionEntry.getValue(), toRemoveRestrictions, restrictionsByAttribute);
@@ -135,7 +134,7 @@ public class RestrictionsManager {
                 restrictionsByAttribute.remove(attribute, restriction);
             }
 
-            for (Map.Entry<Attribute, Collection<Restriction>> restrictionEntry : restrictionsByAttribute.asMap().entrySet()) {
+            for (Map.Entry<Attribute, Collection<Restriction>> restrictionEntry : restrictionsByAttribute.groupedEntries()) {
                 Attribute attribute = restrictionEntry.getKey();
                 logger.debug("Restrictions for {}: {}", attribute, restrictionEntry.getValue());
             }
@@ -148,7 +147,8 @@ public class RestrictionsManager {
 
     //TODO to consider: move merging logic to restrictions classes
     private boolean mergeRestrictions(Attribute attribute, Collection<Restriction> restrictions,
-                                      HashMultimap<Attribute, Restriction> toRemoveRestrictions, HashMultimap<Attribute, Restriction> restrictionsByAttribute) {
+                                      RestrictionsByAttribute toRemoveRestrictions,
+                                      RestrictionsByAttribute restrictionsByAttribute) {
         List<RangeRestriction> rangeRestrictions = restrictions.stream()
                 .filter(r -> r instanceof RangeRestriction).map(r -> (RangeRestriction) r).collect(toList());
         if (!mergeRangeRestrictions(attribute, toRemoveRestrictions, restrictionsByAttribute, rangeRestrictions)) {
@@ -168,8 +168,8 @@ public class RestrictionsManager {
         return true;
     }
 
-    private boolean mergeRangeRestrictions(Attribute attribute, HashMultimap<Attribute, Restriction> toRemoveRestrictions,
-                                           HashMultimap<Attribute, Restriction> restrictionsByAttribute, List<RangeRestriction> rangeRestrictions) {
+    private boolean mergeRangeRestrictions(Attribute attribute, RestrictionsByAttribute toRemoveRestrictions,
+                                           RestrictionsByAttribute restrictionsByAttribute, List<RangeRestriction> rangeRestrictions) {
         if (rangeRestrictions.size() > 1) {
             RangeSet rangeSet = TreeRangeSet.create();
             //noinspection unchecked
@@ -187,8 +187,8 @@ public class RestrictionsManager {
     }
 
     //TODO better merging for StringRestrictions
-    private boolean mergeStringRestrictions(Attribute attribute, HashMultimap<Attribute, Restriction> toRemoveRestrictions,
-                                            HashMultimap<Attribute, Restriction> restrictionsByAttribute, List<StringRestriction> stringRestrictions) {
+    private boolean mergeStringRestrictions(Attribute attribute, RestrictionsByAttribute toRemoveRestrictions,
+                                            RestrictionsByAttribute restrictionsByAttribute, List<StringRestriction> stringRestrictions) {
         if (stringRestrictions.size() > 1) {
             StringRestriction first = stringRestrictions.get(0);
             int minLength = first.getMinLength();
@@ -225,7 +225,7 @@ public class RestrictionsManager {
         return value -> restriction.getAllowedValues() == null || restriction.getAllowedValues().contains(value);
     }
 
-    private void mergeNullRestrictions(Attribute attribute, HashMultimap<Attribute, Restriction> toRemoveRestrictions, HashMultimap<Attribute, Restriction> restrictionsByAttribute, List<NullRestriction> nullRestrictions) {
+    private void mergeNullRestrictions(Attribute attribute, RestrictionsByAttribute toRemoveRestrictions, RestrictionsByAttribute restrictionsByAttribute, List<NullRestriction> nullRestrictions) {
         if (nullRestrictions.size() > 1) {
             nullRestrictions.forEach(restriction -> {
                 toRemoveRestrictions.put(attribute, restriction);
