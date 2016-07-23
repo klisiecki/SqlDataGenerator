@@ -3,10 +3,7 @@ package pl.poznan.put.sqldatagenerator.restriction;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.operators.relational.*;
 import pl.poznan.put.sqldatagenerator.exception.NotImplementedException;
-import pl.poznan.put.sqldatagenerator.restriction.types.NullRestriction;
-import pl.poznan.put.sqldatagenerator.restriction.types.RangeRestriction;
-import pl.poznan.put.sqldatagenerator.restriction.types.Restriction;
-import pl.poznan.put.sqldatagenerator.restriction.types.StringRestriction;
+import pl.poznan.put.sqldatagenerator.restriction.types.*;
 
 import static pl.poznan.put.sqldatagenerator.restriction.SQLExpressionsUtils.*;
 
@@ -44,6 +41,20 @@ public class RestrictionFactory {
             }
         } else if (isNullExpression(expression)) {
             return NullRestriction.fromIsNullExpression((IsNullExpression) expression);
+        } else if (isTwoAttributesRelationExpression(expression)) {
+            if (expression instanceof GreaterThan) {
+                return TwoAttributesRelationRestriction.fromGreaterThan((GreaterThan) expression);
+            } else if (expression instanceof GreaterThanEquals) {
+                return TwoAttributesRelationRestriction.fromGreaterThanEquals((GreaterThanEquals) expression);
+            } else if (expression instanceof MinorThan) {
+                return TwoAttributesRelationRestriction.fromMinorThan((MinorThan) expression);
+            } else if (expression instanceof MinorThanEquals) {
+                return TwoAttributesRelationRestriction.fromMinorThanEquals((MinorThanEquals) expression);
+            } else if (expression instanceof EqualsTo) {
+                return TwoAttributesRelationRestriction.fromEquals((EqualsTo) expression);
+            } else if (expression instanceof NotEqualsTo) {
+                return TwoAttributesRelationRestriction.fromNotEquals((NotEqualsTo) expression);
+            }
         }
         throw new NotImplementedException("Instruction " + expression.toString() + " not implemented");
     }

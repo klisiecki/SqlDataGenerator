@@ -20,11 +20,6 @@ import static pl.poznan.put.sqldatagenerator.restriction.SQLExpressionsUtils.*;
 
 public class RangeRestriction extends OneAttributeRestriction {
 
-    private enum SignType {
-        GREATER_THAN,
-        MINOR_THAN
-    }
-
     private RangeSet rangeSet;
 
     private RangeRestriction(Expression expression, Column column, RangeSet rangeSet) {

@@ -10,6 +10,15 @@ import pl.poznan.put.sqldatagenerator.generator.AttributesMap;
 import pl.poznan.put.sqldatagenerator.generator.datatypes.InternalType;
 
 public class SQLExpressionsUtils {
+
+    public static boolean isTwoAttributesRelationExpression(Expression expression) {
+        if (expression instanceof BinaryExpression) {
+            return isColumn(((BinaryExpression) expression).getLeftExpression()) &&
+                    isColumn(((BinaryExpression) expression).getRightExpression());
+        }
+        return false;
+    }
+
     public static boolean isColumnAndValueExpression(Expression expression) {
         if (expression instanceof BinaryExpression) {
             return isColumnAndValueBinaryExpression((BinaryExpression) expression);
