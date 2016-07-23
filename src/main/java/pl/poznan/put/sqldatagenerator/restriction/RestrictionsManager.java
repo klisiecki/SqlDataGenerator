@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.poznan.put.sqldatagenerator.exception.InvalidInternalStateException;
 import pl.poznan.put.sqldatagenerator.generator.Attribute;
+import pl.poznan.put.sqldatagenerator.restriction.types.NullRestriction;
 import pl.poznan.put.sqldatagenerator.restriction.types.RangeRestriction;
 import pl.poznan.put.sqldatagenerator.restriction.types.Restriction;
 import pl.poznan.put.sqldatagenerator.restriction.types.StringRestriction;
@@ -159,6 +160,11 @@ public class RestrictionsManager {
         if (!mergeStringRestrictions(attribute, toRemoveRestrictions, restrictionsByAttribute, stringRestrictions)) {
             return false;
         }
+
+        List<NullRestriction> nullRestrictions = restrictions.stream()
+                .filter(r -> r instanceof NullRestriction).map(r -> (NullRestriction) r).collect(toList());
+        mergeNullRestrictions(attribute, toRemoveRestrictions, restrictionsByAttribute, nullRestrictions);
+
         return true;
     }
 
@@ -217,6 +223,15 @@ public class RestrictionsManager {
 
     private Predicate<String> containsValuesFrom(StringRestriction restriction) {
         return value -> restriction.getAllowedValues() == null || restriction.getAllowedValues().contains(value);
+    }
+
+    private void mergeNullRestrictions(Attribute attribute, HashMultimap<Attribute, Restriction> toRemoveRestrictions, HashMultimap<Attribute, Restriction> restrictionsByAttribute, List<NullRestriction> nullRestrictions) {
+        if (nullRestrictions.size() > 1) {
+            nullRestrictions.forEach(restriction -> {
+                toRemoveRestrictions.put(attribute, restriction);
+            });
+            restrictionsByAttribute.put(attribute, new NullRestriction(attribute));
+        }
     }
 
 }

@@ -9,13 +9,17 @@ public class NullRestriction extends OneAttributeRestriction {
 
     private boolean isNegated;
 
-    public NullRestriction(Attribute attribute, boolean isNegated) {
+    public NullRestriction(Attribute attribute) {
         super(attribute);
-        this.isNegated = isNegated;
     }
 
     public NullRestriction(Expression expression, Column column) {
         super(expression, column);
+    }
+
+    private NullRestriction(Attribute attribute, boolean isNegated) {
+        super(attribute);
+        this.isNegated = isNegated;
     }
 
     public boolean isNegated() {
