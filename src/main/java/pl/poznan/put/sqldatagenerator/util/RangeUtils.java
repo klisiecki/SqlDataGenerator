@@ -1,26 +1,27 @@
 package pl.poznan.put.sqldatagenerator.util;
 
-import com.google.common.collect.BoundType;
-import com.google.common.collect.Range;
-import com.google.common.collect.RangeSet;
-import com.google.common.collect.TreeRangeSet;
+import com.google.common.collect.*;
 
 import java.util.Set;
 
 public class RangeUtils {
     @SuppressWarnings("unchecked")
-    public static void intersectRangeSets(RangeSet a, RangeSet b) {
-        RangeSet aClone = TreeRangeSet.create(a);
-        a.clear();
-        for (Range aRange : (Set<Range>) aClone.asRanges()) {
+    public static RangeSet intersectRangeSets(RangeSet a, RangeSet b) {
+        RangeSet result = TreeRangeSet.create();
+        for (Range aRange : (Set<Range>) a.asRanges()) {
             for (Range bRange : (Set<Range>) b.asRanges()) {
                 try {
                     Range r = bRange.intersection(aRange);
-                    a.add(r);
+                    result.add(r);
                 } catch (IllegalArgumentException ignore) {
                 }
             }
         }
+        return result;
+    }
+
+    public static long getMinLong(RangeSet<Long> rangeSet) {
+        return getMinLong(rangeSet.asRanges().iterator().next());
     }
 
     public static long getMinLong(Range<Long> range) {
@@ -31,12 +32,17 @@ public class RangeUtils {
         return range.lowerEndpoint() + rangeTypeCorrection;
     }
 
+
     public static double getMinDouble(Range<Double> range) {
         if (!range.hasLowerBound()) {
             return -Double.MAX_VALUE;
         }
         double rangeTypeCorrection = range.lowerBoundType() == BoundType.CLOSED ? 0 : Double.MIN_VALUE;
         return range.lowerEndpoint() + rangeTypeCorrection;
+    }
+
+    public static long getMaxLong(RangeSet<Long> rangeSet) {
+        return getMaxLong(Iterables.getLast(rangeSet.asRanges()));
     }
 
     public static long getMaxLong(Range<Long> range) {

@@ -36,6 +36,10 @@ public class RangeRestriction extends OneAttributeRestriction {
         return rangeSet;
     }
 
+    public void setRangeSet(RangeSet rangeSet) {
+        this.rangeSet = rangeSet;
+    }
+
     public static RangeRestriction fromGreaterThan(GreaterThan greaterThan) {
         SignType signType = isInverted(greaterThan) ? SignType.MINOR_THAN : SignType.GREATER_THAN;
         Column column = getColumn(greaterThan);
@@ -68,8 +72,8 @@ public class RangeRestriction extends OneAttributeRestriction {
         Column column = (Column) between.getLeftExpression();
         RangeSet left = createMaxOrMinRangeSet(column, between.getBetweenExpressionStart(), SignType.GREATER_THAN, BoundType.CLOSED);
         RangeSet right = createMaxOrMinRangeSet(column, between.getBetweenExpressionEnd(), SignType.MINOR_THAN, BoundType.CLOSED);
-        RangeUtils.intersectRangeSets(left, right);
-        return new RangeRestriction(between, column, left);
+        RangeSet result = RangeUtils.intersectRangeSets(left, right);
+        return new RangeRestriction(between, column, result);
     }
 
     public static RangeRestriction fromIn(InExpression in) {

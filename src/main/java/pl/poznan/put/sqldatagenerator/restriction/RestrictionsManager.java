@@ -174,10 +174,10 @@ public class RestrictionsManager {
             RangeSet rangeSet = TreeRangeSet.create();
             //noinspection unchecked
             rangeSet.add(Range.all());
-            rangeRestrictions.forEach(restriction -> {
-                RangeUtils.intersectRangeSets(rangeSet, restriction.getRangeSet());
+            for (RangeRestriction restriction : rangeRestrictions) {
+                rangeSet = RangeUtils.intersectRangeSets(rangeSet, restriction.getRangeSet());
                 toRemoveRestrictions.put(attribute, restriction);
-            });
+            }
             if (rangeSet.isEmpty()) {
                 return false;
             }

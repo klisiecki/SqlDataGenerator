@@ -16,6 +16,14 @@ public class TwoAttributesRelationRestriction extends TwoAttributesRestriction {
         this.boundType = boundType;
     }
 
+    public SignType getSignType() {
+        return signType;
+    }
+
+    public BoundType getBoundType() {
+        return boundType;
+    }
+
     public static TwoAttributesRelationRestriction fromGreaterThan(GreaterThan greaterThan) {
         return new TwoAttributesRelationRestriction(greaterThan, SignType.GREATER_THAN, BoundType.OPEN);
     }
