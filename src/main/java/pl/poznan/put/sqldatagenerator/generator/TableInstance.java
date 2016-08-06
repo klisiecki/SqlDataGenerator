@@ -72,7 +72,7 @@ public class TableInstance {
     }
 
     public void save() {
-        base.saveInstance(getValues());
+        base.save(getValues());
         state.setSaved(true);
     }
 }

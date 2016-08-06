@@ -79,7 +79,7 @@ public class Generator {
             generateRow(restrictionsIndex, positive);
             saveTables(restrictionsIndex, positive);
         }
-        tableBaseMap.values().forEach(BaseTable::closeTableFile);
+        tableBaseMap.values().forEach(BaseTable::closeWriter);
         logger.info("Generating process done");
     }
 
