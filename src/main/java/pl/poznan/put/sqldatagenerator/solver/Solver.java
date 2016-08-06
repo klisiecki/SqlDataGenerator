@@ -14,7 +14,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static java.util.Collections.singletonList;
-import static pl.poznan.put.sqldatagenerator.generator.RandomGenerator.*;
+import static pl.poznan.put.sqldatagenerator.generators.RandomGenerator.*;
 
 public class Solver {
     private static final Logger logger = LoggerFactory.getLogger(Solver.class);

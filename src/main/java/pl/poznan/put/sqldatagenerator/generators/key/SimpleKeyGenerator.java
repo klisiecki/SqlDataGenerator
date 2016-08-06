@@ -1,4 +1,4 @@
-package pl.poznan.put.sqldatagenerator.generator.key;
+package pl.poznan.put.sqldatagenerator.generators.key;
 
 public class SimpleKeyGenerator extends KeyGenerator {
     private long current;

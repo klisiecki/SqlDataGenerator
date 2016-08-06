@@ -1,4 +1,4 @@
-package pl.poznan.put.sqldatagenerator.generator.key;
+package pl.poznan.put.sqldatagenerator.generators.key;
 
 public abstract class KeyGenerator {
     protected final long max;

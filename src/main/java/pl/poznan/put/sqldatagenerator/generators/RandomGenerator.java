@@ -1,4 +1,4 @@
-package pl.poznan.put.sqldatagenerator.generator;
+package pl.poznan.put.sqldatagenerator.generators;
 
 
 import com.google.common.collect.Range;

@@ -2,7 +2,7 @@ package pl.poznan.put.sqldatagenerator.restriction.types;
 
 import pl.poznan.put.sqldatagenerator.exception.InvalidInternalStateException;
 import pl.poznan.put.sqldatagenerator.generator.Attribute;
-import pl.poznan.put.sqldatagenerator.generator.key.KeyGenerator;
+import pl.poznan.put.sqldatagenerator.generators.key.KeyGenerator;
 
 public class PrimaryKeyRestriction extends OneAttributeRestriction {
 
