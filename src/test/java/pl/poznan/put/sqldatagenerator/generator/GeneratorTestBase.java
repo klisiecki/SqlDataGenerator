@@ -1,6 +1,8 @@
 package pl.poznan.put.sqldatagenerator.generator;
 
+import com.google.common.io.Files;
 import com.opencsv.CSVReader;
+import org.junit.Before;
 import org.xml.sax.SAXException;
 import pl.poznan.put.sqldatagenerator.configuration.Configuration;
 import pl.poznan.put.sqldatagenerator.readers.*;
@@ -18,12 +20,18 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public abstract class GeneratorTestBase {
-    protected static final Configuration configuration = Configuration.getInstance();
+    private static final Configuration configuration = Configuration.getInstance();
 
     protected static String databaseSchema;
     protected static String databaseTypesDescription;
 
-    protected List<File> runGenerator(String sqlFile) throws IOException, SAXException, ParserConfigurationException {
+    @Before
+    public void setUp() throws Exception {
+        configuration.setOutputPath(Files.createTempDir().getPath());
+    }
+
+    protected List<File> runGenerator(String sqlFile, double selectivity) throws IOException, SAXException, ParserConfigurationException {
+        configuration.setSelectivity(selectivity);
         SQLData sqlData = SQLData.fromFile(getAbsolutePath(sqlFile));
         DatabaseSchemaReader databaseSchemaReader = new XMLDatabaseSchemaReader(getAbsolutePath(databaseSchema));
         DatabaseTypesReader databaseTypesReader = new XMLDatabaseTypesReader(getAbsolutePath(databaseTypesDescription));

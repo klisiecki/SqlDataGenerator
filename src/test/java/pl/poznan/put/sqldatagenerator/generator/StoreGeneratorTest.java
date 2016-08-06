@@ -1,6 +1,5 @@
 package pl.poznan.put.sqldatagenerator.generator;
 
-import com.google.common.io.Files;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -13,15 +12,14 @@ public class StoreGeneratorTest extends GeneratorTestBase {
 
     @Before
     public void setUp() throws Exception {
-        configuration.setOutputPath(Files.createTempDir().getPath());
+        super.setUp();
         databaseSchema = "store_test/store.xml";
         databaseTypesDescription = "datatypes/netezza.xml";
     }
 
     @Test
     public void testSimpleSelect() throws Exception {
-        configuration.setSelectivity(1.0);
-        List<File> files = runGenerator("store_test/simpleSelect.sql");
+        List<File> files = runGenerator("store_test/simpleSelect.sql", 1.0);
 
         assertOutputFilesCount(3, files);
         assertExpectedFiles(asList("CLIENTS_0.csv", "ORDERS_0.csv", "PRODUCTS_0.csv"), files);
