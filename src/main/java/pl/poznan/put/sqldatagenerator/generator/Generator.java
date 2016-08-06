@@ -13,6 +13,7 @@ import pl.poznan.put.sqldatagenerator.readers.SQLData;
 import pl.poznan.put.sqldatagenerator.restriction.RestrictionsManager;
 import pl.poznan.put.sqldatagenerator.solver.Solver;
 import pl.poznan.put.sqldatagenerator.sql.model.AttributesPair;
+import pl.poznan.put.sqldatagenerator.writers.TableWriter;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -26,6 +27,7 @@ public class Generator {
     private static final Logger logger = LoggerFactory.getLogger(Generator.class);
     private static final int PRINT_PROGRESS_DELAY = 100;
 
+    private Class<? extends TableWriter> writerClass;
     private final Map<String, BaseTable> tableBaseMap;
     private final Map<String, TableInstance> tableInstanceMap;
     private final Random random;
@@ -39,6 +41,10 @@ public class Generator {
         this.random = new Random();
         this.restrictionsManager = new RestrictionsManager();
         this.historyManager = new HistoryManager();
+    }
+
+    public void setWriterClass(Class<? extends TableWriter> writerClass) {
+        this.writerClass = writerClass;
     }
 
     public void initTables(DatabaseProperties databaseProperties, SQLData sqlData) {
@@ -131,7 +137,7 @@ public class Generator {
     private void initTableBase(DatabaseProperties databaseProperties) {
         for (String tableName : databaseProperties.getTables()) {
             long count = databaseProperties.getRowsNum(tableName);
-            tableBaseMap.put(tableName, new BaseTable(tableName, databaseProperties.getAttributes(tableName), count));
+            tableBaseMap.put(tableName, new BaseTable(tableName, databaseProperties.getAttributes(tableName), count, writerClass));
         }
     }
 

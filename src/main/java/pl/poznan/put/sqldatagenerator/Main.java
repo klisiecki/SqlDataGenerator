@@ -1,9 +1,5 @@
 package pl.poznan.put.sqldatagenerator;
 
-import net.sf.jsqlparser.JSQLParserException;
-import net.sf.jsqlparser.parser.CCJSqlParserManager;
-import net.sf.jsqlparser.statement.Statement;
-import net.sf.jsqlparser.statement.select.Select;
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
@@ -14,11 +10,10 @@ import pl.poznan.put.sqldatagenerator.configuration.Configuration;
 import pl.poznan.put.sqldatagenerator.exception.*;
 import pl.poznan.put.sqldatagenerator.generator.Generator;
 import pl.poznan.put.sqldatagenerator.readers.*;
-import pl.poznan.put.sqldatagenerator.util.Utils;
+import pl.poznan.put.sqldatagenerator.writers.CSVTableWriter;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.StringReader;
 
 import static pl.poznan.put.sqldatagenerator.configuration.ConfigurationKeys.DATABASE_TYPES_DESCRIPTION;
 
@@ -44,13 +39,15 @@ public class Main {
         configuration.setPropertiesLocation(ns.getString("properties"));
 
         try {
-            SQLData sqlData = getSqlData(ns.getString("sqlFile"));
+            SQLData sqlData = SQLData.fromFile(ns.getString("sqlFile"));
             DatabaseSchemaReader databaseSchemaReader = new XMLDatabaseSchemaReader(ns.getString("xmlFile"));
             DatabaseTypesReader databaseTypesReader = new XMLDatabaseTypesReader(databaseTypesDescription);
             createOutputDirectory();
 
+            DatabaseProperties databaseProperties = new DatabaseProperties(databaseSchemaReader, databaseTypesReader);
             Generator generator = new Generator();
-            generator.initTables(new DatabaseProperties(databaseSchemaReader, databaseTypesReader), sqlData);
+            generator.setWriterClass(CSVTableWriter.class);
+            generator.initTables(databaseProperties, sqlData);
             generator.generate();
         } catch (SQLSyntaxNotSupportedException | SQLInvalidSyntaxException | XMLNotValidException
                 | SQLNotCompatibleWithDatabaseException e) {
@@ -98,20 +95,6 @@ public class Main {
         } catch (ArgumentParserException e) {
             parser.handleError(e);
             throw e;
-        }
-    }
-
-    private static SQLData getSqlData(String file) throws IOException {
-        try {
-            String sql = Utils.readFile(file);
-            Statement statement = new CCJSqlParserManager().parse(new StringReader(sql));
-            if (statement instanceof Select) {
-                return new SQLData((Select) statement);
-            } else {
-                throw new SQLSyntaxNotSupportedException("Incorrect SQL statement, must be SELECT");
-            }
-        } catch (JSQLParserException e) {
-            throw new SQLInvalidSyntaxException(e.getCause().getMessage());
         }
     }
 
