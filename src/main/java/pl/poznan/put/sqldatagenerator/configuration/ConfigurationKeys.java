@@ -11,7 +11,9 @@ public enum ConfigurationKeys implements ConfigurationKey {
     DATABASE_NULL_VALUE("database_null_value"),
 
     MIN_STRING_LENGTH("min_string_length"),
-    MAX_STRING_LENGTH("max_string_length");
+    MAX_STRING_LENGTH("max_string_length"),
+
+    DOUBLE_EPSILON("double_epsilon");
 
     private final String key;
 

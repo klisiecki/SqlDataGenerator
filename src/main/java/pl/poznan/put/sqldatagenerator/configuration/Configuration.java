@@ -64,6 +64,17 @@ public class Configuration {
         return defaultValue;
     }
 
+    public Double getDoubleProperty(ConfigurationKey key, Double defaultValue) {
+        if (properties.containsKey(key.toString())) {
+            try {
+                return Double.parseDouble((String) properties.get(key.toString()));
+            } catch (ClassCastException | NumberFormatException e) {
+                logger.warn("Unable to parse value for key " + key);
+            }
+        }
+        return defaultValue;
+    }
+
     public String getStringProperty(ConfigurationKey key, String defaultValue) {
         if (properties.containsKey(key.toString())) {
             try {
@@ -74,4 +85,5 @@ public class Configuration {
         }
         return defaultValue;
     }
+
 }

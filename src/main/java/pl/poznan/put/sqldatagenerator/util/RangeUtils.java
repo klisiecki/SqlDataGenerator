@@ -1,10 +1,17 @@
 package pl.poznan.put.sqldatagenerator.util;
 
 import com.google.common.collect.*;
+import pl.poznan.put.sqldatagenerator.configuration.Configuration;
+import pl.poznan.put.sqldatagenerator.configuration.ConfigurationKeys;
 
 import java.util.Set;
 
 public class RangeUtils {
+
+    private static final Configuration configuration = Configuration.getInstance();
+
+    public static final double EPS = configuration.getDoubleProperty(ConfigurationKeys.DOUBLE_EPSILON, 0.00001);
+
     @SuppressWarnings("unchecked")
     public static RangeSet intersectRangeSets(RangeSet a, RangeSet b) {
         RangeSet result = TreeRangeSet.create();
@@ -33,14 +40,6 @@ public class RangeUtils {
     }
 
 
-    public static double getMinDouble(Range<Double> range) {
-        if (!range.hasLowerBound()) {
-            return -Double.MAX_VALUE;
-        }
-        double rangeTypeCorrection = range.lowerBoundType() == BoundType.CLOSED ? 0 : Double.MIN_VALUE;
-        return range.lowerEndpoint() + rangeTypeCorrection;
-    }
-
     public static long getMaxLong(RangeSet<Long> rangeSet) {
         return getMaxLong(Iterables.getLast(rangeSet.asRanges()));
     }
@@ -49,14 +48,33 @@ public class RangeUtils {
         if (!range.hasUpperBound()) {
             return Long.MAX_VALUE;
         }
-        int rangeTypeCorrection = range.upperBoundType() == BoundType.CLOSED ? 1 : 0;
+        int rangeTypeCorrection = range.upperBoundType() == BoundType.OPEN ? -1 : 0;
         return range.upperEndpoint() + rangeTypeCorrection;
+    }
+
+    public static double getMinDouble(RangeSet<Double> rangeSet) {
+        return getMinDouble(rangeSet.asRanges().iterator().next());
+    }
+
+    public static double getMinDouble(Range<Double> range) {
+        if (!range.hasLowerBound()) {
+            return -Double.MAX_VALUE;
+        }
+        double rangeTypeCorrection = range.lowerBoundType() == BoundType.CLOSED ? 0 : EPS;
+        return range.lowerEndpoint() + rangeTypeCorrection;
+    }
+
+    public static double getMaxDouble(RangeSet<Double> rangeSet) {
+        return getMaxDouble(Iterables.getLast(rangeSet.asRanges()));
     }
 
     public static double getMaxDouble(Range<Double> range) {
         if (!range.hasUpperBound()) {
             return Double.MAX_VALUE;
         }
-        return range.upperEndpoint();
+        double rangeTypeCorrection = range.upperBoundType() == BoundType.CLOSED ? 0 : -EPS;
+        return range.upperEndpoint() + rangeTypeCorrection;
     }
+
+
 }
