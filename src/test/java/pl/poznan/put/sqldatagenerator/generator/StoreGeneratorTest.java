@@ -45,6 +45,28 @@ public class StoreGeneratorTest extends GeneratorTestBase {
             long id = Long.parseLong(s);
             return expectedIds.contains(id);
         });
+    }
 
+    @Test
+    public void testDoubleRanges() throws Exception {
+        List<File> files = runGenerator("store_test/doubleRanges.sql", 1.0);
+        assertStoreOutputCorrect(files);
+
+        List<String[]> productsLines = getFileLines(files, "PRODUCTS_0.csv");
+
+        assertColumnCondition(productsLines, "PRICE", s -> {
+            double price = Double.parseDouble(s);
+            return (price >= 100 || price < 10) && price != 0;
+        });
+    }
+
+    @Test
+    public void testStrings() throws Exception {
+        List<File> files = runGenerator("store_test/strings.sql", 1.0);
+        assertStoreOutputCorrect(files);
+
+        List<String[]> clientsLines = getFileLines(files, "CLIENTS_0.csv");
+
+        assertColumnCondition(clientsLines, "LAST_NAME", s -> asList("A", "B", "D").contains(s));
     }
 }
