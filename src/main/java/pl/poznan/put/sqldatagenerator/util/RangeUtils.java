@@ -76,5 +76,25 @@ public class RangeUtils {
         return range.upperEndpoint() + rangeTypeCorrection;
     }
 
+    public static RangeSet<Long> removeEmptyRanges(RangeSet<Long> rangeSet) {
+        rangeSet.getClass().getTypeParameters();
+        RangeSet<Long> result = TreeRangeSet.create();
+        rangeSet.asRanges().stream().filter(longRange -> !isEmpty(longRange)).forEach(result::add);
+        return result;
+    }
 
+    private static boolean isEmpty(Range<Long> longRange) {
+        if (!longRange.hasLowerBound() || !longRange.hasUpperBound()) {
+            return false;
+        }
+        long width = longRange.upperEndpoint() - longRange.lowerEndpoint();
+        if (width > 1) {
+            return false;
+        } else if (width == 0) {
+            return longRange.lowerBoundType() == BoundType.OPEN || longRange.upperBoundType() == BoundType.OPEN;
+        } else if (width == 1) {
+            return longRange.lowerBoundType() == BoundType.OPEN && longRange.upperBoundType() == BoundType.OPEN;
+        }
+        return true;
+    }
 }

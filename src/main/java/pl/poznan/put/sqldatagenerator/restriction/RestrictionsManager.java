@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.poznan.put.sqldatagenerator.exception.InvalidInternalStateException;
 import pl.poznan.put.sqldatagenerator.generator.Attribute;
+import pl.poznan.put.sqldatagenerator.generator.datatypes.InternalType;
 import pl.poznan.put.sqldatagenerator.restriction.types.NullRestriction;
 import pl.poznan.put.sqldatagenerator.restriction.types.RangeRestriction;
 import pl.poznan.put.sqldatagenerator.restriction.types.Restriction;
@@ -180,6 +181,9 @@ public class RestrictionsManager {
             }
             if (rangeSet.isEmpty()) {
                 return false;
+            }
+            if (attribute.getInternalType() == InternalType.LONG) {
+                rangeSet = RangeUtils.removeEmptyRanges((RangeSet<Long>) rangeSet);
             }
             restrictionsByAttribute.put(attribute, new RangeRestriction(attribute, rangeSet));
         }

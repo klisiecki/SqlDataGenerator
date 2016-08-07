@@ -81,6 +81,9 @@ public class RandomGenerator {
     }
 
     private static Range getRandomRange(List<Range> ranges, List<Long> probabilities) {
+        if (ranges.size() == 1) {
+            return ranges.get(0);
+        }
         long max = probabilities.get(probabilities.size() - 1);
         long probabilityIndex = random.nextLong(max);
         int i = 0;

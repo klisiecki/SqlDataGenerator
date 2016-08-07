@@ -2,6 +2,8 @@ package pl.poznan.put.sqldatagenerator.generator;
 
 import com.google.common.io.Files;
 import com.opencsv.CSVReader;
+import org.apache.commons.io.FileUtils;
+import org.junit.After;
 import org.junit.Before;
 import org.xml.sax.SAXException;
 import pl.poznan.put.sqldatagenerator.configuration.Configuration;
@@ -28,6 +30,13 @@ public abstract class GeneratorTestBase {
     @Before
     public void setUp() throws Exception {
         configuration.setOutputPath(Files.createTempDir().getPath());
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        File outputDir = new File(configuration.getOutputPath());
+        FileUtils.cleanDirectory(outputDir);
+        outputDir.delete();
     }
 
     protected List<File> runGenerator(String sqlFile, double selectivity) throws IOException, SAXException, ParserConfigurationException {
