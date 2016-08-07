@@ -12,11 +12,9 @@ import pl.poznan.put.sqldatagenerator.generator.datatypes.InternalType;
 public class SQLExpressionsUtils {
 
     public static boolean isTwoAttributesRelationExpression(Expression expression) {
-        if (expression instanceof BinaryExpression) {
-            return isColumn(((BinaryExpression) expression).getLeftExpression()) &&
-                    isColumn(((BinaryExpression) expression).getRightExpression());
-        }
-        return false;
+        return expression instanceof BinaryExpression &&
+                isColumn(((BinaryExpression) expression).getLeftExpression()) &&
+                isColumn(((BinaryExpression) expression).getRightExpression());
     }
 
     public static boolean isColumnAndValueExpression(Expression expression) {

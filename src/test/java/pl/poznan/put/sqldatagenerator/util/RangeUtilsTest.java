@@ -30,8 +30,8 @@ public class RangeUtilsTest {
     private Range<Double> toZeroDouble;
     private RangeSet<Double> toZeroDoubleRS;
 
-    private Range<Double> fromHunderDouble;
-    private RangeSet<Double> fromHunderDoubleRS;
+    private Range<Double> fromHundredDouble;
+    private RangeSet<Double> fromHundredDoubleRS;
 
     private Range<Double> minusTenToTenDoubleOpen;
     private Range<Double> minusTenToTenDoubleClosed;
@@ -66,9 +66,9 @@ public class RangeUtilsTest {
         toZeroDoubleRS = TreeRangeSet.create();
         toZeroDoubleRS.add(toZeroDouble);
 
-        fromHunderDouble = Range.atLeast(100.0);
-        fromHunderDoubleRS = TreeRangeSet.create();
-        fromHunderDoubleRS.add(fromHunderDouble);
+        fromHundredDouble = Range.atLeast(100.0);
+        fromHundredDoubleRS = TreeRangeSet.create();
+        fromHundredDoubleRS.add(fromHundredDouble);
 
         minusTenToTenDoubleClosed = Range.closed(-10.0, 10.0);
         minusTenToTenDoubleOpen = Range.open(-10.0, 10.0);
@@ -133,7 +133,7 @@ public class RangeUtilsTest {
 
     @Test
     public void getMinDoubleFromRangeSet() throws Exception {
-        assertEquals(100.0, RangeUtils.getMinDouble(fromHunderDoubleRS), Double.MIN_VALUE);
+        assertEquals(100.0, RangeUtils.getMinDouble(fromHundredDoubleRS), Double.MIN_VALUE);
         assertEquals(-Double.MAX_VALUE, RangeUtils.getMinDouble(toZeroDoubleRS), Double.MIN_VALUE);
         double minDouble = RangeUtils.getMinDouble(minusTenToTenDoubleOpenRS);
         assertEquals(-10 + RangeUtils.EPS, minDouble, Double.MIN_VALUE);
@@ -142,7 +142,7 @@ public class RangeUtilsTest {
 
     @Test
     public void getMinDoubleFromRange() throws Exception {
-        assertEquals(100.0, RangeUtils.getMinDouble(fromHunderDouble), Double.MIN_VALUE);
+        assertEquals(100.0, RangeUtils.getMinDouble(fromHundredDouble), Double.MIN_VALUE);
         assertEquals(-Double.MAX_VALUE, RangeUtils.getMinDouble(toZeroDouble), Double.MIN_VALUE);
         double minDouble = RangeUtils.getMinDouble(minusTenToTenDoubleOpen);
         assertEquals(-10 + RangeUtils.EPS, minDouble, Double.MIN_VALUE);
@@ -151,14 +151,14 @@ public class RangeUtilsTest {
 
     @Test
     public void getMaxDoubleFromRangeSet() throws Exception {
-        assertEquals(Double.MAX_VALUE, RangeUtils.getMaxDouble(fromHunderDoubleRS), Double.MIN_VALUE);
+        assertEquals(Double.MAX_VALUE, RangeUtils.getMaxDouble(fromHundredDoubleRS), Double.MIN_VALUE);
         assertEquals(0.0, RangeUtils.getMaxDouble(toZeroDoubleRS), Double.MIN_VALUE);
         assertEquals(10 - RangeUtils.EPS, RangeUtils.getMaxDouble(minusTenToTenDoubleOpenRS), Double.MIN_VALUE);
     }
 
     @Test
     public void getMaxDoubleFromRange() throws Exception {
-        assertEquals(Double.MAX_VALUE, RangeUtils.getMaxDouble(fromHunderDouble), Double.MIN_VALUE);
+        assertEquals(Double.MAX_VALUE, RangeUtils.getMaxDouble(fromHundredDouble), Double.MIN_VALUE);
         assertEquals(0.0, RangeUtils.getMaxDouble(toZeroDouble), Double.MIN_VALUE);
         assertEquals(10 - RangeUtils.EPS, RangeUtils.getMaxDouble(minusTenToTenDoubleOpen), Double.MIN_VALUE);
     }

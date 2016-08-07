@@ -18,7 +18,7 @@ import static java.util.stream.Collectors.toList;
 import static pl.poznan.put.sqldatagenerator.util.RangeUtils.intersectRangeSets;
 
 public class RestrictionsByAttribute {
-    private HashMultimap<Attribute, Restriction> restrictionsByAttribute = HashMultimap.create();
+    private final HashMultimap<Attribute, Restriction> restrictionsByAttribute = HashMultimap.create();
 
     public void put(Attribute attribute, Restriction restriction) {
         restrictionsByAttribute.put(attribute, restriction);

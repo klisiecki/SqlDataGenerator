@@ -231,9 +231,7 @@ public class RestrictionsManager {
 
     private void mergeNullRestrictions(Attribute attribute, RestrictionsByAttribute toRemoveRestrictions, RestrictionsByAttribute restrictionsByAttribute, List<NullRestriction> nullRestrictions) {
         if (nullRestrictions.size() > 1) {
-            nullRestrictions.forEach(restriction -> {
-                toRemoveRestrictions.put(attribute, restriction);
-            });
+            nullRestrictions.forEach(restriction -> toRemoveRestrictions.put(attribute, restriction));
             restrictionsByAttribute.put(attribute, new NullRestriction(attribute));
         }
     }

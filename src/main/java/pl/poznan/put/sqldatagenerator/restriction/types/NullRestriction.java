@@ -13,7 +13,7 @@ public class NullRestriction extends OneAttributeRestriction {
         super(attribute);
     }
 
-    public NullRestriction(Expression expression, Column column) {
+    private NullRestriction(Expression expression, Column column) {
         super(expression, column);
     }
 
