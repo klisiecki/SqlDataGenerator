@@ -22,7 +22,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public abstract class GeneratorTestBase {
-    private static final Configuration configuration = Configuration.getInstance();
+    protected static final Configuration configuration = Configuration.getInstance();
 
     protected static String databaseSchema;
     protected static String databaseTypesDescription;
@@ -87,6 +87,21 @@ public abstract class GeneratorTestBase {
             String value = fileLine[columnIndex];
             assertTrue(value + " doesn't match given condition", predicate.test(value));
         }
+    }
+
+    protected static void assertColumnConditionCount(List<String[]> fileLines, String column,
+                                                     Predicate<String> predicate, int expectedCount) {
+        int count = 0;
+        List<String> header = asList(fileLines.get(0));
+        fileLines = fileLines.subList(1, fileLines.size());
+        int columnIndex = header.indexOf(column);
+        for (String[] fileLine : fileLines) {
+            String value = fileLine[columnIndex];
+            if (predicate.test(value)) {
+                count++;
+            }
+        }
+        assertEquals("Incorrect count of elements matching given condition", expectedCount, count);
     }
 
     protected static void assertOutputFilesCount(int count, List<File> files) {
