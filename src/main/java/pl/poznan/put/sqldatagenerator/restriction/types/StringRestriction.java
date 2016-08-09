@@ -1,11 +1,12 @@
 package pl.poznan.put.sqldatagenerator.restriction.types;
 
 import com.google.common.collect.Range;
+import net.sf.jsqlparser.expression.BinaryExpression;
 import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.expression.StringValue;
 import net.sf.jsqlparser.expression.operators.relational.*;
 import net.sf.jsqlparser.schema.Column;
 import pl.poznan.put.sqldatagenerator.configuration.Configuration;
-import pl.poznan.put.sqldatagenerator.exception.NotImplementedException;
 import pl.poznan.put.sqldatagenerator.generator.Attribute;
 import pl.poznan.put.sqldatagenerator.generator.AttributesMap;
 import pl.poznan.put.sqldatagenerator.generator.datatypes.DataTypesConverter;
@@ -23,31 +24,26 @@ import static pl.poznan.put.sqldatagenerator.restriction.SQLExpressionsUtils.get
 
 public class StringRestriction extends OneAttributeRestriction {
 
-    public class LikeExpressionProperties {
+    public static class LikeExpressionProperties {
         private final String like;
-        private final boolean leftOpen;
-        private final boolean rightOpen;
+        private final String escapeCharacter;
 
-        public LikeExpressionProperties(String like, boolean leftOpen, boolean rightOpen) {
+
+        public LikeExpressionProperties(String like, String escapeCharacter) {
             this.like = like;
-            this.leftOpen = leftOpen;
-            this.rightOpen = rightOpen;
+            this.escapeCharacter = escapeCharacter;
         }
 
         public LikeExpressionProperties(LikeExpressionProperties likeExpressionProperties) {
-            this(likeExpressionProperties.getLike(), likeExpressionProperties.isLeftOpen(), likeExpressionProperties.isRightOpen());
+            this(likeExpressionProperties.getLike(), likeExpressionProperties.getEscapeCharacter());
         }
 
         public String getLike() {
             return like;
         }
 
-        public boolean isLeftOpen() {
-            return leftOpen;
-        }
-
-        public boolean isRightOpen() {
-            return rightOpen;
+        public String getEscapeCharacter() {
+            return escapeCharacter;
         }
     }
 
@@ -121,6 +117,10 @@ public class StringRestriction extends OneAttributeRestriction {
         return isNegated;
     }
 
+    public void setNegated(boolean negated) {
+        isNegated = negated;
+    }
+
     @Override
     public Restriction reverse() {
         this.isNegated = !this.isNegated;
@@ -132,7 +132,9 @@ public class StringRestriction extends OneAttributeRestriction {
         StringRestriction clone = new StringRestriction(this.getAttribute());
         clone.setMinLength(getMinLength());
         clone.setMaxLength(getMaxLength());
-        clone.setAllowedValues(new ArrayList<>(allowedValues));
+        if (allowedValues != null) {
+            clone.setAllowedValues(new ArrayList<>(allowedValues));
+        }
         if (likeExpressionProperties != null) {
             clone.setLikeExpressionProperties(new LikeExpressionProperties(likeExpressionProperties));
         }
@@ -140,15 +142,19 @@ public class StringRestriction extends OneAttributeRestriction {
     }
 
     public static StringRestriction fromEquals(EqualsTo equalsTo) {
-        Column column = getColumn(equalsTo);
+        return fromEqualsInternal(equalsTo);
+    }
+
+    private static StringRestriction fromEqualsInternal(BinaryExpression expression) {
+        Column column = getColumn(expression);
         DatabaseType databaseType = AttributesMap.get(column).getDatabaseType();
-        StringRestriction restriction = new StringRestriction(equalsTo, column);
-        restriction.setAllowedValues(singletonList(DataTypesConverter.getInternalString(getValueExpression(equalsTo), databaseType)));
+        StringRestriction restriction = new StringRestriction(expression, column);
+        restriction.setAllowedValues(singletonList(DataTypesConverter.getInternalString(getValueExpression(expression), databaseType)));
         return restriction;
     }
 
     public static StringRestriction fromNotEquals(NotEqualsTo notEqualsTo) {
-        throw new NotImplementedException();
+        return (StringRestriction) fromEqualsInternal(notEqualsTo).reverse();
     }
 
     public static StringRestriction fromIn(InExpression inExpression) {
@@ -162,7 +168,14 @@ public class StringRestriction extends OneAttributeRestriction {
     }
 
     public static StringRestriction fromLikeExpression(LikeExpression likeExpression) {
-        throw new NotImplementedException();
+        Column column = (Column) likeExpression.getLeftExpression();
+        String value = ((StringValue) likeExpression.getRightExpression()).getValue();
+
+        LikeExpressionProperties properties = new LikeExpressionProperties(value, likeExpression.getEscape());
+        StringRestriction restriction = new StringRestriction(likeExpression, column);
+        restriction.setLikeExpressionProperties(properties);
+        restriction.setNegated(likeExpression.isNot());
+        return restriction;
     }
 
     @Override

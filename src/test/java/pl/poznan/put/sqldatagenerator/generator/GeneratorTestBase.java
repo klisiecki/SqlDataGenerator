@@ -14,8 +14,11 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiPredicate;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
@@ -71,6 +74,15 @@ public abstract class GeneratorTestBase {
         return csvReader.readAll();
     }
 
+    protected List<String> getColumnValues(List<String[]> fileLines, String column) {
+        List<String> result = new ArrayList<>();
+        List<String> header = asList(fileLines.get(0));
+        fileLines = fileLines.subList(1, fileLines.size());
+        int columnIndex = header.indexOf(column);
+        result.addAll(fileLines.stream().map(fileLine -> fileLine[columnIndex]).collect(Collectors.toList()));
+        return result;
+    }
+
     protected static void assertColumns(List<String> expectedColumns, List<String[]> lines) {
         List<String> header = asList(lines.get(0));
         assertEquals(expectedColumns.size(), header.size());
@@ -86,6 +98,20 @@ public abstract class GeneratorTestBase {
         for (String[] fileLine : fileLines) {
             String value = fileLine[columnIndex];
             assertTrue(value + " doesn't match given condition", predicate.test(value));
+        }
+    }
+
+    protected static void assertColumnsRelation(List<String[]> fileLines, String firstColumn, String secondColumn,
+                                                BiPredicate<String, String> predicate) {
+        List<String> header = asList(fileLines.get(0));
+        fileLines = fileLines.subList(1, fileLines.size());
+        int firstColumnIndex = header.indexOf(firstColumn);
+        int secondColumnIndex = header.indexOf(secondColumn);
+        for (String[] fileLine : fileLines) {
+            String firstColumnValue = fileLine[firstColumnIndex];
+            String secondColumnValue = fileLine[secondColumnIndex];
+            assertTrue("Values " + firstColumnValue + ", " + secondColumnValue + " doesn't match given condition",
+                    predicate.test(firstColumnValue, secondColumnValue));
         }
     }
 

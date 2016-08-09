@@ -34,6 +34,13 @@
             </ATTRIBUTE>
 
             <ATTRIBUTE>
+                <NAME>OLD_PRICE</NAME>
+                <TYPE>FLOAT</TYPE>
+                <MIN_VALUE>0</MIN_VALUE>
+                <MAX_VALUE>100000</MAX_VALUE>
+            </ATTRIBUTE>
+
+            <ATTRIBUTE>
                 <NAME>CATEGORY</NAME>
                 <TYPE>VARCHAR</TYPE>
                 <VALUES>
@@ -69,6 +76,11 @@
                 <TYPE>VARCHAR</TYPE>
                 <MIN_VALUE>2</MIN_VALUE>
                 <MAX_VALUE>15</MAX_VALUE>
+            </ATTRIBUTE>
+
+            <ATTRIBUTE>
+                <NAME>BIRTH_DATE</NAME>
+                <TYPE>TIMESTAMP</TYPE>
             </ATTRIBUTE>
 
         </ATTRIBUTES>
