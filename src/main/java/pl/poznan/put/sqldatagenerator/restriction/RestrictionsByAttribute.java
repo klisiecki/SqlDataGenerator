@@ -6,6 +6,7 @@ import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import pl.poznan.put.sqldatagenerator.exception.InvalidInternalStateException;
 import pl.poznan.put.sqldatagenerator.exception.NotImplementedException;
 import pl.poznan.put.sqldatagenerator.exception.UnsatisfiableRestrictionException;
 import pl.poznan.put.sqldatagenerator.generator.Attribute;
@@ -90,8 +91,11 @@ public class RestrictionsByAttribute {
             Attribute secondAttribute = relationRestriction.getSecondAttribute();
             InternalType internalType = firstAttribute.getInternalType();
             if (internalType == InternalType.STRING) {
-                //TODO implement strings equals
-                throw new NotImplementedException();
+                if (relationRestriction.getSignType() == SignType.EQUALS) {
+                    combineStringEquality(firstAttribute, secondAttribute);
+                } else {
+                    throw new NotImplementedException();
+                }
             } else if (internalType == InternalType.LONG || internalType == InternalType.DOUBLE) {
                 if (relationRestriction.getSignType() == SignType.EQUALS) {
                     combineNumericEquality(firstAttribute, secondAttribute);
@@ -171,9 +175,25 @@ public class RestrictionsByAttribute {
         return true;
     }
 
+    private boolean combineStringEquality(Attribute firstAttribute, Attribute secondAttribute) {
+        StringRestriction firstStringRestriction = getStringRestriction(firstAttribute);
+        StringRestriction secondStringRestriction = getStringRestriction(secondAttribute);
+
+        //TODO functions for merging StringRestrictions, common with RestrictionManager.mergeStringRestrictions
+        return true;
+    }
+
     private RangeRestriction getRangeRestriction(Attribute attribute) {
         return restrictionsByAttribute.get(attribute).stream()
-                .filter(r -> r instanceof RangeRestriction).map(r -> (RangeRestriction) r).findFirst().get();
+                .filter(r -> r instanceof RangeRestriction).map(r -> (RangeRestriction) r)
+                .findFirst().orElseThrow(InvalidInternalStateException::new);
     }
+
+    private StringRestriction getStringRestriction(Attribute attribute) {
+        return restrictionsByAttribute.get(attribute).stream()
+                .filter(r -> r instanceof StringRestriction).map(r -> (StringRestriction) r)
+                .findFirst().orElseThrow(InvalidInternalStateException::new);
+    }
+
 
 }

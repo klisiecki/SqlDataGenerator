@@ -187,19 +187,10 @@ public class RestrictionsManager {
         List<NullRestriction> nullRestrictions = restrictions.stream()
                 .filter(r -> r instanceof NullRestriction).map(r -> (NullRestriction) r).collect(toList());
 
-        if (!mergeRangeRestrictions(attribute, toRemoveRestrictions, restrictionsByAttribute, rangeRestrictions)) {
-            return false;
-        }
+        return mergeRangeRestrictions(attribute, toRemoveRestrictions, restrictionsByAttribute, rangeRestrictions) &&
+                mergeStringRestrictions(attribute, toRemoveRestrictions, restrictionsByAttribute, stringRestrictions) &&
+                mergeNullRestrictions(attribute, toRemoveRestrictions, restrictionsByAttribute, nullRestrictions);
 
-        if (!mergeStringRestrictions(attribute, toRemoveRestrictions, restrictionsByAttribute, stringRestrictions)) {
-            return false;
-        }
-
-        if (!mergeNullRestrictions(attribute, toRemoveRestrictions, restrictionsByAttribute, nullRestrictions)) {
-            return false;
-        }
-
-        return true;
     }
 
     private boolean mergeRangeRestrictions(Attribute attribute, RestrictionsByAttribute toRemoveRestrictions,
