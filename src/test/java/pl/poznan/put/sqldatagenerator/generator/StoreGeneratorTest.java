@@ -35,7 +35,7 @@ public class StoreGeneratorTest extends GeneratorTestBase {
         assertStoreOutputCorrect(files);
 
         List<String[]> clientsLines = getFileLines(files, CLIENTS_FILENAME);
-        assertColumns(asList("ID", "FIRST_NAME", "LAST_NAME", "BIRTH_DATE"), clientsLines);
+        assertColumnNames(asList("ID", "FIRST_NAME", "LAST_NAME", "BIRTH_DATE"), clientsLines);
         assertColumnCondition(clientsLines, "LAST_NAME", s -> asList("Cundiff", "Mastroianni").contains(s));
     }
 
@@ -135,7 +135,7 @@ public class StoreGeneratorTest extends GeneratorTestBase {
 
     @Test
     public void testTwoColumnsRelation2() throws Exception {
-        List<File> files = runGenerator("store_test/twoColumnsRelation1.sql", 1.0);
+        List<File> files = runGenerator("store_test/twoColumnsRelation2.sql", 1.0);
         assertStoreOutputCorrect(files);
 
         List<String[]> productsLines = getFileLines(files, PRODUCTS_FILENAME);

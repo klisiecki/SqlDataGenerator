@@ -18,9 +18,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.toList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -79,11 +79,11 @@ public abstract class GeneratorTestBase {
         List<String> header = asList(fileLines.get(0));
         fileLines = fileLines.subList(1, fileLines.size());
         int columnIndex = header.indexOf(column);
-        result.addAll(fileLines.stream().map(fileLine -> fileLine[columnIndex]).collect(Collectors.toList()));
+        result.addAll(fileLines.stream().map(fileLine -> fileLine[columnIndex]).collect(toList()));
         return result;
     }
 
-    protected static void assertColumns(List<String> expectedColumns, List<String[]> lines) {
+    protected static void assertColumnNames(List<String> expectedColumns, List<String[]> lines) {
         List<String> header = asList(lines.get(0));
         assertEquals(expectedColumns.size(), header.size());
         for (String column : header) {
