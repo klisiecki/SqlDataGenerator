@@ -50,7 +50,7 @@ public class Main {
             generator.initTables(databaseProperties, sqlData);
             generator.generate();
         } catch (SQLSyntaxNotSupportedException | SQLInvalidSyntaxException | XMLNotValidException
-                | SQLNotCompatibleWithDatabaseException e) {
+                | SQLNotCompatibleWithDatabaseException | UnsatisfiableSQLException e) {
             logger.info(e.getClass().getSimpleName() + ": " + e.getMessage());
         } catch (InvalidInternalStateException | IOException e) {
             logger.error(e.getMessage());

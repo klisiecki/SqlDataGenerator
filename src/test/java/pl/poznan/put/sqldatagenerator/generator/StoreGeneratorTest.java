@@ -128,9 +128,10 @@ public class StoreGeneratorTest extends GeneratorTestBase {
         assertStoreOutputCorrect(files);
 
         List<String[]> productsLines = getFileLines(files, PRODUCTS_FILENAME);
-        assertColumnsRelation(productsLines, "PRICE", "OLD_PRICE",
-                (p, op) -> Double.parseDouble(p) >= Double.parseDouble(op));
-        assertColumnsRelation(productsLines, "NAME", "DESCRIPTION", String::equals);
+        assertColumnsRelation(productsLines, "PACKAGE_WIDTH", "PACKAGE_HEIGHT",
+                (p, op) -> Double.parseDouble(p) <= Double.parseDouble(op));
+        assertColumnCondition(productsLines, "PACKAGE_HEIGHT", s -> Double.parseDouble(s) <= 100);
+
     }
 
     @Test
@@ -139,9 +140,31 @@ public class StoreGeneratorTest extends GeneratorTestBase {
         assertStoreOutputCorrect(files);
 
         List<String[]> productsLines = getFileLines(files, PRODUCTS_FILENAME);
+        assertColumnsRelation(productsLines, "PACKAGE_WIDTH", "PACKAGE_HEIGHT",
+                (p, op) -> Double.parseDouble(p) > Double.parseDouble(op));
+    }
+
+    @Test
+    public void testTwoColumnsRelations1() throws Exception {
+        List<File> files = runGenerator("store_test/twoColumnsRelations1.sql", 1.0);
+        assertStoreOutputCorrect(files);
+
+        List<String[]> productsLines = getFileLines(files, PRODUCTS_FILENAME);
+        assertColumnsRelation(productsLines, "PRICE", "OLD_PRICE",
+                (p, op) -> Double.parseDouble(p) >= Double.parseDouble(op));
+        assertColumnsRelation(productsLines, "NAME", "DESCRIPTION", String::equals);
+    }
+
+    @Test
+    public void testTwoColumnsRelations2() throws Exception {
+        List<File> files = runGenerator("store_test/twoColumnsRelations2.sql", 1.0);
+        assertStoreOutputCorrect(files);
+
+        List<String[]> productsLines = getFileLines(files, PRODUCTS_FILENAME);
         assertColumnsRelation(productsLines, "PRICE", "OLD_PRICE",
                 (p, op) -> Double.parseDouble(p) < Double.parseDouble(op));
         assertColumnsRelation(productsLines, "NAME", "DESCRIPTION", (n, d) -> !n.equals(d));
     }
+
 
 }

@@ -51,6 +51,27 @@
                 </VALUES>
             </ATTRIBUTE>
 
+            <ATTRIBUTE>
+                <NAME>PACKAGE_WIDTH</NAME>
+                <TYPE>INTEGER</TYPE>
+                <MIN_VALUE>0</MIN_VALUE>
+                <MAX_VALUE>5000</MAX_VALUE>
+            </ATTRIBUTE>
+
+            <ATTRIBUTE>
+                <NAME>PACKAGE_HEIGHT</NAME>
+                <TYPE>INTEGER</TYPE>
+                <MIN_VALUE>0</MIN_VALUE>
+                <MAX_VALUE>5000</MAX_VALUE>
+            </ATTRIBUTE>
+
+            <ATTRIBUTE>
+                <NAME>PACKAGE_DEPTH</NAME>
+                <TYPE>INTEGER</TYPE>
+                <MIN_VALUE>0</MIN_VALUE>
+                <MAX_VALUE>5000</MAX_VALUE>
+            </ATTRIBUTE>
+
         </ATTRIBUTES>
     </TABLE>
 

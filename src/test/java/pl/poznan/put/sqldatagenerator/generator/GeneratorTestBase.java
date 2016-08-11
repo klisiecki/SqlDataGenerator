@@ -110,7 +110,7 @@ public abstract class GeneratorTestBase {
         for (String[] fileLine : fileLines) {
             String firstColumnValue = fileLine[firstColumnIndex];
             String secondColumnValue = fileLine[secondColumnIndex];
-            assertTrue("Values " + firstColumnValue + ", " + secondColumnValue + " doesn't match given condition",
+            assertTrue("Values " + firstColumnValue + ", " + secondColumnValue + " don't match given condition",
                     predicate.test(firstColumnValue, secondColumnValue));
         }
     }

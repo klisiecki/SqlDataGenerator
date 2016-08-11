@@ -24,7 +24,7 @@ public class PrimaryKeyRestriction extends OneAttributeRestriction {
 
     @Override
     public Restriction clone() {
-        throw new InvalidInternalStateException("Cannot clone primary key restriction");
+        return new PrimaryKeyRestriction(getAttribute(), keyGenerator);
     }
 
     @Override

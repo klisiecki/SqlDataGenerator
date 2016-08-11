@@ -2,22 +2,27 @@ package pl.poznan.put.sqldatagenerator.restriction;
 
 import com.google.common.collect.BoundType;
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pl.poznan.put.sqldatagenerator.exception.NotImplementedException;
+import pl.poznan.put.sqldatagenerator.exception.UnsatisfiableRestrictionException;
 import pl.poznan.put.sqldatagenerator.generator.Attribute;
 import pl.poznan.put.sqldatagenerator.generator.datatypes.InternalType;
 import pl.poznan.put.sqldatagenerator.restriction.types.*;
 import pl.poznan.put.sqldatagenerator.util.RangeUtils;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.Map.Entry;
 
-import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 import static pl.poznan.put.sqldatagenerator.util.RangeUtils.intersectRangeSets;
 
 public class RestrictionsByAttribute {
+
+    private static final Logger logger = LoggerFactory.getLogger(RestrictionsByAttribute.class);
+
     private final HashMultimap<Attribute, Restriction> restrictionsByAttribute = HashMultimap.create();
 
     public void put(Attribute attribute, Restriction restriction) {
@@ -28,27 +33,56 @@ public class RestrictionsByAttribute {
         return restrictionsByAttribute.remove(attribute, restriction);
     }
 
-    public Set<Map.Entry<Attribute, Restriction>> entries() {
+    public Set<Entry<Attribute, Restriction>> entries() {
         return restrictionsByAttribute.entries();
     }
 
-    public Set<Map.Entry<Attribute, Collection<Restriction>>> groupedEntries() {
+    public Set<Entry<Attribute, Collection<Restriction>>> groupedEntries() {
         return restrictionsByAttribute.asMap().entrySet();
+    }
+
+    public List<Entry<Attribute, Collection<Restriction>>> randomizedGroupedEntries() {
+        List<Entry<Attribute, Collection<Restriction>>> result = new ArrayList<>(groupedEntries());
+        Collections.shuffle(result);
+        return result;
+    }
+
+    public RestrictionsByAttribute clone() {
+        RestrictionsByAttribute copy = new RestrictionsByAttribute();
+        for (Entry<Attribute, Restriction> e : entries()) {
+            copy.put(e.getKey(), e.getValue().clone());
+        }
+        return copy;
     }
 
     public Collection<Restriction> values() {
         return restrictionsByAttribute.values();
     }
 
-    public boolean combineRangeRestrictions() {
-        List<TwoAttributesRestriction> restrictions = entries().stream().map(Map.Entry::getValue)
+    /**
+     * @return false if combining attributes would return unsatisfiable/invalid restrictions
+     */
+    public boolean combineAll() {
+        Set<TwoAttributesRestriction> restrictions = entries().stream().map(Entry::getValue)
                 .filter(r -> r instanceof TwoAttributesRestriction)
-                .map(r -> (TwoAttributesRestriction) r).collect(toList());
+                .map(r -> (TwoAttributesRestriction) r).collect(toSet());
 
-        return false;
+        boolean anyChanged = false;
+        do {
+            for (TwoAttributesRestriction restriction : restrictions) {
+                try {
+                    anyChanged = anyChanged || combineTwoAttributes(restriction);
+                } catch (UnsatisfiableRestrictionException e) {
+                    logger.info("Combining of " + restriction + " not possible");
+                    return false;
+                }
+            }
+        } while (anyChanged);
+
+        return true;
     }
 
-    private boolean combineRelation(TwoAttributesRestriction twoAttributesRestriction) {
+    private boolean combineTwoAttributes(TwoAttributesRestriction twoAttributesRestriction) throws UnsatisfiableRestrictionException {
         if (twoAttributesRestriction instanceof TwoAttributesRelationRestriction) {
             TwoAttributesRelationRestriction relationRestriction = (TwoAttributesRelationRestriction) twoAttributesRestriction;
 
@@ -76,7 +110,8 @@ public class RestrictionsByAttribute {
         return false;
     }
 
-    private boolean combineNumericInequality(Attribute lessAttribute, Attribute greaterAttribute, BoundType boundType) {
+    private boolean combineNumericInequality(Attribute lessAttribute, Attribute greaterAttribute, BoundType boundType)
+            throws UnsatisfiableRestrictionException {
         RangeRestriction lessRangeRestriction = getRangeRestriction(lessAttribute);
         RangeRestriction greaterRangeRestriction = getRangeRestriction(greaterAttribute);
 
@@ -90,9 +125,32 @@ public class RestrictionsByAttribute {
                 lowerBound += 1;
                 upperBound -= 1;
             }
-//            RangeSet<Long> //TODO creating result range sets
-        } else if (lessAttribute.getInternalType() == InternalType.DOUBLE) {
+            if (lowerBound > upperBound) {
+                throw new UnsatisfiableRestrictionException("Combining " + lessAttribute + " with " + greaterAttribute
+                        + " would produce empty range. " + lowerBound + " is greater than " + upperBound);
+            }
+            RangeSet<Long> newLessRangeSet = lessRangeSet.subRangeSet(Range.atMost(upperBound));
+            lessRangeRestriction.setRangeSet(newLessRangeSet);
 
+            RangeSet<Long> newGreaterRangeSet = greaterRangeSet.subRangeSet(Range.atLeast(lowerBound));
+            greaterRangeRestriction.setRangeSet(newGreaterRangeSet);
+            return !newLessRangeSet.equals(lessRangeSet) || newGreaterRangeSet.equals(greaterRangeSet);
+        } else if (lessAttribute.getInternalType() == InternalType.DOUBLE) {
+            double lowerBound = RangeUtils.getMinDouble(lessRangeRestriction.getRangeSet());
+            double upperBound = RangeUtils.getMaxDouble(greaterRangeRestriction.getRangeSet());
+            if (boundType == BoundType.OPEN) {
+                lowerBound += RangeUtils.EPS;
+                upperBound -= RangeUtils.EPS;
+            }
+            if (lowerBound > upperBound) {
+                throw new UnsatisfiableRestrictionException("Combining " + lessAttribute + " with " + greaterAttribute
+                        + " would produce empty range. " + lowerBound + " is greater than " + upperBound);
+            }
+            RangeSet<Double> newLessRangeSet = lessRangeSet.subRangeSet(Range.atMost(upperBound));
+            lessRangeRestriction.setRangeSet(newLessRangeSet);
+
+            RangeSet<Double> newGreaterRangeSet = greaterRangeSet.subRangeSet(Range.atLeast(lowerBound));
+            greaterRangeRestriction.setRangeSet(newGreaterRangeSet);
         }
         return false;
     }

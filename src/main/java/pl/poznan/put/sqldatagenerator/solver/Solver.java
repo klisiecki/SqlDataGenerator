@@ -1,7 +1,9 @@
 package pl.poznan.put.sqldatagenerator.solver;
 
+import com.google.common.collect.Range;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import pl.poznan.put.sqldatagenerator.exception.InvalidInternalStateException;
 import pl.poznan.put.sqldatagenerator.exception.NotImplementedException;
 import pl.poznan.put.sqldatagenerator.generator.Attribute;
 import pl.poznan.put.sqldatagenerator.restriction.RestrictionsByAttribute;
@@ -9,11 +11,11 @@ import pl.poznan.put.sqldatagenerator.restriction.types.*;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toList;
 import static pl.poznan.put.sqldatagenerator.generators.RandomGenerator.*;
 
 public class Solver {
@@ -27,26 +29,32 @@ public class Solver {
 
     public void solve() {
         logger.debug("Solving {}", restrictionsByAttribute.values());
-        for (Map.Entry<Attribute, Collection<Restriction>> restrictionEntry : restrictionsByAttribute.groupedEntries()) {
+        for (Entry<Attribute, Collection<Restriction>> restrictionEntry : restrictionsByAttribute.randomizedGroupedEntries()) {
             Attribute attribute = restrictionEntry.getKey();
-            Collection<Restriction> restrictions = restrictionEntry.getValue();
             if (!attribute.canBeGenerated()) {
                 continue;
             }
 
-            //TODO better handling NullRestrictions
-            Optional<Restriction> nullRestrictionOptional = restrictions.stream().filter(r -> r instanceof NullRestriction).findFirst();
-            if (nullRestrictionOptional.isPresent()) {
-                NullRestriction nullRestriction = (NullRestriction) nullRestrictionOptional.get();
+            Collection<Restriction> allRestrictions = restrictionEntry.getValue();
+            Collection<Restriction> oneAttributeRestrictions = allRestrictions.stream()
+                    .filter(r -> r instanceof OneAttributeRestriction).collect(toList());
+            Collection<Restriction> twoAttributeRestrictions = allRestrictions.stream()
+                    .filter(r -> r instanceof TwoAttributesRestriction).collect(toList());
+
+            Optional<NullRestriction> nullRestrictionOpt = oneAttributeRestrictions.stream()
+                    .filter(r -> r instanceof NullRestriction).map(r -> (NullRestriction) r).findFirst();
+
+            if (nullRestrictionOpt.isPresent()) {
+                NullRestriction nullRestriction = nullRestrictionOpt.get();
                 if (nullRestriction.isNegated()) {
-                    restrictions.removeAll(restrictions.stream().filter(r -> r instanceof NullRestriction).collect(Collectors.toList()));
+                    oneAttributeRestrictions.removeIf(r -> r instanceof NullRestriction);
                 } else {
-                    restrictions = singletonList(nullRestriction);
+                    oneAttributeRestrictions = singletonList(nullRestriction);
                 }
             }
 
-            if (restrictions.size() == 1) {
-                Restriction restriction = (Restriction) restrictions.toArray()[0];
+            if (oneAttributeRestrictions.size() == 1) {
+                Restriction restriction = (Restriction) oneAttributeRestrictions.toArray()[0];
                 if (restriction instanceof RangeRestriction) {
                     generateFromRangeRestriction(attribute, (RangeRestriction) restriction);
                 } else if (restriction instanceof PrimaryKeyRestriction) {
@@ -60,7 +68,11 @@ public class Solver {
                     throw new NotImplementedException();
                 }
             } else {
-                throw new NotImplementedException();
+                throw new InvalidInternalStateException("Attribute can have only one OneAttributeRestriction");
+            }
+
+            if (!twoAttributeRestrictions.isEmpty()) {
+                restrictionsByAttribute.combineAll();
             }
         }
     }
@@ -69,10 +81,14 @@ public class Solver {
     private void generateFromRangeRestriction(Attribute attribute, RangeRestriction rangeRestriction) {
         switch (attribute.getInternalType()) {
             case LONG:
-                attribute.setValue(randomLong(rangeRestriction.getRangeSet()).toString());
+                Long randomLong = randomLong(rangeRestriction.getRangeSet());
+                attribute.setValue(randomLong.toString());
+                rangeRestriction.setRange(Range.closed(randomLong, randomLong));
                 break;
             case DOUBLE:
-                attribute.setValue(randomDouble(rangeRestriction.getRangeSet()).toString());
+                Double randomDouble = randomDouble(rangeRestriction.getRangeSet());
+                attribute.setValue(randomDouble.toString());
+                rangeRestriction.setRange(Range.closed(randomDouble, randomDouble));
                 break;
             default:
                 throw new NotImplementedException();
@@ -82,10 +98,13 @@ public class Solver {
     private void generateFromStringRestriction(Attribute attribute, StringRestriction stringRestriction) {
         //TODO handle LIKE expression, better handling of negated restrictions
         List<String> allowedValues = stringRestriction.getAllowedValues();
+        String randomValue;
         if (allowedValues != null && allowedValues.size() > 0 && !stringRestriction.isNegated()) {
-            attribute.setValue(allowedValues.get(randomIndex(allowedValues)));
+            randomValue = allowedValues.get(randomIndex(allowedValues));
         } else {
-            attribute.setValue(randomString(stringRestriction.getMinLength(), stringRestriction.getMaxLength()));
+            randomValue = randomString(stringRestriction.getMinLength(), stringRestriction.getMaxLength());
         }
+        attribute.setValue(randomValue);
+        stringRestriction.setAllowedValues(singletonList(randomValue));
     }
 }

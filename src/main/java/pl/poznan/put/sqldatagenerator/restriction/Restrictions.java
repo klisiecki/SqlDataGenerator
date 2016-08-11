@@ -26,6 +26,10 @@ public class Restrictions {
         return restrictions;
     }
 
+    public Restrictions clone() {
+        return new Restrictions(getCollection().stream().map(Restriction::clone).collect(toList()));
+    }
+
     /**
      * @param expression must be {@link And} or {@link Or}
      * @return {@link Restrictions} object with copy of {@link Restriction}s from given expression

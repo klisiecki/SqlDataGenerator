@@ -11,6 +11,7 @@ import com.google.common.collect.TreeRangeSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.poznan.put.sqldatagenerator.exception.InvalidInternalStateException;
+import pl.poznan.put.sqldatagenerator.exception.UnsatisfiableSQLException;
 import pl.poznan.put.sqldatagenerator.generator.Attribute;
 import pl.poznan.put.sqldatagenerator.generator.datatypes.InternalType;
 import pl.poznan.put.sqldatagenerator.restriction.types.NullRestriction;
@@ -20,11 +21,13 @@ import pl.poznan.put.sqldatagenerator.restriction.types.StringRestriction;
 import pl.poznan.put.sqldatagenerator.util.RangeUtils;
 
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.function.Predicate;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 
 public class RestrictionsManager {
     private static final Logger logger = LoggerFactory.getLogger(RestrictionsManager.class);
@@ -71,6 +74,9 @@ public class RestrictionsManager {
         if (criteria != null) {
             setSQLCriteria(criteria, positiveRestrictionsList, negativeRestrictionsList);
         }
+        positiveRestrictionsList.removeIf(r -> !verifySQLSatisfiability(r));
+        negativeRestrictionsList.removeIf(r -> !verifySQLSatisfiability(r));
+
         setXMLConstraints(constraints, positiveRestrictionsList);
         setXMLConstraints(constraints, negativeRestrictionsList);
         logger.debug("Preparing positive restrictions");
@@ -92,6 +98,19 @@ public class RestrictionsManager {
         addRestrictions(negativeRestrictionsList, negativeDNF);
     }
 
+    private boolean verifySQLSatisfiability(Restrictions restrictions) {
+        boolean containsNullRestriction = restrictions.getCollection().stream()
+                .filter(r -> r instanceof NullRestriction)
+                .anyMatch(r -> ((NullRestriction) r).isNegated());
+        boolean containsOtherRestriction = restrictions.getCollection().stream().anyMatch(r -> !(r instanceof NullRestriction));
+
+        if (containsNullRestriction && containsOtherRestriction) {
+            logger.info("Unsatisfiable set of restrictions: " + restrictions);
+            return false;
+        }
+        return true;
+    }
+
     private void addRestrictions(List<Restrictions> restrictionsList, Expression<Restriction> expression) {
         if (expression instanceof Or) {
             restrictionsList.addAll(((NExpression<Restriction>) expression).getChildren().stream()
@@ -103,16 +122,16 @@ public class RestrictionsManager {
 
     private void setXMLConstraints(Restrictions constraints, List<Restrictions> restrictionsList) {
         if (restrictionsList.isEmpty()) {
-            restrictionsList.add(constraints);
+            restrictionsList.add(constraints.clone());
         } else {
             for (Restrictions restrictions : restrictionsList) {
-                restrictions.add(constraints);
+                restrictions.add(constraints.clone());
             }
         }
     }
 
     private List<RestrictionsByAttribute> prepareRestrictions(List<Restrictions> restrictionsList) {
-        List<RestrictionsByAttribute> result = new ArrayList<>();
+        List<RestrictionsByAttribute> mergedRestrictions = new ArrayList<>();
         for (Restrictions restrictions : restrictionsList) {
             boolean restrictionsOk = true;
             logger.debug("Preparing restrictions set:");
@@ -123,48 +142,62 @@ public class RestrictionsManager {
                 }
             }
             RestrictionsByAttribute toRemoveRestrictions = new RestrictionsByAttribute();
-            for (Map.Entry<Attribute, Collection<Restriction>> restrictionEntry : restrictionsByAttribute.groupedEntries()) {
+            for (Entry<Attribute, Collection<Restriction>> restrictionEntry : restrictionsByAttribute.groupedEntries()) {
                 Attribute attribute = restrictionEntry.getKey();
                 restrictionsOk = restrictionsOk &&
                         mergeRestrictions(attribute, restrictionEntry.getValue(), toRemoveRestrictions, restrictionsByAttribute);
             }
 
-            for (Map.Entry<Attribute, Restriction> attributeRestrictionEntry : toRemoveRestrictions.entries()) {
+            for (Entry<Attribute, Restriction> attributeRestrictionEntry : toRemoveRestrictions.entries()) {
                 Attribute attribute = attributeRestrictionEntry.getKey();
                 Restriction restriction = attributeRestrictionEntry.getValue();
                 restrictionsByAttribute.remove(attribute, restriction);
             }
 
-            for (Map.Entry<Attribute, Collection<Restriction>> restrictionEntry : restrictionsByAttribute.groupedEntries()) {
+            for (Entry<Attribute, Collection<Restriction>> restrictionEntry : restrictionsByAttribute.groupedEntries()) {
                 Attribute attribute = restrictionEntry.getKey();
                 logger.debug("Restrictions for {}: {}", attribute, restrictionEntry.getValue());
             }
             if (restrictionsOk) {
-                result.add(restrictionsByAttribute);
+                mergedRestrictions.add(restrictionsByAttribute);
             }
         }
-        return result;
+
+        List<RestrictionsByAttribute> combinedRestrictions = new ArrayList<>();
+        for (RestrictionsByAttribute restrictionsByAttribute : mergedRestrictions) {
+            if (restrictionsByAttribute.combineAll()) {
+                combinedRestrictions.add(restrictionsByAttribute);
+            }
+        }
+        if (combinedRestrictions.isEmpty()) {
+            throw new UnsatisfiableSQLException();
+        }
+        return combinedRestrictions;
     }
 
     //TODO to consider: move merging logic to restrictions classes
     private boolean mergeRestrictions(Attribute attribute, Collection<Restriction> restrictions,
                                       RestrictionsByAttribute toRemoveRestrictions,
                                       RestrictionsByAttribute restrictionsByAttribute) {
+
         List<RangeRestriction> rangeRestrictions = restrictions.stream()
                 .filter(r -> r instanceof RangeRestriction).map(r -> (RangeRestriction) r).collect(toList());
+        List<StringRestriction> stringRestrictions = restrictions.stream()
+                .filter(r -> r instanceof StringRestriction).map(r -> (StringRestriction) r).collect(toList());
+        List<NullRestriction> nullRestrictions = restrictions.stream()
+                .filter(r -> r instanceof NullRestriction).map(r -> (NullRestriction) r).collect(toList());
+
         if (!mergeRangeRestrictions(attribute, toRemoveRestrictions, restrictionsByAttribute, rangeRestrictions)) {
             return false;
         }
 
-        List<StringRestriction> stringRestrictions = restrictions.stream()
-                .filter(r -> r instanceof StringRestriction).map(r -> (StringRestriction) r).collect(toList());
         if (!mergeStringRestrictions(attribute, toRemoveRestrictions, restrictionsByAttribute, stringRestrictions)) {
             return false;
         }
 
-        List<NullRestriction> nullRestrictions = restrictions.stream()
-                .filter(r -> r instanceof NullRestriction).map(r -> (NullRestriction) r).collect(toList());
-        mergeNullRestrictions(attribute, toRemoveRestrictions, restrictionsByAttribute, nullRestrictions);
+        if (!mergeNullRestrictions(attribute, toRemoveRestrictions, restrictionsByAttribute, nullRestrictions)) {
+            return false;
+        }
 
         return true;
     }
@@ -229,11 +262,19 @@ public class RestrictionsManager {
         return value -> restriction.getAllowedValues() == null || restriction.getAllowedValues().contains(value);
     }
 
-    private void mergeNullRestrictions(Attribute attribute, RestrictionsByAttribute toRemoveRestrictions, RestrictionsByAttribute restrictionsByAttribute, List<NullRestriction> nullRestrictions) {
+    private boolean mergeNullRestrictions(Attribute attribute, RestrictionsByAttribute toRemoveRestrictions, RestrictionsByAttribute restrictionsByAttribute, List<NullRestriction> nullRestrictions) {
+        if (nullRestrictions.stream().map(NullRestriction::isNegated).collect(toSet()).size() == 2) {
+            return false;
+        }
         if (nullRestrictions.size() > 1) {
             nullRestrictions.forEach(restriction -> toRemoveRestrictions.put(attribute, restriction));
-            restrictionsByAttribute.put(attribute, new NullRestriction(attribute));
+            NullRestriction restriction = new NullRestriction(attribute);
+            if (nullRestrictions.get(0).isNegated()) {
+                restriction.reverse();
+            }
+            restrictionsByAttribute.put(attribute, restriction);
         }
+        return true;
     }
 
 }

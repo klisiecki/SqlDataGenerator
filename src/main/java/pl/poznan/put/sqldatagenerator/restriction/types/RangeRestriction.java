@@ -36,6 +36,11 @@ public class RangeRestriction extends OneAttributeRestriction {
         return rangeSet;
     }
 
+    public void setRange(Range range) {
+        this.rangeSet = TreeRangeSet.create();
+        rangeSet.add(range);
+    }
+
     public void setRangeSet(RangeSet rangeSet) {
         this.rangeSet = rangeSet;
     }

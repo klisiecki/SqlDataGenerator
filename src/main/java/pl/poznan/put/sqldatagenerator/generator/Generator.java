@@ -118,7 +118,7 @@ public class Generator {
     }
 
     private void generateRow(int restrictionsIndex, boolean positive) {
-        new Solver(restrictionsManager.get(positive, restrictionsIndex)).solve();
+        new Solver(restrictionsManager.get(positive, restrictionsIndex).clone()).solve();
     }
 
     private void saveTables(int restrictionsIndex, boolean positive) {
