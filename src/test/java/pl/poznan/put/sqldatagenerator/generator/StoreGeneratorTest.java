@@ -3,19 +3,30 @@ package pl.poznan.put.sqldatagenerator.generator;
 import org.junit.Before;
 import org.junit.Test;
 import pl.poznan.put.sqldatagenerator.configuration.ConfigurationKeys;
+import pl.poznan.put.sqldatagenerator.exception.SQLInvalidSyntaxException;
+import pl.poznan.put.sqldatagenerator.exception.SQLNotCompatibleWithDatabaseException;
 
 import java.io.File;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class StoreGeneratorTest extends GeneratorTestBase {
 
     private static final String CLIENTS_FILENAME = "CLIENTS_0.csv";
     private static final String ORDERS_FILENAME = "ORDERS_0.csv";
     private static final String PRODUCTS_FILENAME = "PRODUCTS_0.csv";
+
+    private static final int CLIENTS_COUNT = 100;
+    private static final int PRODUCTS_COUNT = 50;
+    private static final int ORDERS_COUNT = 1000;
 
     @Before
     public void setUp() throws Exception {
@@ -31,7 +42,7 @@ public class StoreGeneratorTest extends GeneratorTestBase {
 
     @Test
     public void testSimpleSelect() throws Exception {
-        List<File> files = runGenerator("store_test/simpleSelect.sql", 1.0);
+        List<File> files = runGenerator("store_test/sql_correct/simpleSelect.sql", 1.0);
         assertStoreOutputCorrect(files);
 
         List<String[]> clientsLines = getFileLines(files, CLIENTS_FILENAME);
@@ -41,7 +52,7 @@ public class StoreGeneratorTest extends GeneratorTestBase {
 
     @Test
     public void testIntegerRanges() throws Exception {
-        List<File> files = runGenerator("store_test/integerRanges.sql", 1.0);
+        List<File> files = runGenerator("store_test/sql_correct/integerRanges.sql", 1.0);
         assertStoreOutputCorrect(files);
 
         List<String[]> ordersLines = getFileLines(files, ORDERS_FILENAME);
@@ -54,7 +65,7 @@ public class StoreGeneratorTest extends GeneratorTestBase {
 
     @Test
     public void testDoubleRanges() throws Exception {
-        List<File> files = runGenerator("store_test/doubleRanges.sql", 1.0);
+        List<File> files = runGenerator("store_test/sql_correct/doubleRanges.sql", 1.0);
         assertStoreOutputCorrect(files);
 
         List<String[]> productsLines = getFileLines(files, PRODUCTS_FILENAME);
@@ -66,7 +77,7 @@ public class StoreGeneratorTest extends GeneratorTestBase {
 
     @Test
     public void testStringsSimple() throws Exception {
-        List<File> files = runGenerator("store_test/strings.sql", 1.0);
+        List<File> files = runGenerator("store_test/sql_correct/strings.sql", 1.0);
         assertStoreOutputCorrect(files);
 
         List<String[]> clientsLines = getFileLines(files, CLIENTS_FILENAME);
@@ -75,7 +86,7 @@ public class StoreGeneratorTest extends GeneratorTestBase {
 
     @Test
     public void testStringsLike() throws Exception {
-        List<File> files = runGenerator("store_test/stringsLike.sql", 1.0);
+        List<File> files = runGenerator("store_test/sql_correct/stringsLike.sql", 1.0);
         assertStoreOutputCorrect(files);
 
         List<String[]> clientsLines = getFileLines(files, CLIENTS_FILENAME);
@@ -85,17 +96,47 @@ public class StoreGeneratorTest extends GeneratorTestBase {
 
     @Test
     public void testNullWithSelectivity() throws Exception {
-        List<File> files = runGenerator("store_test/isNull.sql", 0.21);
+        double selectivity = 0.21;
+        List<File> files = runGenerator("store_test/sql_correct/isNull.sql", selectivity);
         assertStoreOutputCorrect(files);
 
         List<String[]> clientsLines = getFileLines(files, CLIENTS_FILENAME);
         String nullValue = configuration.getStringProperty(ConfigurationKeys.DATABASE_NULL_VALUE, "NULL");
-        assertColumnConditionCount(clientsLines, "LAST_NAME", s -> s.equals(nullValue), 21);
+        assertColumnConditionCount(clientsLines, "LAST_NAME", s -> s.equals(nullValue), (int) (CLIENTS_COUNT * selectivity));
+    }
+
+    @Test
+    public void testDateRangesWithSelectivity() throws Exception {
+        double selectivity = 0.68;
+        List<File> files = runGenerator("store_test/sql_correct/dateRanges.sql", selectivity);
+        assertStoreOutputCorrect(files);
+
+        String outputDateFormat = "yyyy-MM-dd HH:mm:ss";
+        DateFormat df = new SimpleDateFormat(outputDateFormat);
+        List<String[]> ordersLines = getFileLines(files, ORDERS_FILENAME);
+        Date from = df.parse("2015-01-01 00:00:00");
+        Date to = df.parse("2015-02-01 00:00:00");
+        assertColumnConditionCount(ordersLines, "DATETIME", s -> {
+            try {
+                Date date = df.parse(s);
+                return date.after(from) && date.before(to);
+            } catch (ParseException e) {
+                return false;
+            }
+        }, (int) (ORDERS_COUNT * selectivity));
+        assertColumnConditionCount(ordersLines, "DATETIME", s -> {
+            try {
+                Date date = df.parse(s);
+                return date.before(from) || date.after(to);
+            } catch (ParseException e) {
+                return false;
+            }
+        }, ORDERS_COUNT - (int) (ORDERS_COUNT * selectivity));
     }
 
     @Test
     public void testKeysAndJoins() throws Exception {
-        List<File> files = runGenerator("store_test/joins.sql", 1.0);
+        List<File> files = runGenerator("store_test/sql_correct/joins.sql", 1.0);
         assertStoreOutputCorrect(files);
 
         List<String[]> clientsLines = getFileLines(files, CLIENTS_FILENAME);
@@ -124,7 +165,7 @@ public class StoreGeneratorTest extends GeneratorTestBase {
 
     @Test
     public void testTwoColumnsRelation1() throws Exception {
-        List<File> files = runGenerator("store_test/twoColumnsRelation1.sql", 1.0);
+        List<File> files = runGenerator("store_test/sql_correct/twoColumnsRelation1.sql", 1.0);
         assertStoreOutputCorrect(files);
 
         List<String[]> productsLines = getFileLines(files, PRODUCTS_FILENAME);
@@ -136,7 +177,7 @@ public class StoreGeneratorTest extends GeneratorTestBase {
 
     @Test
     public void testTwoColumnsRelation2() throws Exception {
-        List<File> files = runGenerator("store_test/twoColumnsRelation2.sql", 1.0);
+        List<File> files = runGenerator("store_test/sql_correct/twoColumnsRelation2.sql", 1.0);
         assertStoreOutputCorrect(files);
 
         List<String[]> productsLines = getFileLines(files, PRODUCTS_FILENAME);
@@ -146,7 +187,7 @@ public class StoreGeneratorTest extends GeneratorTestBase {
 
     @Test
     public void testTwoColumnsRelations1() throws Exception {
-        List<File> files = runGenerator("store_test/twoColumnsRelations1.sql", 1.0);
+        List<File> files = runGenerator("store_test/sql_correct/twoColumnsRelations1.sql", 1.0);
         assertStoreOutputCorrect(files);
 
         List<String[]> productsLines = getFileLines(files, PRODUCTS_FILENAME);
@@ -157,13 +198,37 @@ public class StoreGeneratorTest extends GeneratorTestBase {
 
     @Test
     public void testTwoColumnsRelations2() throws Exception {
-        List<File> files = runGenerator("store_test/twoColumnsRelations2.sql", 1.0);
+        List<File> files = runGenerator("store_test/sql_correct/twoColumnsRelations2.sql", 1.0);
         assertStoreOutputCorrect(files);
 
         List<String[]> productsLines = getFileLines(files, PRODUCTS_FILENAME);
         assertColumnsRelation(productsLines, "PRICE", "OLD_PRICE",
                 (p, op) -> Double.parseDouble(p) < Double.parseDouble(op));
         assertColumnsRelation(productsLines, "NAME", "DESCRIPTION", (n, d) -> !n.equals(d));
+    }
+
+    @Test
+    public void testNonexistentTable() throws Exception {
+        Throwable caught = null;
+        try {
+            runGenerator("store_test/sql_incorrect/nonexistent_table.sql", 1.0);
+        } catch (Throwable t) {
+            caught = t;
+        }
+        assertNotNull(caught);
+        assertEquals(caught.getClass(), SQLNotCompatibleWithDatabaseException.class);
+    }
+
+    @Test
+    public void testIncorrectSyntax() throws Exception {
+        Throwable caught = null;
+        try {
+            runGenerator("store_test/sql_incorrect/syntax_error.sql", 1.0);
+        } catch (Throwable t) {
+            caught = t;
+        }
+        assertNotNull(caught);
+        assertEquals(caught.getClass(), SQLInvalidSyntaxException.class);
     }
 
 
