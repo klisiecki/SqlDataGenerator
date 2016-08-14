@@ -16,6 +16,8 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 
+import static java.lang.Double.parseDouble;
+import static java.lang.Integer.parseInt;
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -27,7 +29,7 @@ public class StoreGeneratorTest extends GeneratorTestBase {
     private static final String PRODUCTS_FILENAME = "PRODUCTS_0.csv";
 
     private static final int CLIENTS_COUNT = 100;
-    private static final int PRODUCTS_COUNT = 50;
+    private static final int PRODUCTS_COUNT = 300;
     private static final int ORDERS_COUNT = 1000;
 
     @Before
@@ -59,7 +61,7 @@ public class StoreGeneratorTest extends GeneratorTestBase {
 
         List<String[]> ordersLines = getFileLines(files, ORDERS_FILENAME);
         List<String[]> productsLines = getFileLines(files, PRODUCTS_FILENAME);
-        assertColumnCondition(ordersLines, "STATE", s -> asList(1, 2, 3).contains(Integer.parseInt(s)));
+        assertColumnCondition(ordersLines, "STATE", s -> asList(1, 2, 3).contains(parseInt(s)));
         assertColumnCondition(productsLines, "CATEGORY", s -> asList("AGD", "RTV", "COMPUTERS", "ELECTRONICS").contains(s));
     }
 
@@ -83,7 +85,7 @@ public class StoreGeneratorTest extends GeneratorTestBase {
 
         List<String[]> productsLines = getFileLines(files, PRODUCTS_FILENAME);
         assertColumnCondition(productsLines, "PRICE", s -> {
-            double price = Double.parseDouble(s);
+            double price = parseDouble(s);
             return (price >= 100 || price < 10) && price != 0;
         });
     }
@@ -167,7 +169,7 @@ public class StoreGeneratorTest extends GeneratorTestBase {
         List<String[]> ordersLines = getFileLines(files, ORDERS_FILENAME);
 
         assertColumnCondition(clientsLines, "FIRST_NAME", "John"::equals);
-        assertColumnCondition(productsLines, "PRICE", s -> Double.parseDouble(s) >= 100);
+        assertColumnCondition(productsLines, "PRICE", s -> parseDouble(s) >= 100);
 
         List<String> cl_ids = getColumnValues(clientsLines, "ID");
         List<String> o_cl_ids = getColumnValues(ordersLines, "CLIENT_ID");
@@ -193,9 +195,8 @@ public class StoreGeneratorTest extends GeneratorTestBase {
 
         List<String[]> productsLines = getFileLines(files, PRODUCTS_FILENAME);
         assertColumnsRelation(productsLines, "PACKAGE_WIDTH", "PACKAGE_HEIGHT",
-                (p, op) -> Double.parseDouble(p) <= Double.parseDouble(op));
-        assertColumnCondition(productsLines, "PACKAGE_HEIGHT", s -> Double.parseDouble(s) <= 100);
-
+                (w, h) -> parseDouble(w) < parseDouble(h));
+        assertColumnCondition(productsLines, "PACKAGE_HEIGHT", s -> parseDouble(s) <= 100);
     }
 
     @Test
@@ -205,29 +206,40 @@ public class StoreGeneratorTest extends GeneratorTestBase {
 
         List<String[]> productsLines = getFileLines(files, PRODUCTS_FILENAME);
         assertColumnsRelation(productsLines, "PACKAGE_WIDTH", "PACKAGE_HEIGHT",
-                (p, op) -> Double.parseDouble(p) > Double.parseDouble(op));
+                (w, h) -> parseDouble(w) > parseDouble(h));
     }
 
     @Test
-    public void testTwoColumnsRelations1() throws Exception {
-        List<File> files = runGenerator("store_test/sql_correct/twoColumnsRelations1.sql", 1.0);
+    public void testTwoColumnsRelation3() throws Exception {
+        List<File> files = runGenerator("store_test/sql_correct/twoColumnsRelation3.sql", 1.0);
         assertStoreOutputCorrect(files);
 
         List<String[]> productsLines = getFileLines(files, PRODUCTS_FILENAME);
         assertColumnsRelation(productsLines, "PRICE", "OLD_PRICE",
-                (p, op) -> Double.parseDouble(p) >= Double.parseDouble(op));
+                (p, op) -> parseDouble(p) >= parseDouble(op));
         assertColumnsRelation(productsLines, "NAME", "DESCRIPTION", String::equals);
     }
 
     @Test
-    public void testTwoColumnsRelations2() throws Exception {
-        List<File> files = runGenerator("store_test/sql_correct/twoColumnsRelations2.sql", 1.0);
+    public void testTwoColumnsRelation4() throws Exception {
+        List<File> files = runGenerator("store_test/sql_correct/twoColumnsRelation4.sql", 1.0);
         assertStoreOutputCorrect(files);
 
         List<String[]> productsLines = getFileLines(files, PRODUCTS_FILENAME);
         assertColumnsRelation(productsLines, "PRICE", "OLD_PRICE",
-                (p, op) -> Double.parseDouble(p) < Double.parseDouble(op));
+                (p, op) -> parseDouble(p) < parseDouble(op));
         assertColumnsRelation(productsLines, "NAME", "DESCRIPTION", (n, d) -> !n.equals(d));
+    }
+
+    @Test
+    public void testColumnsMultipleRelations() throws Exception {
+        List<File> files = runGenerator("store_test/sql_correct/twoColumnsMultipleRelations.sql", 1.0);
+        assertStoreOutputCorrect(files);
+
+        List<String[]> productsLines = getFileLines(files, PRODUCTS_FILENAME);
+        assertColumnCondition(productsLines, "PACKAGE_WIDTH", s -> parseInt(s) == 1);
+        assertColumnCondition(productsLines, "PACKAGE_HEIGHT", s -> parseInt(s) == 2);
+        assertColumnCondition(productsLines, "PACKAGE_DEPTH", s -> parseInt(s) == 3);
     }
 
     @Test

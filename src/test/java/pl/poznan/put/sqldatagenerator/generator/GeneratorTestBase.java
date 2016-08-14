@@ -95,9 +95,10 @@ public abstract class GeneratorTestBase {
         List<String> header = asList(fileLines.get(0));
         fileLines = fileLines.subList(1, fileLines.size());
         int columnIndex = header.indexOf(column);
-        for (String[] fileLine : fileLines) {
+        for (int i = 0; i < fileLines.size(); i++) {
+            String[] fileLine = fileLines.get(i);
             String value = fileLine[columnIndex];
-            assertTrue(value + " doesn't match given condition", predicate.test(value));
+            assertTrue(value + " doesn't match given condition at line " + i, predicate.test(value));
         }
     }
 
@@ -107,10 +108,11 @@ public abstract class GeneratorTestBase {
         fileLines = fileLines.subList(1, fileLines.size());
         int firstColumnIndex = header.indexOf(firstColumn);
         int secondColumnIndex = header.indexOf(secondColumn);
-        for (String[] fileLine : fileLines) {
+        for (int i = 0; i < fileLines.size(); i++) {
+            String[] fileLine = fileLines.get(i);
             String firstColumnValue = fileLine[firstColumnIndex];
             String secondColumnValue = fileLine[secondColumnIndex];
-            assertTrue("Values " + firstColumnValue + ", " + secondColumnValue + " don't match given condition",
+            assertTrue("Values [" + firstColumnValue + ", " + secondColumnValue + "] don't match given condition at line " + i,
                     predicate.test(firstColumnValue, secondColumnValue));
         }
     }

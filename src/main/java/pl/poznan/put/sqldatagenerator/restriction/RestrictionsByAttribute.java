@@ -17,7 +17,11 @@ import pl.poznan.put.sqldatagenerator.util.RangeUtils;
 import java.util.*;
 import java.util.Map.Entry;
 
+import static com.google.common.collect.BoundType.OPEN;
 import static java.util.stream.Collectors.toSet;
+import static pl.poznan.put.sqldatagenerator.generator.datatypes.InternalType.*;
+import static pl.poznan.put.sqldatagenerator.restriction.types.SignType.*;
+import static pl.poznan.put.sqldatagenerator.util.RangeUtils.EPS;
 import static pl.poznan.put.sqldatagenerator.util.RangeUtils.intersectRangeSets;
 
 public class RestrictionsByAttribute {
@@ -68,11 +72,12 @@ public class RestrictionsByAttribute {
                 .filter(r -> r instanceof TwoAttributesRestriction)
                 .map(r -> (TwoAttributesRestriction) r).collect(toSet());
 
-        boolean anyChanged = false;
+        boolean anyChanged;
         do {
+            anyChanged = false;
             for (TwoAttributesRestriction restriction : restrictions) {
                 try {
-                    anyChanged = anyChanged || combineTwoAttributes(restriction);
+                    anyChanged = combineTwoAttributes(restriction) || anyChanged;
                 } catch (UnsatisfiableRestrictionException e) {
                     logger.info("Combining of " + restriction + " not possible");
                     return false;
@@ -90,19 +95,22 @@ public class RestrictionsByAttribute {
             Attribute firstAttribute = relationRestriction.getFirstAttribute();
             Attribute secondAttribute = relationRestriction.getSecondAttribute();
             InternalType internalType = firstAttribute.getInternalType();
-            if (internalType == InternalType.STRING) {
-                if (relationRestriction.getSignType() == SignType.EQUALS) {
-                    combineStringEquality(firstAttribute, secondAttribute);
+            SignType signType = relationRestriction.getSignType();
+            if (internalType == STRING) {
+                if (signType == EQUALS) {
+                    return combineStringEquality(firstAttribute, secondAttribute);
                 } else {
                     throw new NotImplementedException();
                 }
-            } else if (internalType == InternalType.LONG || internalType == InternalType.DOUBLE) {
-                if (relationRestriction.getSignType() == SignType.EQUALS) {
-                    combineNumericEquality(firstAttribute, secondAttribute);
-                } else if (relationRestriction.getSignType() == SignType.MINOR_THAN) {
-                    combineNumericInequality(firstAttribute, secondAttribute, relationRestriction.getBoundType());
-                } else if (relationRestriction.getSignType() == SignType.GREATER_THAN) {
-                    combineNumericInequality(secondAttribute, firstAttribute, relationRestriction.getBoundType());
+            } else if (internalType == LONG || internalType == DOUBLE) {
+                if (signType == EQUALS) {
+                    return combineNumericEquality(firstAttribute, secondAttribute);
+                } else if (signType == MINOR_THAN) {
+                    return combineNumericInequality(firstAttribute, secondAttribute, relationRestriction.getBoundType());
+                } else if (signType == GREATER_THAN) {
+                    return combineNumericInequality(secondAttribute, firstAttribute, relationRestriction.getBoundType());
+                } else {
+                    throw new InvalidInternalStateException("This shouldn't happen");
                 }
             } else {
                 throw new NotImplementedException();
@@ -110,8 +118,6 @@ public class RestrictionsByAttribute {
         } else {
             throw new NotImplementedException();
         }
-
-        return false;
     }
 
     private boolean combineNumericInequality(Attribute lessAttribute, Attribute greaterAttribute, BoundType boundType)
@@ -122,29 +128,29 @@ public class RestrictionsByAttribute {
         RangeSet lessRangeSet = lessRangeRestriction.getRangeSet();
         RangeSet greaterRangeSet = greaterRangeRestriction.getRangeSet();
 
-        if (lessAttribute.getInternalType() == InternalType.LONG) {
+        if (lessAttribute.getInternalType() == LONG) {
             long lowerBound = RangeUtils.getMinLong(lessRangeRestriction.getRangeSet());
             long upperBound = RangeUtils.getMaxLong(greaterRangeRestriction.getRangeSet());
-            if (boundType == BoundType.OPEN) {
-                lowerBound += 1;
-                upperBound -= 1;
-            }
-            if (lowerBound > upperBound) {
+            if (lowerBound >= upperBound) {
                 throw new UnsatisfiableRestrictionException("Combining " + lessAttribute + " with " + greaterAttribute
                         + " would produce empty range. " + lowerBound + " is greater than " + upperBound);
+            }
+            if (boundType == OPEN) {
+                lowerBound += 1;
+                upperBound -= 1;
             }
             RangeSet<Long> newLessRangeSet = lessRangeSet.subRangeSet(Range.atMost(upperBound));
             lessRangeRestriction.setRangeSet(newLessRangeSet);
 
             RangeSet<Long> newGreaterRangeSet = greaterRangeSet.subRangeSet(Range.atLeast(lowerBound));
             greaterRangeRestriction.setRangeSet(newGreaterRangeSet);
-            return !newLessRangeSet.equals(lessRangeSet) || newGreaterRangeSet.equals(greaterRangeSet);
-        } else if (lessAttribute.getInternalType() == InternalType.DOUBLE) {
+            return !newLessRangeSet.equals(lessRangeSet) || !newGreaterRangeSet.equals(greaterRangeSet);
+        } else if (lessAttribute.getInternalType() == DOUBLE) {
             double lowerBound = RangeUtils.getMinDouble(lessRangeRestriction.getRangeSet());
             double upperBound = RangeUtils.getMaxDouble(greaterRangeRestriction.getRangeSet());
-            if (boundType == BoundType.OPEN) {
-                lowerBound += RangeUtils.EPS;
-                upperBound -= RangeUtils.EPS;
+            if (boundType == OPEN) {
+                lowerBound += EPS;
+                upperBound -= EPS;
             }
             if (lowerBound > upperBound) {
                 throw new UnsatisfiableRestrictionException("Combining " + lessAttribute + " with " + greaterAttribute
@@ -155,6 +161,7 @@ public class RestrictionsByAttribute {
 
             RangeSet<Double> newGreaterRangeSet = greaterRangeSet.subRangeSet(Range.atLeast(lowerBound));
             greaterRangeRestriction.setRangeSet(newGreaterRangeSet);
+            return !newLessRangeSet.equals(lessRangeSet) || !newGreaterRangeSet.equals(greaterRangeSet);
         }
         return false;
     }
@@ -180,7 +187,7 @@ public class RestrictionsByAttribute {
         StringRestriction secondStringRestriction = getStringRestriction(secondAttribute);
 
         //TODO functions for merging StringRestrictions, common with RestrictionManager.mergeStringRestrictions
-        return true;
+        return false;
     }
 
     private RangeRestriction getRangeRestriction(Attribute attribute) {

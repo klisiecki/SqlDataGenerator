@@ -4,7 +4,7 @@
         xmlns="pl.poznan.put.sqldatagenerator">
     <TABLE>
         <NAME>PRODUCTS</NAME>
-        <ROWS_NUM>50</ROWS_NUM>
+        <ROWS_NUM>300</ROWS_NUM>
         <ATTRIBUTES>
             <ATTRIBUTE>
                 <NAME>ID</NAME>
@@ -54,21 +54,21 @@
             <ATTRIBUTE>
                 <NAME>PACKAGE_WIDTH</NAME>
                 <TYPE>INTEGER</TYPE>
-                <MIN_VALUE>0</MIN_VALUE>
+                <MIN_VALUE>1</MIN_VALUE>
                 <MAX_VALUE>5000</MAX_VALUE>
             </ATTRIBUTE>
 
             <ATTRIBUTE>
                 <NAME>PACKAGE_HEIGHT</NAME>
                 <TYPE>INTEGER</TYPE>
-                <MIN_VALUE>0</MIN_VALUE>
+                <MIN_VALUE>1</MIN_VALUE>
                 <MAX_VALUE>5000</MAX_VALUE>
             </ATTRIBUTE>
 
             <ATTRIBUTE>
                 <NAME>PACKAGE_DEPTH</NAME>
                 <TYPE>INTEGER</TYPE>
-                <MIN_VALUE>0</MIN_VALUE>
+                <MIN_VALUE>1</MIN_VALUE>
                 <MAX_VALUE>5000</MAX_VALUE>
             </ATTRIBUTE>
 
