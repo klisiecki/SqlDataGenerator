@@ -5,6 +5,8 @@ import org.junit.Test;
 import pl.poznan.put.sqldatagenerator.configuration.ConfigurationKeys;
 import pl.poznan.put.sqldatagenerator.exception.SQLInvalidSyntaxException;
 import pl.poznan.put.sqldatagenerator.exception.SQLNotCompatibleWithDatabaseException;
+import pl.poznan.put.sqldatagenerator.exception.UnsatisfiableSQLException;
+import pl.poznan.put.sqldatagenerator.exception.XMLNotValidException;
 
 import java.io.File;
 import java.text.DateFormat;
@@ -48,6 +50,17 @@ public class StoreGeneratorTest extends GeneratorTestBase {
         List<String[]> clientsLines = getFileLines(files, CLIENTS_FILENAME);
         assertColumnNames(asList("ID", "FIRST_NAME", "LAST_NAME", "BIRTH_DATE"), clientsLines);
         assertColumnCondition(clientsLines, "LAST_NAME", s -> asList("Cundiff", "Mastroianni").contains(s));
+    }
+
+    @Test
+    public void testXMLValuesList() throws Exception {
+        List<File> files = runGenerator("store_test/sql_correct/simpleSelect.sql", 1.0);
+        assertStoreOutputCorrect(files);
+
+        List<String[]> ordersLines = getFileLines(files, ORDERS_FILENAME);
+        List<String[]> productsLines = getFileLines(files, PRODUCTS_FILENAME);
+        assertColumnCondition(ordersLines, "STATE", s -> asList(1, 2, 3).contains(Integer.parseInt(s)));
+        assertColumnCondition(productsLines, "CATEGORY", s -> asList("AGD", "RTV", "COMPUTERS", "ELECTRONICS").contains(s));
     }
 
     @Test
@@ -103,6 +116,16 @@ public class StoreGeneratorTest extends GeneratorTestBase {
         List<String[]> clientsLines = getFileLines(files, CLIENTS_FILENAME);
         String nullValue = configuration.getStringProperty(ConfigurationKeys.DATABASE_NULL_VALUE, "NULL");
         assertColumnConditionCount(clientsLines, "LAST_NAME", s -> s.equals(nullValue), (int) (CLIENTS_COUNT * selectivity));
+    }
+
+    @Test
+    public void testDuplicatedIsNull() throws Exception {
+        List<File> files = runGenerator("store_test/sql_correct/isNullDuplicated.sql", 1.0);
+        assertStoreOutputCorrect(files);
+
+        List<String[]> clientsLines = getFileLines(files, CLIENTS_FILENAME);
+        String nullValue = configuration.getStringProperty(ConfigurationKeys.DATABASE_NULL_VALUE, "NULL");
+        assertColumnCondition(clientsLines, "LAST_NAME", s -> s.equals(nullValue));
     }
 
     @Test
@@ -231,5 +254,33 @@ public class StoreGeneratorTest extends GeneratorTestBase {
         assertEquals(caught.getClass(), SQLInvalidSyntaxException.class);
     }
 
+    @Test
+    public void testUnsatisfiableQuery() throws Exception {
+        Throwable caught = null;
+        try {
+            runGenerator("store_test/sql_incorrect/unsatisfiable.sql", 1.0);
+        } catch (Throwable t) {
+            caught = t;
+        }
+        assertNotNull(caught);
+        assertEquals(caught.getClass(), UnsatisfiableSQLException.class);
+    }
 
+    @Test
+    public void testInvalidXML() throws Exception {
+        String schema = databaseSchema;
+        try {
+            databaseSchema = "store_test/store_invalid.xml";
+            Throwable caught = null;
+            try {
+                runGenerator("store_test/sql_correct/simpleSelect.sql", 1.0);
+            } catch (Throwable t) {
+                caught = t;
+            }
+            assertNotNull(caught);
+            assertEquals(caught.getClass(), XMLNotValidException.class);
+        } finally {
+            databaseSchema = schema;
+        }
+    }
 }

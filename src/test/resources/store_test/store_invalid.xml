@@ -15,7 +15,7 @@
             <ATTRIBUTE>
                 <NAME>NAME</NAME>
                 <TYPE>VARCHAR</TYPE>
-                <MIN_VALUE>3</MIN_VALUE>
+                <INCORRECT_TAG>3</INCORRECT_TAG>
                 <MAX_VALUE>10</MAX_VALUE>
             </ATTRIBUTE>
 
@@ -130,16 +130,6 @@
             <ATTRIBUTE>
                 <NAME>DATETIME</NAME>
                 <TYPE>TIMESTAMP</TYPE>
-            </ATTRIBUTE>
-
-            <ATTRIBUTE>
-                <NAME>STATE</NAME>
-                <TYPE>INTEGER</TYPE>
-                <VALUES>
-                    <VALUE>0</VALUE>
-                    <VALUE>1</VALUE>
-                    <VALUE>2</VALUE>
-                </VALUES>
             </ATTRIBUTE>
         </ATTRIBUTES>
     </TABLE>
