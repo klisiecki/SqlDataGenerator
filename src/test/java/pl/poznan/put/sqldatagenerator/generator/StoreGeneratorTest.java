@@ -20,7 +20,6 @@ import static java.lang.Double.parseDouble;
 import static java.lang.Integer.parseInt;
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 public class StoreGeneratorTest extends GeneratorTestBase {
 
@@ -231,6 +230,7 @@ public class StoreGeneratorTest extends GeneratorTestBase {
         assertColumnsRelation(productsLines, "NAME", "DESCRIPTION", (n, d) -> !n.equals(d));
     }
 
+    //TODO more scenarios like this
     @Test
     public void testColumnsMultipleRelations() throws Exception {
         List<File> files = runGenerator("store_test/sql_correct/twoColumnsMultipleRelations.sql", 1.0);
@@ -242,57 +242,23 @@ public class StoreGeneratorTest extends GeneratorTestBase {
         assertColumnCondition(productsLines, "PACKAGE_DEPTH", s -> parseInt(s) == 3);
     }
 
-    @Test
+    @Test(expected = SQLNotCompatibleWithDatabaseException.class)
     public void testNonexistentTable() throws Exception {
-        Throwable caught = null;
-        try {
-            runGenerator("store_test/sql_incorrect/nonexistent_table.sql", 1.0);
-        } catch (Throwable t) {
-            caught = t;
-        }
-        assertNotNull(caught);
-        assertEquals(caught.getClass(), SQLNotCompatibleWithDatabaseException.class);
+        runGenerator("store_test/sql_incorrect/nonexistent_table.sql", 1.0);
     }
 
-    @Test
+    @Test(expected = SQLInvalidSyntaxException.class)
     public void testIncorrectSyntax() throws Exception {
-        Throwable caught = null;
-        try {
-            runGenerator("store_test/sql_incorrect/syntax_error.sql", 1.0);
-        } catch (Throwable t) {
-            caught = t;
-        }
-        assertNotNull(caught);
-        assertEquals(caught.getClass(), SQLInvalidSyntaxException.class);
+        runGenerator("store_test/sql_incorrect/syntax_error.sql", 1.0);
     }
 
-    @Test
+    @Test(expected = UnsatisfiableSQLException.class)
     public void testUnsatisfiableQuery() throws Exception {
-        Throwable caught = null;
-        try {
-            runGenerator("store_test/sql_incorrect/unsatisfiable.sql", 1.0);
-        } catch (Throwable t) {
-            caught = t;
-        }
-        assertNotNull(caught);
-        assertEquals(caught.getClass(), UnsatisfiableSQLException.class);
+        runGenerator("store_test/sql_incorrect/unsatisfiable.sql", 1.0);
     }
 
-    @Test
+    @Test(expected = XMLNotValidException.class)
     public void testInvalidXML() throws Exception {
-        String schema = databaseSchema;
-        try {
-            databaseSchema = "store_test/store_invalid.xml";
-            Throwable caught = null;
-            try {
-                runGenerator("store_test/sql_correct/simpleSelect.sql", 1.0);
-            } catch (Throwable t) {
-                caught = t;
-            }
-            assertNotNull(caught);
-            assertEquals(caught.getClass(), XMLNotValidException.class);
-        } finally {
-            databaseSchema = schema;
-        }
+        runGenerator("store_test/sql_correct/simpleSelect.sql", "store_test/store_invalid.xml", 1.0);
     }
 }

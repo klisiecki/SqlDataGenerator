@@ -42,7 +42,11 @@ public abstract class GeneratorTestBase {
         outputDir.delete();
     }
 
-    protected List<File> runGenerator(String sqlFile, double selectivity) throws IOException, SAXException, ParserConfigurationException {
+    protected List<File> runGenerator(String sqlFile, double selectivity) throws ParserConfigurationException, SAXException, IOException {
+        return runGenerator(sqlFile, databaseSchema, selectivity);
+    }
+
+    protected List<File> runGenerator(String sqlFile, String databaseSchema, double selectivity) throws IOException, SAXException, ParserConfigurationException {
         configuration.setSelectivity(selectivity);
         SQLData sqlData = SQLData.fromFile(getAbsolutePath(sqlFile));
         DatabaseSchemaReader databaseSchemaReader = new XMLDatabaseSchemaReader(getAbsolutePath(databaseSchema));
