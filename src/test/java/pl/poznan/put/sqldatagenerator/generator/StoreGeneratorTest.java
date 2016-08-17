@@ -230,16 +230,48 @@ public class StoreGeneratorTest extends GeneratorTestBase {
         assertColumnsRelation(productsLines, "NAME", "DESCRIPTION", (n, d) -> !n.equals(d));
     }
 
-    //TODO more scenarios like this
     @Test
-    public void testColumnsMultipleRelations() throws Exception {
-        List<File> files = runGenerator("store_test/sql_correct/twoColumnsMultipleRelations.sql", 1.0);
+    public void testColumnsMultipleRelations1() throws Exception {
+        List<File> files = runGenerator("store_test/sql_correct/twoColumnsMultipleRelations1.sql", 1.0);
         assertStoreOutputCorrect(files);
 
         List<String[]> productsLines = getFileLines(files, PRODUCTS_FILENAME);
         assertColumnCondition(productsLines, "PACKAGE_WIDTH", s -> parseInt(s) == 1);
         assertColumnCondition(productsLines, "PACKAGE_HEIGHT", s -> parseInt(s) == 2);
         assertColumnCondition(productsLines, "PACKAGE_DEPTH", s -> parseInt(s) == 3);
+    }
+
+    @Test
+    public void testColumnsMultipleRelations2() throws Exception {
+        List<File> files = runGenerator("store_test/sql_correct/twoColumnsMultipleRelations2.sql", 1.0);
+        assertStoreOutputCorrect(files);
+
+        List<String[]> productsLines = getFileLines(files, PRODUCTS_FILENAME);
+        assertColumnCondition(productsLines, "PACKAGE_WIDTH", s -> parseInt(s) == 1);
+        assertColumnCondition(productsLines, "PACKAGE_HEIGHT", s -> parseInt(s) == 2);
+        assertColumnCondition(productsLines, "PACKAGE_DEPTH", s -> parseInt(s) == 2);
+    }
+
+    @Test
+    public void testColumnsMultipleRelations3() throws Exception {
+        List<File> files = runGenerator("store_test/sql_correct/twoColumnsMultipleRelations3.sql", 1.0);
+        assertStoreOutputCorrect(files);
+
+        List<String[]> productsLines = getFileLines(files, PRODUCTS_FILENAME);
+        assertColumnCondition(productsLines, "PACKAGE_WIDTH", s -> parseInt(s) == 2);
+        assertColumnCondition(productsLines, "PACKAGE_HEIGHT", s -> parseInt(s) == 2);
+        assertColumnCondition(productsLines, "PACKAGE_DEPTH", s -> parseInt(s) == 1);
+    }
+
+    @Test
+    public void testColumnsMultipleRelations4() throws Exception {
+        List<File> files = runGenerator("store_test/sql_correct/twoColumnsMultipleRelations4.sql", 1.0);
+        assertStoreOutputCorrect(files);
+
+        List<String[]> productsLines = getFileLines(files, PRODUCTS_FILENAME);
+        assertColumnCondition(productsLines, "PACKAGE_WIDTH", s -> parseInt(s) == 1);
+        assertColumnCondition(productsLines, "PACKAGE_HEIGHT", s -> parseInt(s) == 1);
+        assertColumnCondition(productsLines, "PACKAGE_DEPTH", s -> parseInt(s) == 1);
     }
 
     @Test(expected = SQLNotCompatibleWithDatabaseException.class)
@@ -255,6 +287,11 @@ public class StoreGeneratorTest extends GeneratorTestBase {
     @Test(expected = UnsatisfiableSQLException.class)
     public void testUnsatisfiableQuery() throws Exception {
         runGenerator("store_test/sql_incorrect/unsatisfiable.sql", 1.0);
+    }
+
+    @Test(expected = UnsatisfiableSQLException.class)
+    public void testTwoColumnsRestrictionUnsatisfiable() throws Exception {
+        runGenerator("store_test/sql_incorrect/twoColumnsMultipleRelationsUnsatisfiable.sql", 1.0);
     }
 
     @Test(expected = XMLNotValidException.class)

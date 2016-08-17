@@ -105,6 +105,8 @@ public class RestrictionsByAttribute {
             } else if (internalType == LONG || internalType == DOUBLE) {
                 if (signType == EQUALS) {
                     return combineNumericEquality(firstAttribute, secondAttribute);
+                } else if (signType == NOT_EQUALS) {
+                    throw new NotImplementedException();
                 } else if (signType == MINOR_THAN) {
                     return combineNumericInequality(firstAttribute, secondAttribute, relationRestriction.getBoundType());
                 } else if (signType == GREATER_THAN) {
@@ -127,43 +129,37 @@ public class RestrictionsByAttribute {
 
         RangeSet lessRangeSet = lessRangeRestriction.getRangeSet();
         RangeSet greaterRangeSet = greaterRangeRestriction.getRangeSet();
+        RangeSet newLessRangeSet, newGreaterRangeSet;
 
-        if (lessAttribute.getInternalType() == LONG) {
+        InternalType internalType = lessAttribute.getInternalType();
+        if (internalType == LONG) {
             long lowerBound = RangeUtils.getMinLong(lessRangeRestriction.getRangeSet());
             long upperBound = RangeUtils.getMaxLong(greaterRangeRestriction.getRangeSet());
-            if (lowerBound >= upperBound) {
-                throw new UnsatisfiableRestrictionException("Combining " + lessAttribute + " with " + greaterAttribute
-                        + " would produce empty range. " + lowerBound + " is greater than " + upperBound);
-            }
             if (boundType == OPEN) {
                 lowerBound += 1;
                 upperBound -= 1;
             }
-            RangeSet<Long> newLessRangeSet = lessRangeSet.subRangeSet(Range.atMost(upperBound));
-            lessRangeRestriction.setRangeSet(newLessRangeSet);
-
-            RangeSet<Long> newGreaterRangeSet = greaterRangeSet.subRangeSet(Range.atLeast(lowerBound));
-            greaterRangeRestriction.setRangeSet(newGreaterRangeSet);
-            return !newLessRangeSet.equals(lessRangeSet) || !newGreaterRangeSet.equals(greaterRangeSet);
-        } else if (lessAttribute.getInternalType() == DOUBLE) {
+            newLessRangeSet = lessRangeSet.subRangeSet(Range.atMost(upperBound));
+            newGreaterRangeSet = greaterRangeSet.subRangeSet(Range.atLeast(lowerBound));
+        } else if (internalType == DOUBLE) {
             double lowerBound = RangeUtils.getMinDouble(lessRangeRestriction.getRangeSet());
             double upperBound = RangeUtils.getMaxDouble(greaterRangeRestriction.getRangeSet());
             if (boundType == OPEN) {
                 lowerBound += EPS;
                 upperBound -= EPS;
             }
-            if (lowerBound > upperBound) {
-                throw new UnsatisfiableRestrictionException("Combining " + lessAttribute + " with " + greaterAttribute
-                        + " would produce empty range. " + lowerBound + " is greater than " + upperBound);
-            }
-            RangeSet<Double> newLessRangeSet = lessRangeSet.subRangeSet(Range.atMost(upperBound));
-            lessRangeRestriction.setRangeSet(newLessRangeSet);
-
-            RangeSet<Double> newGreaterRangeSet = greaterRangeSet.subRangeSet(Range.atLeast(lowerBound));
-            greaterRangeRestriction.setRangeSet(newGreaterRangeSet);
-            return !newLessRangeSet.equals(lessRangeSet) || !newGreaterRangeSet.equals(greaterRangeSet);
+            newLessRangeSet = lessRangeSet.subRangeSet(Range.atMost(upperBound));
+            newGreaterRangeSet = greaterRangeSet.subRangeSet(Range.atLeast(lowerBound));
+        } else {
+            throw new InvalidInternalStateException("Handling " + internalType + " internal type not implemented");
         }
-        return false;
+        if (newLessRangeSet.isEmpty() || newGreaterRangeSet.isEmpty()) {
+            throw new UnsatisfiableRestrictionException("Combining " + lessAttribute + " with " + greaterAttribute
+                    + " would produce empty range");
+        }
+        lessRangeRestriction.setRangeSet(newLessRangeSet);
+        greaterRangeRestriction.setRangeSet(newGreaterRangeSet);
+        return !newLessRangeSet.equals(lessRangeSet) || !newGreaterRangeSet.equals(greaterRangeSet);
     }
 
     private boolean combineNumericEquality(Attribute firstAttribute, Attribute secondAttribute) {
