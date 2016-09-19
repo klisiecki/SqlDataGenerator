@@ -45,10 +45,8 @@ public class Main {
             createOutputDirectory();
 
             DatabaseProperties databaseProperties = new DatabaseProperties(databaseSchemaReader, databaseTypesReader);
-            Generator generator = new Generator();
-            generator.setWriterClass(CSVTableWriter.class);
-            generator.initTables(databaseProperties, sqlData);
-            generator.generate();
+            Generator generator = new Generator(CSVTableWriter.class);
+            generator.generate(databaseProperties, sqlData);
         } catch (SQLSyntaxNotSupportedException | SQLInvalidSyntaxException | XMLNotValidException
                 | SQLNotCompatibleWithDatabaseException | UnsatisfiableSQLException e) {
             logger.info(e.getClass().getSimpleName() + ": " + e.getMessage());

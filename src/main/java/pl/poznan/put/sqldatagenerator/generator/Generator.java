@@ -35,19 +35,36 @@ public class Generator {
     private final HistoryManager historyManager;
     private long maxDataRows = 0;
 
-    public Generator() {
+    public Generator(Class<? extends TableWriter> writerClass) {
         this.tableBaseMap = new HashMap<>();
         this.tableInstanceMap = new HashMap<>();
         this.random = new Random();
         this.restrictionsManager = new RestrictionsManager();
         this.historyManager = new HistoryManager();
-    }
-
-    public void setWriterClass(Class<? extends TableWriter> writerClass) {
         this.writerClass = writerClass;
     }
 
-    public void initTables(DatabaseProperties databaseProperties, SQLData sqlData) {
+    public void generate(DatabaseProperties databaseProperties, SQLData sqlData) {
+        initTables(databaseProperties, sqlData);
+        logger.info("Generating process started");
+        int positiveRows = (int) (configuration.getSelectivity() * maxDataRows);
+        Instant lastTimestamp = now();
+
+        for (long iteration = 0; iteration < maxDataRows; iteration++) {
+            float progress = (float) iteration / maxDataRows;
+            lastTimestamp = printProgress(lastTimestamp, progress);
+
+            boolean positive = iteration < positiveRows;
+            int restrictionsIndex = random.nextInt(restrictionsManager.getListSize(positive));
+            prepareTables(restrictionsIndex, positive, progress);
+            generateRow(restrictionsIndex, positive);
+            saveTables(restrictionsIndex, positive);
+        }
+        tableBaseMap.values().forEach(BaseTable::closeWriter);
+        logger.info("Generating process done");
+    }
+
+    private void initTables(DatabaseProperties databaseProperties, SQLData sqlData) {
         initTableBase(databaseProperties);
 
         for (Table table : sqlData.getTables()) {
@@ -68,25 +85,6 @@ public class Generator {
 
         List<String> tablesAliasNames = tableInstanceMap.values().stream().map(TableInstance::getAliasName).collect(toList());
         historyManager.initialize(tablesAliasNames, restrictionsManager, sqlData.getJoinEquals());
-    }
-
-    public void generate() {
-        logger.info("Generating process started");
-        int positiveRows = (int) (configuration.getSelectivity() * maxDataRows);
-        Instant lastTimestamp = now();
-
-        for (long iteration = 0; iteration < maxDataRows; iteration++) {
-            float progress = (float) iteration / maxDataRows;
-            lastTimestamp = printProgress(lastTimestamp, progress);
-
-            boolean positive = iteration < positiveRows;
-            int restrictionsIndex = random.nextInt(restrictionsManager.getListSize(positive));
-            prepareTables(restrictionsIndex, positive, progress);
-            generateRow(restrictionsIndex, positive);
-            saveTables(restrictionsIndex, positive);
-        }
-        tableBaseMap.values().forEach(BaseTable::closeWriter);
-        logger.info("Generating process done");
     }
 
     private Instant printProgress(Instant lastTimestamp, float progress) {
