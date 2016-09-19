@@ -1,6 +1,9 @@
 package pl.poznan.put.sqldatagenerator.configuration;
 
 public enum ConfigurationKeys implements ConfigurationKey {
+
+    PRINT_PROGRESS_DELAY("print_progress_delay"),
+
     MAX_ROWS_PER_FILE("max_rows_per_file"),
 
     DATABASE_TYPES_DESCRIPTION("database_types_description"),

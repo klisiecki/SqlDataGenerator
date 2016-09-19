@@ -21,11 +21,12 @@ import java.util.*;
 
 import static java.time.Instant.now;
 import static java.util.stream.Collectors.toList;
+import static pl.poznan.put.sqldatagenerator.configuration.ConfigurationKeys.PRINT_PROGRESS_DELAY;
 
 public class Generator {
     private static final Configuration configuration = Configuration.getInstance();
     private static final Logger logger = LoggerFactory.getLogger(Generator.class);
-    private static final int PRINT_PROGRESS_DELAY = 100;
+    private static final int progressDelay = configuration.getIntegerProperty(PRINT_PROGRESS_DELAY, 100);
 
     private Class<? extends TableWriter> writerClass;
     private final Map<String, BaseTable> tableBaseMap;
@@ -88,7 +89,7 @@ public class Generator {
     }
 
     private Instant printProgress(Instant lastTimestamp, float progress) {
-        if (Duration.between(lastTimestamp, now()).toMillis() > PRINT_PROGRESS_DELAY) {
+        if (Duration.between(lastTimestamp, now()).toMillis() > progressDelay) {
             lastTimestamp = now();
             logger.info("Generation progress: {}%", (int) (progress * 100));
         }
