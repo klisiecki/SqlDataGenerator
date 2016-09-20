@@ -101,7 +101,7 @@ public class RestrictionsManager {
     private boolean verifySQLSatisfiability(Restrictions restrictions) {
         boolean containsNullRestriction = restrictions.getCollection().stream()
                 .filter(r -> r instanceof NullRestriction)
-                .anyMatch(r -> ((NullRestriction) r).isNegated());
+                .anyMatch(r -> !((NullRestriction) r).isNegated());
         boolean containsOtherRestriction = restrictions.getCollection().stream().anyMatch(r -> !(r instanceof NullRestriction));
 
         if (containsNullRestriction && containsOtherRestriction) {
