@@ -22,8 +22,8 @@ public class Main {
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
     private static final Configuration configuration = Configuration.getInstance();
 
-    private static final String databaseTypesDescription =
-            configuration.getStringProperty(DATABASE_TYPES_DESCRIPTION, "/datatypes/netezza.xml");
+    private static final String databaseTypesDescription = 
+            configuration.getStringProperty(DATABASE_TYPES_DESCRIPTION, "src/main/resources/datatypes/netezza.xml");
 
     public static void main(String[] args) {
         Namespace ns;

@@ -71,6 +71,7 @@ public class RandomGenerator {
         return random.nextDouble(minValue, maxValue);
     }
 
+    //TODO it is not really a width
     private static long getLongRangeWidth(Range<Long> longRange) {
         return getMaxLong(longRange) / 3 - getMinLong(longRange) / 3 + 1;
     }

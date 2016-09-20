@@ -27,7 +27,7 @@ public class SQLData {
 
     private final Select selectStatement;
 
-    public SQLData(Select selectStatement) {
+    private SQLData(Select selectStatement) {
         this.selectStatement = selectStatement;
 
         logger.info("Parsed statement: {}", selectStatement);
