@@ -54,6 +54,15 @@ public class StoreGeneratorTest extends GeneratorTestBase {
     }
 
     @Test
+    public void testSelectWithoutWhere() throws Exception {
+        List<File> files = runGenerator("store_test/sql_correct/selectWithoutWhere.sql", 1.0);
+        assertStoreOutputCorrect(files);
+
+        List<String[]> clientsLines = getFileLines(files, CLIENTS_FILENAME);
+        assertEquals(CLIENTS_COUNT + 1, clientsLines.size());
+    }
+
+    @Test
     public void testXMLValuesList() throws Exception {
         List<File> files = runGenerator("store_test/sql_correct/simpleSelect.sql", 1.0);
         assertStoreOutputCorrect(files);
@@ -277,6 +286,11 @@ public class StoreGeneratorTest extends GeneratorTestBase {
     @Test(expected = SQLNotCompatibleWithDatabaseException.class)
     public void testNonexistentTable() throws Exception {
         runGenerator("store_test/sql_incorrect/nonexistent_table.sql", 1.0);
+    }
+
+    @Test(expected = SQLNotCompatibleWithDatabaseException.class)
+    public void testNonexistentAttribute() throws Exception {
+        runGenerator("store_test/sql_incorrect/nonexistent_attribute.sql", 1.0);
     }
 
     @Test(expected = SQLInvalidSyntaxException.class)
