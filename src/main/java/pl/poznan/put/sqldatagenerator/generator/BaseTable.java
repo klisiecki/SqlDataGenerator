@@ -55,6 +55,10 @@ public class BaseTable {
         return attributesNames;
     }
 
+    public void removeAttributeName(String name) {
+        attributesNames.remove(name);
+    }
+
     public boolean shouldBeGenerated(float progress) {
         float tableProgress = (float) dataCount / dataCountLimit;
         return tableProgress <= progress;

@@ -38,8 +38,8 @@ public class DatabaseProperties {
 
     public Restrictions getConstraints(Map<String, BaseTable> tableBaseMap) {
         List<Restriction> restrictionList = new ArrayList<>();
-        for (String tableName : databaseSchemaReader.getTables()) {
-            for (String attributeName : databaseSchemaReader.getAttributes(tableName)) {
+        for (String tableName : tableBaseMap.keySet()) {
+            for (String attributeName : tableBaseMap.get(tableName).getAttributesNames()) {
                 List<String> values = databaseSchemaReader.getValues(tableName, attributeName);
                 List<Attribute> attributes = AttributesMap.get(tableBaseMap.get(tableName), attributeName);
                 InternalType internalType = getType(tableName, attributeName).getInternalType();

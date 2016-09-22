@@ -18,7 +18,8 @@ public enum ConfigurationKeys implements ConfigurationKey {
 
     DOUBLE_EPSILON("double_epsilon"),
 
-    RANDOM_KEYS_GENERATION("random_keys_generation");
+    RANDOM_KEYS_GENERATION("random_keys_generation"),
+    ONLY_QUERY_ATTRIBUTES("only_query_attributes");
 
     private final String key;
 

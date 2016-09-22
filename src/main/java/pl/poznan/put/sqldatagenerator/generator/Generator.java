@@ -4,6 +4,7 @@ import net.sf.jsqlparser.schema.Table;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.poznan.put.sqldatagenerator.configuration.Configuration;
+import pl.poznan.put.sqldatagenerator.configuration.ConfigurationKeys;
 import pl.poznan.put.sqldatagenerator.exception.SQLNotCompatibleWithDatabaseException;
 import pl.poznan.put.sqldatagenerator.exception.SQLSyntaxNotSupportedException;
 import pl.poznan.put.sqldatagenerator.generator.datatypes.DatabaseType;
@@ -21,12 +22,14 @@ import java.util.*;
 
 import static java.time.Instant.now;
 import static java.util.stream.Collectors.toList;
+import static pl.poznan.put.sqldatagenerator.configuration.ConfigurationKeys.ONLY_QUERY_ATTRIBUTES;
 import static pl.poznan.put.sqldatagenerator.configuration.ConfigurationKeys.PRINT_PROGRESS_DELAY;
 
 public class Generator {
     private static final Configuration configuration = Configuration.getInstance();
     private static final Logger logger = LoggerFactory.getLogger(Generator.class);
     private static final int progressDelay = configuration.getIntegerProperty(PRINT_PROGRESS_DELAY, 100);
+    private static final boolean onlyQueryAttributes = configuration.getBooleanProperty(ONLY_QUERY_ATTRIBUTES, false);
 
     private Class<? extends TableWriter> writerClass;
     private final Map<String, BaseTable> tableBaseMap;
@@ -148,11 +151,16 @@ public class Generator {
         List<String> missingAttributes = new ArrayList<>(sqlAttributes);
         missingAttributes.removeAll(databaseAttributes);
         if (!missingAttributes.isEmpty()) {
-            throw new SQLNotCompatibleWithDatabaseException("Attributes " + Arrays.toString(missingAttributes.toArray()) + " not found in " + tableName + " definition");
+            throw new SQLNotCompatibleWithDatabaseException("Attributes " + Arrays.toString(missingAttributes.toArray())
+                    + " not found in " + tableName + " definition");
         }
 
         for (String attributeName : databaseAttributes) {
-            //TODO consider adding only attributes present in SQL (could be configurable)
+            if (onlyQueryAttributes && !sqlAttributes.contains(attributeName)
+                    && !databaseProperties.isPrimaryKey(tableName, attributeName)) {
+                tableBaseMap.get(tableName).removeAttributeName(attributeName);
+                continue;
+            }
             DatabaseType databaseType = databaseProperties.getType(tableName, attributeName);
             Attribute attribute = new Attribute(tableInstance, attributeName, databaseType);
             tableInstance.addAttribute(attribute);
