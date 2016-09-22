@@ -88,7 +88,8 @@ public class RestrictionsByAttribute {
         return true;
     }
 
-    private boolean combineTwoAttributes(TwoAttributesRestriction twoAttributesRestriction) throws UnsatisfiableRestrictionException {
+    private boolean combineTwoAttributes(TwoAttributesRestriction twoAttributesRestriction)
+            throws UnsatisfiableRestrictionException {
         if (twoAttributesRestriction instanceof TwoAttributesRelationRestriction) {
             TwoAttributesRelationRestriction relationRestriction = (TwoAttributesRelationRestriction) twoAttributesRestriction;
 

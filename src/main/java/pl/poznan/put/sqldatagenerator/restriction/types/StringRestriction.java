@@ -17,25 +17,27 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toList;
 import static pl.poznan.put.sqldatagenerator.configuration.ConfigurationKeys.MAX_STRING_LENGTH;
 import static pl.poznan.put.sqldatagenerator.configuration.ConfigurationKeys.MIN_STRING_LENGTH;
+import static pl.poznan.put.sqldatagenerator.generator.datatypes.DataTypesConverter.getInternalString;
 import static pl.poznan.put.sqldatagenerator.restriction.SQLExpressionsUtils.getColumn;
 import static pl.poznan.put.sqldatagenerator.restriction.SQLExpressionsUtils.getValueExpression;
 
 public class StringRestriction extends OneAttributeRestriction {
 
-    public static class LikeExpressionProperties {
+    public static class LikeProperties {
         private final String like;
         private final String escapeCharacter;
 
 
-        public LikeExpressionProperties(String like, String escapeCharacter) {
+        public LikeProperties(String like, String escapeCharacter) {
             this.like = like;
             this.escapeCharacter = escapeCharacter;
         }
 
-        public LikeExpressionProperties(LikeExpressionProperties likeExpressionProperties) {
-            this(likeExpressionProperties.getLike(), likeExpressionProperties.getEscapeCharacter());
+        public LikeProperties(LikeProperties likeProperties) {
+            this(likeProperties.getLike(), likeProperties.getEscapeCharacter());
         }
 
         public String getLike() {
@@ -53,7 +55,7 @@ public class StringRestriction extends OneAttributeRestriction {
     private static final Integer DEFAULT_MAX_LENGTH = configuration.getIntegerProperty(MAX_STRING_LENGTH, 20);
 
     private Range<Integer> allowedLength;
-    private LikeExpressionProperties likeExpressionProperties;
+    private LikeProperties likeProperties;
     private List<String> allowedValues;
     private boolean isNegated;
 
@@ -68,10 +70,10 @@ public class StringRestriction extends OneAttributeRestriction {
     }
 
     public StringRestriction(Attribute attribute, Range<Integer> allowedLength,
-                             LikeExpressionProperties likeExpressionProperties, List<String> allowedValues, boolean isNegated) {
+                             LikeProperties likeProperties, List<String> allowedValues, boolean isNegated) {
         this(attribute);
         this.allowedLength = allowedLength;
-        this.likeExpressionProperties = likeExpressionProperties;
+        this.likeProperties = likeProperties;
         this.allowedValues = allowedValues;
         this.isNegated = isNegated;
     }
@@ -97,12 +99,12 @@ public class StringRestriction extends OneAttributeRestriction {
         this.allowedLength = Range.closed(getMinLength(), maxLength);
     }
 
-    public LikeExpressionProperties getLikeExpressionProperties() {
-        return likeExpressionProperties;
+    public LikeProperties getLikeProperties() {
+        return likeProperties;
     }
 
-    public void setLikeExpressionProperties(LikeExpressionProperties likeExpressionProperties) {
-        this.likeExpressionProperties = likeExpressionProperties;
+    public void setLikeProperties(LikeProperties likeProperties) {
+        this.likeProperties = likeProperties;
     }
 
     public List<String> getAllowedValues() {
@@ -135,8 +137,8 @@ public class StringRestriction extends OneAttributeRestriction {
         if (allowedValues != null) {
             clone.setAllowedValues(new ArrayList<>(allowedValues));
         }
-        if (likeExpressionProperties != null) {
-            clone.setLikeExpressionProperties(new LikeExpressionProperties(likeExpressionProperties));
+        if (likeProperties != null) {
+            clone.setLikeProperties(new LikeProperties(likeProperties));
         }
         return clone;
     }
@@ -149,7 +151,7 @@ public class StringRestriction extends OneAttributeRestriction {
         Column column = getColumn(expression);
         DatabaseType databaseType = AttributesMap.get(column).getDatabaseType();
         StringRestriction restriction = new StringRestriction(expression, column);
-        restriction.setAllowedValues(singletonList(DataTypesConverter.getInternalString(getValueExpression(expression), databaseType)));
+        restriction.setAllowedValues(singletonList(getInternalString(getValueExpression(expression), databaseType)));
         return restriction;
     }
 
@@ -162,7 +164,7 @@ public class StringRestriction extends OneAttributeRestriction {
         DatabaseType databaseType = AttributesMap.get(column).getDatabaseType();
         StringRestriction restriction = new StringRestriction(inExpression, column);
         List<Expression> expressions = ((ExpressionList) inExpression.getRightItemsList()).getExpressions();
-        List<String> values = expressions.stream().map(a -> DataTypesConverter.getInternalString(a, databaseType)).collect(Collectors.toList());
+        List<String> values = expressions.stream().map(a -> getInternalString(a, databaseType)).collect(toList());
         restriction.setAllowedValues(values);
         return restriction;
     }
@@ -171,9 +173,9 @@ public class StringRestriction extends OneAttributeRestriction {
         Column column = (Column) likeExpression.getLeftExpression();
         String value = ((StringValue) likeExpression.getRightExpression()).getValue();
 
-        LikeExpressionProperties properties = new LikeExpressionProperties(value, likeExpression.getEscape());
+        LikeProperties properties = new LikeProperties(value, likeExpression.getEscape());
         StringRestriction restriction = new StringRestriction(likeExpression, column);
-        restriction.setLikeExpressionProperties(properties);
+        restriction.setLikeProperties(properties);
         restriction.setNegated(likeExpression.isNot());
         return restriction;
     }
@@ -183,7 +185,7 @@ public class StringRestriction extends OneAttributeRestriction {
         return "StringRestriction{" +
                 getAttribute() +
                 ", length=[" + allowedLength + "]" +
-                (likeExpressionProperties == null ? "" : ", likeExpressionProperties=" + likeExpressionProperties) +
+                (likeProperties == null ? "" : ", likeExpressionProperties=" + likeProperties) +
                 (allowedValues == null ? "" : ", allowedValues=" + allowedValues) +
                 ", isNegated=" + isNegated + '}';
     }

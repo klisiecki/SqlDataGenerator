@@ -4,7 +4,6 @@ import net.sf.jsqlparser.schema.Table;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.poznan.put.sqldatagenerator.configuration.Configuration;
-import pl.poznan.put.sqldatagenerator.configuration.ConfigurationKeys;
 import pl.poznan.put.sqldatagenerator.exception.SQLNotCompatibleWithDatabaseException;
 import pl.poznan.put.sqldatagenerator.exception.SQLSyntaxNotSupportedException;
 import pl.poznan.put.sqldatagenerator.generator.datatypes.DatabaseType;
@@ -31,7 +30,7 @@ public class Generator {
     private static final int progressDelay = configuration.getIntegerProperty(PRINT_PROGRESS_DELAY, 100);
     private static final boolean onlyQueryAttributes = configuration.getBooleanProperty(ONLY_QUERY_ATTRIBUTES, false);
 
-    private Class<? extends TableWriter> writerClass;
+    private final Class<? extends TableWriter> writerClass;
     private final Map<String, BaseTable> tableBaseMap;
     private final Map<String, TableInstance> tableInstanceMap;
     private final Random random;
@@ -75,7 +74,8 @@ public class Generator {
             String tableName = table.getName();
             String aliasName = table.getAlias().getName();
             if (!tableBaseMap.containsKey(tableName)) {
-                throw new SQLNotCompatibleWithDatabaseException("Table " + tableName + " not found in database properties");
+                throw new SQLNotCompatibleWithDatabaseException(
+                        "Table " + tableName + " not found in database properties");
             }
 
             TableInstance tableInstance = new TableInstance(tableBaseMap.get(tableName), aliasName);
@@ -139,11 +139,13 @@ public class Generator {
     private void initTableBase(DatabaseProperties databaseProperties) {
         for (String tableName : databaseProperties.getTables()) {
             long count = databaseProperties.getRowsNum(tableName);
-            tableBaseMap.put(tableName, new BaseTable(tableName, databaseProperties.getAttributes(tableName), count, writerClass));
+            tableBaseMap.put(tableName,
+                    new BaseTable(tableName, databaseProperties.getAttributes(tableName), count, writerClass));
         }
     }
 
-    private void initAttributes(DatabaseProperties databaseProperties, SQLData sqlData, Table table, TableInstance tableInstance) {
+    private void initAttributes(DatabaseProperties databaseProperties, SQLData sqlData, Table table,
+                                TableInstance tableInstance) {
         String tableName = table.getName();
         List<String> databaseAttributes = databaseProperties.getAttributes(tableName);
         List<String> sqlAttributes = sqlData.getAttributes(table);

@@ -9,7 +9,8 @@ import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.*;
 
-public class AbstractFinder implements SelectVisitor, SelectItemVisitor, FromItemVisitor, ExpressionVisitor, ItemsListVisitor {
+public class AbstractFinder implements SelectVisitor, SelectItemVisitor, FromItemVisitor, ExpressionVisitor,
+        ItemsListVisitor {
 
     @Override
     public void visit(NullValue nullValue) {

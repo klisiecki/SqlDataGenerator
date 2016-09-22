@@ -222,7 +222,7 @@ public class RestrictionsManager {
             StringRestriction first = stringRestrictions.get(0);
             int minLength = first.getMinLength();
             int maxLength = first.getMaxLength();
-            StringRestriction.LikeExpressionProperties likeExpressionProperties = first.getLikeExpressionProperties();
+            StringRestriction.LikeProperties likeProperties = first.getLikeProperties();
             List<String> allowedValues = first.getAllowedValues();
             boolean isNegated = first.isNegated();
             for (int i = 1; i < stringRestrictions.size(); i++) {
@@ -235,8 +235,8 @@ public class RestrictionsManager {
                 } else {
                     allowedValues = restriction.getAllowedValues();
                 }
-                if (restriction.getLikeExpressionProperties() != null) {
-                    likeExpressionProperties = restriction.getLikeExpressionProperties();
+                if (restriction.getLikeProperties() != null) {
+                    likeProperties = restriction.getLikeProperties();
                 }
                 if (restriction.isNegated()) {
                     isNegated = true;
@@ -244,7 +244,7 @@ public class RestrictionsManager {
             }
             toRemoveRestrictions.put(attribute, first);
             StringRestriction mergedRestriction =
-                    new StringRestriction(attribute, Range.closed(minLength, maxLength), likeExpressionProperties, allowedValues, isNegated);
+                    new StringRestriction(attribute, Range.closed(minLength, maxLength), likeProperties, allowedValues, isNegated);
             restrictionsByAttribute.put(attribute, mergedRestriction);
         }
         return true;

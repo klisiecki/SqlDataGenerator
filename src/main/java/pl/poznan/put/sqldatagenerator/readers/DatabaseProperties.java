@@ -59,7 +59,8 @@ public class DatabaseProperties {
         return new Restrictions(restrictionList);
     }
 
-    private List<Restriction> getIntegerConstraints(String tableName, String attributeName, List<String> values, List<Attribute> attributes) {
+    private List<Restriction> getIntegerConstraints(String tableName, String attributeName, List<String> values,
+                                                    List<Attribute> attributes) {
         List<Restriction> restrictionList = new ArrayList<>();
         RangeSet<Long> rangeSet;
         if (databaseSchemaReader.isPrimaryKey(tableName, attributeName)) {
@@ -109,12 +110,14 @@ public class DatabaseProperties {
         return rangeSet;
     }
 
-    private List<Restriction> getStringConstraints(String tableName, String attributeName, List<String> allowedValues, List<Attribute> attributes) {
+    private List<Restriction> getStringConstraints(String tableName, String attributeName, List<String> allowedValues,
+                                                   List<Attribute> attributes) {
         List<Restriction> restrictionList = new ArrayList<>();
         for (Attribute attribute : attributes) {
             Range<Integer> allowedLength = Range.closed(getMinValue(tableName, attributeName).intValue(),
                     getMaxValue(tableName, attributeName).intValue());
-            StringRestriction stringRestriction = new StringRestriction(attribute, allowedLength, null, allowedValues, false);
+            StringRestriction stringRestriction =
+                    new StringRestriction(attribute, allowedLength, null, allowedValues, false);
             restrictionList.add(stringRestriction);
         }
         return restrictionList;

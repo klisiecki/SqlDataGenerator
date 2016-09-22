@@ -19,12 +19,16 @@ public class HistoryManager {
     public HistoryManager() {
     }
 
-    public void initialize(List<String> tablesAliasNames, RestrictionsManager restrictionsManager, List<AttributesPair> attributesPairs) {
-        positiveHistoryList = initHistory(tablesAliasNames, restrictionsManager.getConnectedTablesAliases(true), attributesPairs);
-        negativeHistoryList = initHistory(tablesAliasNames, restrictionsManager.getConnectedTablesAliases(false), attributesPairs);
+    public void initialize(List<String> tablesAliasNames, RestrictionsManager restrictionsManager,
+                           List<AttributesPair> attributesPairs) {
+        positiveHistoryList =
+                initHistory(tablesAliasNames, restrictionsManager.getConnectedTablesAliases(true), attributesPairs);
+        negativeHistoryList =
+                initHistory(tablesAliasNames, restrictionsManager.getConnectedTablesAliases(false), attributesPairs);
     }
 
-    private List<History> initHistory(List<String> tablesAliasNames, List<List<Set<String>>> connectedTablesAliases, List<AttributesPair> attributesPairs) {
+    private List<History> initHistory(List<String> tablesAliasNames, List<List<Set<String>>> connectedTablesAliases,
+                                      List<AttributesPair> attributesPairs) {
         int size = connectedTablesAliases.size();
         List<History> historyList = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {

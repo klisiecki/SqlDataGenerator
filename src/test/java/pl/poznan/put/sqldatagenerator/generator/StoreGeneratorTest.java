@@ -70,7 +70,8 @@ public class StoreGeneratorTest extends GeneratorTestBase {
         List<String[]> ordersLines = getFileLines(files, ORDERS_FILENAME);
         List<String[]> productsLines = getFileLines(files, PRODUCTS_FILENAME);
         assertColumnCondition(ordersLines, "STATE", s -> asList(1, 2, 3).contains(parseInt(s)));
-        assertColumnCondition(productsLines, "CATEGORY", s -> asList("AGD", "RTV", "COMPUTERS", "ELECTRONICS").contains(s));
+        assertColumnCondition(productsLines, "CATEGORY",
+                s -> asList("AGD", "RTV", "COMPUTERS", "ELECTRONICS").contains(s));
     }
 
     @Test
@@ -125,7 +126,8 @@ public class StoreGeneratorTest extends GeneratorTestBase {
 
         List<String[]> clientsLines = getFileLines(files, CLIENTS_FILENAME);
         String nullValue = configuration.getStringProperty(ConfigurationKeys.DATABASE_NULL_VALUE, "NULL");
-        assertColumnConditionCount(clientsLines, "LAST_NAME", s -> s.equals(nullValue), (int) (CLIENTS_COUNT * selectivity));
+        assertColumnConditionCount(clientsLines, "LAST_NAME",
+                s -> s.equals(nullValue), (int) (CLIENTS_COUNT * selectivity));
     }
 
     @Test

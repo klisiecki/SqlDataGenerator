@@ -16,7 +16,11 @@ import pl.poznan.put.sqldatagenerator.generator.datatypes.DatabaseType;
 import pl.poznan.put.sqldatagenerator.generator.datatypes.InternalType;
 import pl.poznan.put.sqldatagenerator.util.RangeUtils;
 
+import static com.google.common.collect.BoundType.CLOSED;
+import static com.google.common.collect.BoundType.OPEN;
 import static pl.poznan.put.sqldatagenerator.restriction.SQLExpressionsUtils.*;
+import static pl.poznan.put.sqldatagenerator.restriction.types.SignType.GREATER_THAN;
+import static pl.poznan.put.sqldatagenerator.restriction.types.SignType.MINOR_THAN;
 
 public class RangeRestriction extends OneAttributeRestriction {
 
@@ -46,37 +50,37 @@ public class RangeRestriction extends OneAttributeRestriction {
     }
 
     public static RangeRestriction fromGreaterThan(GreaterThan greaterThan) {
-        SignType signType = isInverted(greaterThan) ? SignType.MINOR_THAN : SignType.GREATER_THAN;
+        SignType signType = isInverted(greaterThan) ? MINOR_THAN : GREATER_THAN;
         Column column = getColumn(greaterThan);
-        RangeSet rangeSet = createMaxOrMinRangeSet(column, getValueExpression(greaterThan), signType, BoundType.OPEN);
+        RangeSet rangeSet = createMaxOrMinRangeSet(column, getValueExpression(greaterThan), signType, OPEN);
         return new RangeRestriction(greaterThan, column, rangeSet);
     }
 
     public static RangeRestriction fromGreaterThanEquals(GreaterThanEquals greaterThanEquals) {
-        SignType signType = isInverted(greaterThanEquals) ? SignType.MINOR_THAN : SignType.GREATER_THAN;
+        SignType signType = isInverted(greaterThanEquals) ? MINOR_THAN : GREATER_THAN;
         Column column = getColumn(greaterThanEquals);
-        RangeSet rangeSet = createMaxOrMinRangeSet(column, getValueExpression(greaterThanEquals), signType, BoundType.CLOSED);
+        RangeSet rangeSet = createMaxOrMinRangeSet(column, getValueExpression(greaterThanEquals), signType, CLOSED);
         return new RangeRestriction(greaterThanEquals, column, rangeSet);
     }
 
     public static RangeRestriction fromMinorThan(MinorThan minorThan) {
-        SignType signType = isInverted(minorThan) ? SignType.GREATER_THAN : SignType.MINOR_THAN;
+        SignType signType = isInverted(minorThan) ? GREATER_THAN : MINOR_THAN;
         Column column = getColumn(minorThan);
-        RangeSet rangeSet = createMaxOrMinRangeSet(column, getValueExpression(minorThan), signType, BoundType.OPEN);
+        RangeSet rangeSet = createMaxOrMinRangeSet(column, getValueExpression(minorThan), signType, OPEN);
         return new RangeRestriction(minorThan, column, rangeSet);
     }
 
     public static RangeRestriction fromMinorThanEquals(MinorThanEquals minorThanEquals) {
-        SignType signType = isInverted(minorThanEquals) ? SignType.GREATER_THAN : SignType.MINOR_THAN;
+        SignType signType = isInverted(minorThanEquals) ? GREATER_THAN : MINOR_THAN;
         Column column = getColumn(minorThanEquals);
-        RangeSet rangeSet = createMaxOrMinRangeSet(column, getValueExpression(minorThanEquals), signType, BoundType.CLOSED);
+        RangeSet rangeSet = createMaxOrMinRangeSet(column, getValueExpression(minorThanEquals), signType, CLOSED);
         return new RangeRestriction(minorThanEquals, column, rangeSet);
     }
 
     public static RangeRestriction fromBetween(Between between) {
         Column column = (Column) between.getLeftExpression();
-        RangeSet left = createMaxOrMinRangeSet(column, between.getBetweenExpressionStart(), SignType.GREATER_THAN, BoundType.CLOSED);
-        RangeSet right = createMaxOrMinRangeSet(column, between.getBetweenExpressionEnd(), SignType.MINOR_THAN, BoundType.CLOSED);
+        RangeSet left = createMaxOrMinRangeSet(column, between.getBetweenExpressionStart(), GREATER_THAN, CLOSED);
+        RangeSet right = createMaxOrMinRangeSet(column, between.getBetweenExpressionEnd(), MINOR_THAN, CLOSED);
         RangeSet result = RangeUtils.intersectRangeSets(left, right);
         return new RangeRestriction(between, column, result);
     }
@@ -137,24 +141,25 @@ public class RangeRestriction extends OneAttributeRestriction {
         }
     }
 
-    private static RangeSet createMaxOrMinRangeSet(Column column, Expression expression, SignType signType, BoundType boundType) {
+    private static RangeSet createMaxOrMinRangeSet(Column column, Expression expression, SignType signType,
+                                                   BoundType boundType) {
         InternalType type = AttributesMap.get(column).getInternalType();
         DatabaseType databaseType = AttributesMap.get(column).getDatabaseType();
         if (type == InternalType.LONG) {
             RangeSet<Long> rangeSet = TreeRangeSet.create();
             Long value = DataTypesConverter.getInternalLong(expression, databaseType);
-            if (signType == SignType.GREATER_THAN) {
+            if (signType == GREATER_THAN) {
                 rangeSet.add(Range.downTo(value, boundType));
-            } else if (signType == SignType.MINOR_THAN) {
+            } else if (signType == MINOR_THAN) {
                 rangeSet.add(Range.upTo(value, boundType));
             }
             return rangeSet;
         } else if (type == InternalType.DOUBLE) {
             RangeSet<Double> rangeSet = TreeRangeSet.create();
             Double value = DataTypesConverter.getInternalDouble(expression, databaseType);
-            if (signType == SignType.GREATER_THAN) {
+            if (signType == GREATER_THAN) {
                 rangeSet.add(Range.downTo(value, boundType));
-            } else if (signType == SignType.MINOR_THAN) {
+            } else if (signType == MINOR_THAN) {
                 rangeSet.add(Range.upTo(value, boundType));
             }
             return rangeSet;
@@ -176,6 +181,7 @@ public class RangeRestriction extends OneAttributeRestriction {
 
     @Override
     public String toString() {
-        return "RangeRestriction[" + getAttribute() + ": " + (expression == null ? "" : expression + ", ") + rangeSet + "]";
+        return "RangeRestriction[" + getAttribute() + ": " +
+                (expression == null ? "" : expression + ", ") + rangeSet + "]";
     }
 }

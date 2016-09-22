@@ -5,7 +5,7 @@ public enum InternalType {
     LONG(Long.class),
     DOUBLE(Double.class);
 
-    private Class typeClass;
+    private final Class typeClass;
 
     InternalType(Class typeClass) {
         this.typeClass = typeClass;

@@ -8,7 +8,7 @@ import java.util.stream.IntStream;
 
 public class RandomKeyGenerator implements KeyGenerator {
     private int index;
-    private Integer[] keys;
+    private final Integer[] keys;
 
     public RandomKeyGenerator(long max) {
         index = 0;

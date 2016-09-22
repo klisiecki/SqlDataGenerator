@@ -45,7 +45,7 @@ public class RandomGenerator {
         List<Long> cumulativeProbabilities = new ArrayList<>();
         long prevProbability = 0;
         for (Range<Long> longRange : rangesList) {
-            long width = getLongRangeWidth(longRange);
+            long width = getLongRangeWidthFactor(longRange);
             long end = width + prevProbability;
             cumulativeProbabilities.add(end);
             prevProbability = end;
@@ -70,7 +70,7 @@ public class RandomGenerator {
         List<Long> cumulativeProbabilities = new ArrayList<>();
         long prevProbability = 0;
         for (Range<Double> longRange : rangesList) {
-            long width = getDoubleRangeWidth(longRange);
+            long width = getDoubleRangeWidthFactor(longRange);
             long end = width + prevProbability;
             cumulativeProbabilities.add(end);
             prevProbability = end;
@@ -84,12 +84,11 @@ public class RandomGenerator {
         return random.nextDouble(minValue, maxValue);
     }
 
-    //TODO it is not really a width
-    private static long getLongRangeWidth(Range<Long> longRange) {
+    private static long getLongRangeWidthFactor(Range<Long> longRange) {
         return getMaxLong(longRange) / 3 - getMinLong(longRange) / 3 + 1;
     }
 
-    private static long getDoubleRangeWidth(Range<Double> doubleRange) {
+    private static long getDoubleRangeWidthFactor(Range<Double> doubleRange) {
         return (long) (min(getMaxDouble(doubleRange), Long.MAX_VALUE) / 3 -
                 max(getMinDouble(doubleRange), Long.MIN_VALUE) / 3 + 1);
     }

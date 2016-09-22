@@ -31,8 +31,9 @@ public class JoinEqualsFinder extends AbstractFinder {
     @Override
     public void visit(PlainSelect plainSelect) {
         if (plainSelect.getJoins() != null) {
-            plainSelect.getJoins().stream().filter(join -> join.getRightItem() instanceof Table && join.getOnExpression() != null).
-                    forEach(join -> join.getOnExpression().accept(this));
+            plainSelect.getJoins().stream()
+                    .filter(join -> join.getRightItem() instanceof Table && join.getOnExpression() != null)
+                    .forEach(join -> join.getOnExpression().accept(this));
         }
     }
 

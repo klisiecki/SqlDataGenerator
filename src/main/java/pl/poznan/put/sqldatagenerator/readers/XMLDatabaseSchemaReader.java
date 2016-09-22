@@ -120,8 +120,8 @@ public class XMLDatabaseSchemaReader extends AbstractXMLReader implements Databa
 
     @Override
     public List<String> getValues(String table, String attribute) {
-        XPathExpression expr = getXPathExpression(
-                String.format("//TABLE[NAME/text()='%s']//ATTRIBUTE[NAME/text()='%s']//VALUE/text()", table, attribute));
+        XPathExpression expr = getXPathExpression(String.format(
+                "//TABLE[NAME/text()='%s']//ATTRIBUTE[NAME/text()='%s']//VALUE/text()", table, attribute));
         List<String> values = getList(expr);
         return values.size() == 0 ? null : values;
     }
@@ -153,8 +153,8 @@ public class XMLDatabaseSchemaReader extends AbstractXMLReader implements Databa
     }
 
     private String getAttributeProperty(String table, String attribute, String property) {
-        XPathExpression expr = getXPathExpression(
-                String.format("//TABLE[NAME/text()='%s']//ATTRIBUTE[NAME/text()='%s']/%s/text()", table, attribute, property));
+        XPathExpression expr = getXPathExpression(String.format(
+                "//TABLE[NAME/text()='%s']//ATTRIBUTE[NAME/text()='%s']/%s/text()", table, attribute, property));
         String result;
         try {
             result = expr.evaluate(document);

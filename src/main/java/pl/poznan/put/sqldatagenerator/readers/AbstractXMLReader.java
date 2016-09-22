@@ -29,7 +29,8 @@ public class AbstractXMLReader {
     private final XPathFactory xPathfactory = XPathFactory.newInstance();
     protected Document document;
 
-    protected AbstractXMLReader(String fileName, String schemaLocation) throws ParserConfigurationException, IOException, SAXException {
+    protected AbstractXMLReader(String fileName, String schemaLocation) throws ParserConfigurationException,
+            IOException, SAXException {
         validateXML(fileName, getClass().getResource(schemaLocation));
         logger.info("{} is valid", fileName);
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
