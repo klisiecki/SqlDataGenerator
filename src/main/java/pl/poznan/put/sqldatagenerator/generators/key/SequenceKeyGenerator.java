@@ -1,10 +1,9 @@
 package pl.poznan.put.sqldatagenerator.generators.key;
 
-public class SimpleKeyGenerator extends KeyGenerator {
+public class SequenceKeyGenerator implements KeyGenerator {
     private long current;
 
-    public SimpleKeyGenerator(long max) {
-        super(max);
+    public SequenceKeyGenerator() {
     }
 
     @Override

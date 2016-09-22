@@ -86,4 +86,15 @@ public class Configuration {
         return defaultValue;
     }
 
+    public Boolean getBooleanProperty(ConfigurationKey key, Boolean defaultValue) {
+        if (properties.containsKey(key.toString())) {
+            try {
+                return Boolean.valueOf(properties.get(key.toString()).toString());
+            } catch (ClassCastException e) {
+                logger.warn("Unable to parse value for key " + key);
+            }
+        }
+        return defaultValue;
+    }
+
 }

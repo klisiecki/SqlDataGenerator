@@ -1,11 +1,6 @@
 package pl.poznan.put.sqldatagenerator.generators.key;
 
-public abstract class KeyGenerator {
-    protected final long max;
+public interface KeyGenerator {
 
-    protected KeyGenerator(long max) {
-        this.max = max;
-    }
-
-    public abstract long getNextValue();
+    long getNextValue();
 }

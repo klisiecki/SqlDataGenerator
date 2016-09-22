@@ -16,7 +16,9 @@ public enum ConfigurationKeys implements ConfigurationKey {
     MIN_STRING_LENGTH("min_string_length"),
     MAX_STRING_LENGTH("max_string_length"),
 
-    DOUBLE_EPSILON("double_epsilon");
+    DOUBLE_EPSILON("double_epsilon"),
+
+    RANDOM_KEYS_GENERATION("random_keys_generation");
 
     private final String key;
 

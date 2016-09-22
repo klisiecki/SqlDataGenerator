@@ -5,6 +5,10 @@ import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
 import org.apache.commons.lang.RandomStringUtils;
+import pl.poznan.put.sqldatagenerator.configuration.Configuration;
+import pl.poznan.put.sqldatagenerator.generators.key.KeyGenerator;
+import pl.poznan.put.sqldatagenerator.generators.key.RandomKeyGenerator;
+import pl.poznan.put.sqldatagenerator.generators.key.SequenceKeyGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,12 +17,21 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
+import static pl.poznan.put.sqldatagenerator.configuration.ConfigurationKeys.RANDOM_KEYS_GENERATION;
 import static pl.poznan.put.sqldatagenerator.util.RangeUtils.*;
 
 @SuppressWarnings("unchecked")
 public class RandomGenerator {
-
+    private static final Configuration configuration = Configuration.getInstance();
+    private static final Boolean randomKeyGeneration = configuration.getBooleanProperty(RANDOM_KEYS_GENERATION, true);
     private static final ThreadLocalRandom random = ThreadLocalRandom.current();
+
+    public static KeyGenerator getKeyGenerator(long maxValue) {
+        if (maxValue < Integer.MAX_VALUE && randomKeyGeneration) {
+            return new RandomKeyGenerator(maxValue);
+        }
+        return new SequenceKeyGenerator();
+    }
 
     /**
      * Returns a pseudorandom value from given {@link RangeSet}.

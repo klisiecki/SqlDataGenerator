@@ -10,8 +10,8 @@ import pl.poznan.put.sqldatagenerator.generator.AttributesMap;
 import pl.poznan.put.sqldatagenerator.generator.BaseTable;
 import pl.poznan.put.sqldatagenerator.generator.datatypes.DatabaseType;
 import pl.poznan.put.sqldatagenerator.generator.datatypes.InternalType;
+import pl.poznan.put.sqldatagenerator.generators.RandomGenerator;
 import pl.poznan.put.sqldatagenerator.generators.key.KeyGenerator;
-import pl.poznan.put.sqldatagenerator.generators.key.SimpleKeyGenerator;
 import pl.poznan.put.sqldatagenerator.restriction.Restrictions;
 import pl.poznan.put.sqldatagenerator.restriction.types.PrimaryKeyRestriction;
 import pl.poznan.put.sqldatagenerator.restriction.types.RangeRestriction;
@@ -63,7 +63,7 @@ public class DatabaseProperties {
         List<Restriction> restrictionList = new ArrayList<>();
         RangeSet<Long> rangeSet;
         if (databaseSchemaReader.isPrimaryKey(tableName, attributeName)) {
-            KeyGenerator keyGenerator = new SimpleKeyGenerator(databaseSchemaReader.getRowsNum(tableName));
+            KeyGenerator keyGenerator = RandomGenerator.getKeyGenerator(databaseSchemaReader.getRowsNum(tableName));
             attributes.forEach(attribute -> restrictionList.add(new PrimaryKeyRestriction(attribute, keyGenerator)));
 
         } else if (values == null) {
