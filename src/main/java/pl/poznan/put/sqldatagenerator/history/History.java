@@ -8,15 +8,20 @@ import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import pl.poznan.put.sqldatagenerator.configuration.Configuration;
+import pl.poznan.put.sqldatagenerator.configuration.ConfigurationKeys;
 import pl.poznan.put.sqldatagenerator.generator.TablesState;
 import pl.poznan.put.sqldatagenerator.sql.model.AttributesPair;
 
 import java.util.*;
 
+//TODO duplicated in history. Save if at least 2 tables generated?
 public class History {
-    private static final Logger logger = LoggerFactory.getLogger(History.class);
 
-    private static final int HISTORY_SIZE = 10;
+    private static final Logger logger = LoggerFactory.getLogger(History.class);
+    private static final Configuration configuration = Configuration.getInstance();
+
+    private static final int HISTORY_SIZE = configuration.getIntegerProperty(ConfigurationKeys.HISTORY_SIZE, 10000);
 
     private final Random random;
     private final List<TablesState> history;

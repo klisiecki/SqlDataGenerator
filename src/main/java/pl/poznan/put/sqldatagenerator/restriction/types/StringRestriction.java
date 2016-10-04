@@ -9,12 +9,10 @@ import net.sf.jsqlparser.schema.Column;
 import pl.poznan.put.sqldatagenerator.configuration.Configuration;
 import pl.poznan.put.sqldatagenerator.generator.Attribute;
 import pl.poznan.put.sqldatagenerator.generator.AttributesMap;
-import pl.poznan.put.sqldatagenerator.generator.datatypes.DataTypesConverter;
 import pl.poznan.put.sqldatagenerator.generator.datatypes.DatabaseType;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;

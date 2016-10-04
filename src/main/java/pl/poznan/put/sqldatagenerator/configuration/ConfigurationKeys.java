@@ -5,7 +5,7 @@ public enum ConfigurationKeys implements ConfigurationKey {
     PRINT_PROGRESS_DELAY("print_progress_delay"),
 
     MAX_ROWS_PER_FILE("max_rows_per_file"),
-
+    HISTORY_SIZE("history_size"),
     DATABASE_TYPES_DESCRIPTION("database_types_description"),
 
     INPUT_DATE_FORMAT("input_date_format"),
