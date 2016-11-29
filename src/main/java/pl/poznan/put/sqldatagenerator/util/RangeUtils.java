@@ -77,13 +77,12 @@ public class RangeUtils {
     }
 
     public static RangeSet<Long> removeEmptyRanges(RangeSet<Long> rangeSet) {
-        rangeSet.getClass().getTypeParameters();
         RangeSet<Long> result = TreeRangeSet.create();
         rangeSet.asRanges().stream().filter(longRange -> !isEmpty(longRange)).forEach(result::add);
         return result;
     }
 
-    private static boolean isEmpty(Range<Long> longRange) {
+    public static boolean isEmpty(Range<Long> longRange) {
         if (!longRange.hasLowerBound() || !longRange.hasUpperBound()) {
             return false;
         }

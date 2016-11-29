@@ -3,10 +3,7 @@ package pl.poznan.put.sqldatagenerator.generator;
 import org.junit.Before;
 import org.junit.Test;
 import pl.poznan.put.sqldatagenerator.configuration.ConfigurationKeys;
-import pl.poznan.put.sqldatagenerator.exception.SQLInvalidSyntaxException;
-import pl.poznan.put.sqldatagenerator.exception.SQLNotCompatibleWithDatabaseException;
-import pl.poznan.put.sqldatagenerator.exception.UnsatisfiableSQLException;
-import pl.poznan.put.sqldatagenerator.exception.XMLNotValidException;
+import pl.poznan.put.sqldatagenerator.exception.*;
 
 import java.io.File;
 import java.text.DateFormat;
@@ -314,4 +311,10 @@ public class StoreGeneratorTest extends GeneratorTestBase {
     public void testInvalidXML() throws Exception {
         runGenerator("store_test/sql_correct/simpleSelect.sql", "store_test/store_invalid.xml", 1.0);
     }
+
+    @Test(expected = SQLSyntaxNotSupportedException.class)
+    public void testIncorrectStatement() throws Exception {
+        runGenerator("store_test/sql_incorrect/incorrect_statement.sql", 1.0);
+    }
+
 }

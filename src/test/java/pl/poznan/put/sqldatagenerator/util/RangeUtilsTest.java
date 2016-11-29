@@ -163,4 +163,15 @@ public class RangeUtilsTest {
         assertEquals(10 - RangeUtils.EPS, RangeUtils.getMaxDouble(minusTenToTenDoubleOpen), Double.MIN_VALUE);
     }
 
+    @Test
+    public void isEmpty() throws Exception {
+        assertTrue(!RangeUtils.isEmpty(fromHundred));
+        assertTrue(!RangeUtils.isEmpty(toZero));
+        assertTrue(!RangeUtils.isEmpty(Range.closed(32L, 32L)));
+        assertTrue(RangeUtils.isEmpty(Range.openClosed(11L, 11L)));
+        assertTrue(RangeUtils.isEmpty(Range.closedOpen(-32L, -32L)));
+        assertTrue(RangeUtils.isEmpty(Range.open(0L, 1L)));
+        assertTrue(!RangeUtils.isEmpty(Range.singleton(1L)));
+    }
+
 }
