@@ -68,7 +68,7 @@ public class Generator {
     }
 
     private void initTables(DatabaseProperties databaseProperties, SQLData sqlData) {
-        initTableBase(databaseProperties);
+        initBaseTable(databaseProperties);
 
         for (Table table : sqlData.getTables()) {
             String tableName = table.getName();
@@ -87,7 +87,9 @@ public class Generator {
 
         restrictionsManager.initialize(sqlData.getCriteria(), databaseProperties.getConstraints(tableBaseMap));
 
-        List<String> tablesAliasNames = tableInstanceMap.values().stream().map(TableInstance::getAliasName).collect(toList());
+        List<String> tablesAliasNames = tableInstanceMap.values().stream()
+                                                        .map(TableInstance::getAliasName)
+                                                        .collect(toList());
         historyManager.initialize(tablesAliasNames, restrictionsManager, sqlData.getJoinEquals());
     }
 
@@ -101,21 +103,21 @@ public class Generator {
 
     private void prepareTables(int restrictionsIndex, boolean positive, float progress) {
         List<String> notNeededTableAliasList = tableInstanceMap.values().stream()
-                .filter(table -> table.shouldBeGenerated(progress))
-                .map(TableInstance::getAliasName)
-                .collect(toList());
+                                                               .filter(table -> table.shouldBeGenerated(progress))
+                                                               .map(TableInstance::getAliasName)
+                                                               .collect(toList());
 
         TablesState historyTablesState = historyManager.getState(positive, restrictionsIndex, notNeededTableAliasList);
 
         if (historyTablesState != null) {
             tableInstanceMap.values().stream()
-                    .filter(table -> !table.shouldBeGenerated(progress))
-                    .forEach(tableInstance -> {
-                        TableInstanceState historyState = historyTablesState.get(tableInstance.getAliasName());
-                        if (historyState != null) {
-                            tableInstance.setState(historyState);
-                        }
-                    });
+                            .filter(table -> !table.shouldBeGenerated(progress))
+                            .forEach(tableInstance -> {
+                                TableInstanceState historyState = historyTablesState.get(tableInstance.getAliasName());
+                                if (historyState != null) {
+                                    tableInstance.setState(historyState);
+                                }
+                            });
         }
     }
 
@@ -125,8 +127,8 @@ public class Generator {
 
     private void saveTables(int restrictionsIndex, boolean positive) {
         tableInstanceMap.values().stream()
-                .filter(table -> !table.getState().isSaved())
-                .forEach(TableInstance::save);
+                        .filter(table -> !table.getState().isSaved())
+                        .forEach(TableInstance::save);
 
         TablesState tablesState = new TablesState();
         tableInstanceMap.values().forEach(tableInstance ->
@@ -136,11 +138,12 @@ public class Generator {
         tableInstanceMap.values().forEach(TableInstance::clear);
     }
 
-    private void initTableBase(DatabaseProperties databaseProperties) {
+    private void initBaseTable(DatabaseProperties databaseProperties) {
         for (String tableName : databaseProperties.getTables()) {
             long count = databaseProperties.getRowsNum(tableName);
-            tableBaseMap.put(tableName,
-                    new BaseTable(tableName, databaseProperties.getAttributes(tableName), count, writerClass));
+            BaseTable baseTable =
+                    new BaseTable(tableName, databaseProperties.getAttributes(tableName), count, writerClass);
+            tableBaseMap.put(tableName, baseTable);
         }
     }
 
@@ -158,8 +161,7 @@ public class Generator {
         }
 
         for (String attributeName : databaseAttributes) {
-            if (onlyQueryAttributes && !sqlAttributes.contains(attributeName)
-                    && !databaseProperties.isPrimaryKey(tableName, attributeName)) {
+            if (shouldBeRemoved(attributeName, tableName, databaseProperties, sqlAttributes)) {
                 tableBaseMap.get(tableName).removeAttributeName(attributeName);
                 continue;
             }
@@ -168,6 +170,12 @@ public class Generator {
             tableInstance.addAttribute(attribute);
             AttributesMap.add(tableInstance, attributeName, attribute);
         }
+    }
+
+    private boolean shouldBeRemoved(String attributeName, String tableName, DatabaseProperties databaseProperties,
+                                    List<String> sqlAttributes) {
+        return onlyQueryAttributes && !sqlAttributes.contains(attributeName)
+                && !databaseProperties.isPrimaryKey(tableName, attributeName);
     }
 
     private void connectKeys(DatabaseProperties databaseProperties, SQLData sqlData) {

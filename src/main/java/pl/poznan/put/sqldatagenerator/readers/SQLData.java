@@ -31,7 +31,6 @@ public class SQLData {
         this.selectStatement = selectStatement;
 
         logger.info("Parsed statement: {}", selectStatement);
-
         logger.info("Tables (name, synonym, columns):");
         for (Table table : getTables()) {
             logger.info("{} {}", table, getAttributes(table));

@@ -99,11 +99,11 @@ public class RestrictionsManager {
     }
 
     private boolean verifySQLSatisfiability(Restrictions restrictions) {
-        boolean containsNullRestriction = restrictions.getCollection().stream()
-                .filter(r -> r instanceof NullRestriction)
-                .anyMatch(r -> !((NullRestriction) r).isNegated());
-        boolean containsOtherRestriction = restrictions.getCollection().stream()
-                .anyMatch(r -> !(r instanceof NullRestriction));
+        boolean containsNullRestriction = restrictions.asCollection().stream()
+                                                      .filter(r -> r instanceof NullRestriction)
+                                                      .anyMatch(r -> !((NullRestriction) r).isNegated());
+        boolean containsOtherRestriction = restrictions.asCollection().stream()
+                                                       .anyMatch(r -> !(r instanceof NullRestriction));
 
         if (containsNullRestriction && containsOtherRestriction) {
             logger.info("Unsatisfiable set of restrictions: " + restrictions);
@@ -125,9 +125,7 @@ public class RestrictionsManager {
         if (restrictionsList.isEmpty()) {
             restrictionsList.add(constraints.clone());
         } else {
-            for (Restrictions restrictions : restrictionsList) {
-                restrictions.add(constraints.clone());
-            }
+            restrictionsList.forEach(r -> r.add(constraints.clone()));
         }
     }
 
@@ -137,28 +135,19 @@ public class RestrictionsManager {
             boolean restrictionsOk = true;
             logger.debug("Preparing restrictions set:");
             RestrictionsByAttribute restrictionsByAttribute = new RestrictionsByAttribute();
-            for (Restriction restriction : restrictions.getCollection()) {
-                for (Attribute attribute : restriction.getAttributes()) {
-                    restrictionsByAttribute.put(attribute, restriction);
-                }
-            }
+            restrictions.asCollection().forEach(restriction -> {
+                restriction.getAttributes().forEach(attribute -> restrictionsByAttribute.put(attribute, restriction));
+            });
             RestrictionsByAttribute toRemoveRestrictions = new RestrictionsByAttribute();
             for (Entry<Attribute, Collection<Restriction>> restrictionEntry : restrictionsByAttribute.groupedEntries()) {
-                Attribute attribute = restrictionEntry.getKey();
-                restrictionsOk = restrictionsOk &&
-                        mergeRestrictions(attribute, restrictionEntry.getValue(), toRemoveRestrictions, restrictionsByAttribute);
+                restrictionsOk &= mergeRestrictions(restrictionEntry.getKey(), restrictionEntry.getValue(),
+                        toRemoveRestrictions, restrictionsByAttribute);
             }
 
-            for (Entry<Attribute, Restriction> attributeRestrictionEntry : toRemoveRestrictions.entries()) {
-                Attribute attribute = attributeRestrictionEntry.getKey();
-                Restriction restriction = attributeRestrictionEntry.getValue();
-                restrictionsByAttribute.remove(attribute, restriction);
-            }
+            toRemoveRestrictions.entries().forEach(e -> restrictionsByAttribute.remove(e.getKey(), e.getValue()));
 
-            for (Entry<Attribute, Collection<Restriction>> restrictionEntry : restrictionsByAttribute.groupedEntries()) {
-                Attribute attribute = restrictionEntry.getKey();
-                logger.debug("Restrictions for {}: {}", attribute, restrictionEntry.getValue());
-            }
+            restrictionsByAttribute.groupedEntries().forEach(e ->
+                    logger.debug("Restrictions for {}: {}", e.getKey(), e.getValue()));
             if (restrictionsOk) {
                 mergedRestrictions.add(restrictionsByAttribute);
             }

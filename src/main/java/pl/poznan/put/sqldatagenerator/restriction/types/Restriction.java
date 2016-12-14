@@ -6,11 +6,12 @@ import pl.poznan.put.sqldatagenerator.generator.Attribute;
 import java.util.List;
 
 public abstract class Restriction {
-    protected List<Attribute> attributes;
+    protected final List<Attribute> attributes;
     protected final Expression expression;
 
-    protected Restriction(Expression expression) {
+    protected Restriction(Expression expression, List<Attribute> attributes) {
         this.expression = expression;
+        this.attributes = attributes;
     }
 
     public List<Attribute> getAttributes() {

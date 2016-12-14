@@ -19,15 +19,15 @@ public class Restrictions {
     }
 
     public void add(Restrictions restrictions) {
-        this.restrictions.addAll(restrictions.getCollection());
+        this.restrictions.addAll(restrictions.asCollection());
     }
 
-    public Collection<Restriction> getCollection() {
+    public Collection<Restriction> asCollection() {
         return restrictions;
     }
 
     public Restrictions clone() {
-        return new Restrictions(getCollection().stream().map(Restriction::clone).collect(toList()));
+        return new Restrictions(asCollection().stream().map(Restriction::clone).collect(toList()));
     }
 
     /**
@@ -37,7 +37,7 @@ public class Restrictions {
     public static Restrictions fromExpression(Expression<Restriction> expression) {
         if (expression instanceof NExpression) {
             List<Expression<Restriction>> children = ((NExpression<Restriction>) expression).getChildren();
-            List<Restriction> list = children.stream().map(e -> (getRestriction(e))).collect(toList());
+            List<Restriction> list = children.stream().map(Restrictions::getRestriction).collect(toList());
             return new Restrictions(list);
         } else if (expression instanceof Variable || expression instanceof Not) {
             return new Restrictions(new ArrayList<>(singletonList(getRestriction(expression))));

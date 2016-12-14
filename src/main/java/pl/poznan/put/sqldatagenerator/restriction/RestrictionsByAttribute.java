@@ -69,8 +69,8 @@ public class RestrictionsByAttribute {
      */
     public boolean combineAll() {
         Set<TwoAttributesRestriction> restrictions = entries().stream().map(Entry::getValue)
-                .filter(r -> r instanceof TwoAttributesRestriction)
-                .map(r -> (TwoAttributesRestriction) r).collect(toSet());
+                                                              .filter(r -> r instanceof TwoAttributesRestriction)
+                                                              .map(r -> (TwoAttributesRestriction) r).collect(toSet());
 
         boolean anyChanged;
         do {
@@ -188,15 +188,17 @@ public class RestrictionsByAttribute {
     }
 
     private RangeRestriction getRangeRestriction(Attribute attribute) {
-        return restrictionsByAttribute.get(attribute).stream()
-                .filter(r -> r instanceof RangeRestriction).map(r -> (RangeRestriction) r)
-                .findFirst().orElseThrow(InvalidInternalStateException::new);
+        Set<Restriction> restrictions = restrictionsByAttribute.get(attribute);
+        return restrictions.stream()
+                           .filter(r -> r instanceof RangeRestriction).map(r -> (RangeRestriction) r)
+                           .findFirst().orElseThrow(InvalidInternalStateException::new);
     }
 
     private StringRestriction getStringRestriction(Attribute attribute) {
-        return restrictionsByAttribute.get(attribute).stream()
-                .filter(r -> r instanceof StringRestriction).map(r -> (StringRestriction) r)
-                .findFirst().orElseThrow(InvalidInternalStateException::new);
+        Set<Restriction> restrictions = restrictionsByAttribute.get(attribute);
+        return restrictions.stream()
+                           .filter(r -> r instanceof StringRestriction).map(r -> (StringRestriction) r)
+                           .findFirst().orElseThrow(InvalidInternalStateException::new);
     }
 
 

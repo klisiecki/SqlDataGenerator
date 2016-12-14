@@ -27,7 +27,7 @@ public class AbstractXMLReader {
     private static final Logger logger = LoggerFactory.getLogger(AbstractXMLReader.class);
 
     private final XPathFactory xPathfactory = XPathFactory.newInstance();
-    protected Document document;
+    protected final Document document;
 
     protected AbstractXMLReader(String fileName, String schemaLocation) throws ParserConfigurationException,
             IOException, SAXException {

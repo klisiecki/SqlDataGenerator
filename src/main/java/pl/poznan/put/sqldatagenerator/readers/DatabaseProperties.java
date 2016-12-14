@@ -72,10 +72,7 @@ public class DatabaseProperties {
             attributes.forEach(attribute -> restrictionList.add(new RangeRestriction(attribute, rangeSet)));
         } else {
             rangeSet = TreeRangeSet.create();
-            for (String valueString : values) {
-                Long value = Long.parseLong(valueString);
-                rangeSet.add(Range.closed(value, value));
-            }
+            values.stream().map(Long::parseLong).map(v -> Range.closed(v, v)).forEach(rangeSet::add);
             attributes.forEach(attribute -> restrictionList.add(new RangeRestriction(attribute, rangeSet)));
         }
         return restrictionList;

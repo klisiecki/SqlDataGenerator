@@ -10,13 +10,11 @@ import static java.util.Collections.singletonList;
 public abstract class OneAttributeRestriction extends Restriction {
 
     protected OneAttributeRestriction(Expression expression, Column column) {
-        super(expression);
-        this.attributes = singletonList(AttributesMap.get(column));
+        super(expression, singletonList(AttributesMap.get(column)));
     }
 
     protected OneAttributeRestriction(Attribute attribute) {
-        super(null);
-        this.attributes = singletonList(attribute);
+        super(null, singletonList(attribute));
     }
 
     public Attribute getAttribute() {

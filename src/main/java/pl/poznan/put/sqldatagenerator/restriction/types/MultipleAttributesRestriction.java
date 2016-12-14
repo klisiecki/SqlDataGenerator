@@ -13,8 +13,7 @@ import static java.util.stream.Collectors.toList;
 public abstract class MultipleAttributesRestriction extends Restriction {
 
     protected MultipleAttributesRestriction(Expression expression, List<Column> columns) {
-        super(expression);
-        this.attributes = columns.stream().map(AttributesMap::get).collect(toList());
+        super(expression, columns.stream().map(AttributesMap::get).collect(toList()));
         InternalType firstType = attributes.get(0).getInternalType();
         if (!attributes.stream().allMatch(a -> a.getInternalType() == firstType)) {
             throw new SQLSyntaxNotSupportedException("Attributes must have the same internal type");
