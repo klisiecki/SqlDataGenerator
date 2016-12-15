@@ -20,7 +20,7 @@ public abstract class Restriction {
 
     public abstract Restriction reverse();
 
-    public abstract Restriction clone();
+    public abstract Restriction copy();
 
     @Override
     public String toString() {

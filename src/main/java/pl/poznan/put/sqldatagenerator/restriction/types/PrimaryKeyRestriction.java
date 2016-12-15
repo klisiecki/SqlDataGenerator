@@ -23,7 +23,7 @@ public class PrimaryKeyRestriction extends OneAttributeRestriction {
     }
 
     @Override
-    public Restriction clone() {
+    public Restriction copy() {
         return new PrimaryKeyRestriction(getAttribute(), keyGenerator);
     }
 

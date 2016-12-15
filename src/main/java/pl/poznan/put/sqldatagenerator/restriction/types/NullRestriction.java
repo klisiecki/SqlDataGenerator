@@ -33,7 +33,7 @@ public class NullRestriction extends OneAttributeRestriction {
     }
 
     @Override
-    public Restriction clone() {
+    public Restriction copy() {
         return new NullRestriction(getAttribute(), isNegated);
     }
 

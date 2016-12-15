@@ -123,9 +123,9 @@ public class RestrictionsManager {
 
     private void setXMLConstraints(Restrictions constraints, List<Restrictions> restrictionsList) {
         if (restrictionsList.isEmpty()) {
-            restrictionsList.add(constraints.clone());
+            restrictionsList.add(constraints.copy());
         } else {
-            restrictionsList.forEach(r -> r.add(constraints.clone()));
+            restrictionsList.forEach(r -> r.add(constraints.copy()));
         }
     }
 

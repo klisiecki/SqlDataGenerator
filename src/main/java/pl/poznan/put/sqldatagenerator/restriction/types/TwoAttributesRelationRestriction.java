@@ -55,7 +55,7 @@ public class TwoAttributesRelationRestriction extends TwoAttributesRestriction {
     }
 
     @Override
-    public Restriction clone() {
+    public Restriction copy() {
         return new TwoAttributesRelationRestriction((BinaryExpression) expression, signType, boundType);
     }
 

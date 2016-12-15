@@ -175,7 +175,7 @@ public class RangeRestriction extends OneAttributeRestriction {
     }
 
     @Override
-    public Restriction clone() {
+    public Restriction copy() {
         return new RangeRestriction(getAttribute(), TreeRangeSet.create(rangeSet));
     }
 

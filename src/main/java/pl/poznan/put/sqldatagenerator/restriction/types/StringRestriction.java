@@ -128,7 +128,7 @@ public class StringRestriction extends OneAttributeRestriction {
     }
 
     @Override
-    public Restriction clone() {
+    public Restriction copy() {
         StringRestriction clone = new StringRestriction(this.getAttribute());
         clone.setMinLength(getMinLength());
         clone.setMaxLength(getMaxLength());

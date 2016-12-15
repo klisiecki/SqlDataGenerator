@@ -26,8 +26,8 @@ public class Restrictions {
         return restrictions;
     }
 
-    public Restrictions clone() {
-        return new Restrictions(asCollection().stream().map(Restriction::clone).collect(toList()));
+    public Restrictions copy() {
+        return new Restrictions(asCollection().stream().map(Restriction::copy).collect(toList()));
     }
 
     /**
@@ -48,7 +48,7 @@ public class Restrictions {
 
     private static Restriction getRestriction(Expression<Restriction> expression) {
         if (expression instanceof Variable) {
-            return ((Variable<Restriction>) expression).getValue().clone();
+            return ((Variable<Restriction>) expression).getValue().copy();
         } else if (expression instanceof Not) {
             Expression<Restriction> e = ((Not<Restriction>) expression).getE();
             return getRestriction(e).reverse();

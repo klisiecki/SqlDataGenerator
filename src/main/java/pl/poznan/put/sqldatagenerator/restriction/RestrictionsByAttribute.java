@@ -55,7 +55,7 @@ public class RestrictionsByAttribute {
     public RestrictionsByAttribute clone() {
         RestrictionsByAttribute copy = new RestrictionsByAttribute();
         for (Entry<Attribute, Restriction> e : entries()) {
-            copy.put(e.getKey(), e.getValue().clone());
+            copy.put(e.getKey(), e.getValue().copy());
         }
         return copy;
     }
