@@ -96,14 +96,22 @@ public class Solver {
     }
 
     private void generateFromStringRestriction(Attribute attribute, StringRestriction stringRestriction) {
-        //TODO handle LIKE expression, better handling of negated restrictions
-        List<String> allowedValues = stringRestriction.getAllowedValues();
-        String randomValue;
-        if (allowedValues != null && allowedValues.size() > 0 && !stringRestriction.isNegated()) {
-            randomValue = allowedValues.get(randomIndex(allowedValues));
+        String randomValue = null;
+
+        if(!stringRestriction.isNegated()) {
+            if (stringRestriction.containsAllowedValues()) {
+                List<String> allowedValues = stringRestriction.getAllowedValues();
+                randomValue = allowedValues.get(randomIndex(allowedValues));
+            } else if(stringRestriction.containsLikeProperties()) {
+                randomValue = stringRestriction.getGenerex().random();
+            } else {
+                randomValue = randomString(stringRestriction.getMinLength(), stringRestriction.getMaxLength());
+            }
         } else {
+            //TODO better handling of negated restrictions ?
             randomValue = randomString(stringRestriction.getMinLength(), stringRestriction.getMaxLength());
         }
+
         attribute.setValue(randomValue);
         stringRestriction.setAllowedValues(singletonList(randomValue));
     }

@@ -188,7 +188,7 @@ FROM
                ) q_exist on q_exist.CSH_ALLC_ID = CAL.CSH_ALLC_ID                                        
 WHERE  CR.BAD_CK_IND = 'N'
     AND CSH.ACCT_FUNC = 'R'
-    AND CSH.csh_cde IN ('CHK', 'CSH', 'CC', 'AMEX', 'FTB')
+      AND CSH.csh_cde IN ('CHK', 'CSH', 'CC', 'AMEX', 'FTB')
     AND (CRP.REC_TYP = 'B'
         OR qn_exist.cnt = 0 
         OR q_exist.cnt > 0 )

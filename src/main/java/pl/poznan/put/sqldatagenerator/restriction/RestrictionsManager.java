@@ -11,6 +11,7 @@ import com.google.common.collect.TreeRangeSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.poznan.put.sqldatagenerator.exception.InvalidInternalStateException;
+import pl.poznan.put.sqldatagenerator.exception.SQLSyntaxNotSupportedException;
 import pl.poznan.put.sqldatagenerator.exception.UnsatisfiableSQLException;
 import pl.poznan.put.sqldatagenerator.generator.Attribute;
 import pl.poznan.put.sqldatagenerator.generator.datatypes.InternalType;
@@ -204,36 +205,49 @@ public class RestrictionsManager {
         return true;
     }
 
-    //TODO better merging for StringRestrictions
     private boolean mergeStringRestrictions(Attribute attribute, RestrictionsByAttribute toRemoveRestrictions,
                                             RestrictionsByAttribute restrictionsByAttribute, List<StringRestriction> stringRestrictions) {
         if (stringRestrictions.size() > 1) {
             StringRestriction first = stringRestrictions.get(0);
             int minLength = first.getMinLength();
             int maxLength = first.getMaxLength();
-            StringRestriction.LikeProperties likeProperties = first.getLikeProperties();
-            List<String> allowedValues = first.getAllowedValues();
-            boolean isNegated = first.isNegated();
+            List<StringRestriction.LikeProperty> likeProperties = first.getLikeProperties(); // todo ??
+            List<String> allowedValues = new ArrayList<>();
+            List<String> notAllowedValues = new ArrayList<>();
+            if(first.getAllowedValues() != null) {
+                if (first.isNegated()) notAllowedValues.addAll(first.getAllowedValues());
+                else allowedValues.addAll(first.getAllowedValues());
+            }
+//            boolean isNegated = first.isNegated();
             for (int i = 1; i < stringRestrictions.size(); i++) {
                 StringRestriction restriction = stringRestrictions.get(i);
                 minLength = max(minLength, restriction.getMinLength());
                 maxLength = min(maxLength, restriction.getMaxLength());
                 toRemoveRestrictions.put(attribute, restriction);
-                if (allowedValues != null) {
-                    allowedValues = allowedValues.stream().filter(containsValuesFrom(restriction)).collect(toList());
-                } else {
-                    allowedValues = restriction.getAllowedValues();
+//                if (allowedValues != null) {
+//                    allowedValues = allowedValues.stream().filter(containsValuesFrom(restriction)).collect(toList());
+//                } else {
+//                    allowedValues = restriction.getAllowedValues();
+//                }
+                if(restriction.getAllowedValues() != null) {
+                    if (restriction.isNegated()) notAllowedValues.addAll(restriction.getAllowedValues());
+                    else allowedValues.addAll(restriction.getAllowedValues());
                 }
                 if (restriction.getLikeProperties() != null) {
-                    likeProperties = restriction.getLikeProperties();
+                    if (likeProperties != null) {
+                        throw new SQLSyntaxNotSupportedException("Multiple like expression on attribute not supported (attribute= " + attribute + ")");
+                    } else {
+                        likeProperties = restriction.getLikeProperties();
+                    }
                 }
-                if (restriction.isNegated()) {
-                    isNegated = true;
-                }
+//                if (restriction.isNegated()) {
+//                    isNegated = true;
+//                }
             }
             toRemoveRestrictions.put(attribute, first);
+            allowedValues.removeAll(notAllowedValues);
             StringRestriction mergedRestriction =
-                    new StringRestriction(attribute, Range.closed(minLength, maxLength), likeProperties, allowedValues, isNegated);
+                    new StringRestriction(attribute, Range.closed(minLength, maxLength), likeProperties, allowedValues, false);
             restrictionsByAttribute.put(attribute, mergedRestriction);
         }
         return true;

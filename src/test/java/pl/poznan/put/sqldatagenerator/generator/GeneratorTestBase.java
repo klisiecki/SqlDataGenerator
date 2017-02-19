@@ -101,7 +101,7 @@ public abstract class GeneratorTestBase {
         for (int i = 0; i < fileLines.size(); i++) {
             String[] fileLine = fileLines.get(i);
             String value = fileLine[columnIndex];
-            assertTrue(value + " doesn't match given condition at line " + i, predicate.test(value));
+            assertTrue(">>>" + value + "<<< doesn't match given condition at line " + i, predicate.test(value));
         }
     }
 

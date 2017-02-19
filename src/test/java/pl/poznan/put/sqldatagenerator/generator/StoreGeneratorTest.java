@@ -112,7 +112,17 @@ public class StoreGeneratorTest extends GeneratorTestBase {
 
         List<String[]> clientsLines = getFileLines(files, CLIENTS_FILENAME);
         assertColumnCondition(clientsLines, "FIRST_NAME", s -> s.length() == 4 && s.charAt(1) == 'A');
-        assertColumnCondition(clientsLines, "LAST_NAME", s -> !s.contains("B"));
+        assertColumnCondition(clientsLines, "LAST_NAME", s -> s.contains("B"));
+    }
+
+    // Ten test czasem może nie przechodzić, sory
+    @Test
+    public void testStringsNotLike() throws Exception {
+        List<File> files = runGenerator("store_test/sql_correct/stringsNotLike.sql", 1.0);
+        assertStoreOutputCorrect(files);
+
+        List<String[]> clientsLines = getFileLines(files, CLIENTS_FILENAME);
+        assertColumnCondition(clientsLines, "LAST_NAME", s -> !s.contains("Bac"));
     }
 
     @Test
