@@ -215,8 +215,10 @@ public class RestrictionsManager {
             List<String> allowedValues = new ArrayList<>();
             List<String> notAllowedValues = new ArrayList<>();
             if(first.getAllowedValues() != null) {
-                if (first.isNegated()) notAllowedValues.addAll(first.getAllowedValues());
-                else allowedValues.addAll(first.getAllowedValues());
+//                TODO REFACTOR
+//                if (first.isNegated()) notAllowedValues.addAll(first.getAllowedValues());
+//                else
+                allowedValues.addAll(first.getAllowedValues());
             }
 //            boolean isNegated = first.isNegated();
             for (int i = 1; i < stringRestrictions.size(); i++) {
@@ -230,8 +232,10 @@ public class RestrictionsManager {
 //                    allowedValues = restriction.getAllowedValues();
 //                }
                 if(restriction.getAllowedValues() != null) {
-                    if (restriction.isNegated()) notAllowedValues.addAll(restriction.getAllowedValues());
-                    else allowedValues.addAll(restriction.getAllowedValues());
+//                    TODO REFACTOR
+//                    if (restriction.isNegated()) notAllowedValues.addAll(restriction.getAllowedValues());
+//                    else
+                    allowedValues.addAll(restriction.getAllowedValues());
                 }
                 if (restriction.getLikeProperties() != null) {
                     if (likeProperties != null) {

@@ -13,6 +13,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
@@ -96,21 +98,26 @@ public class Solver {
     }
 
     private void generateFromStringRestriction(Attribute attribute, StringRestriction stringRestriction) {
-        String randomValue = null;
+        String randomValue = "";
 
-        if(!stringRestriction.isNegated()) {
+//        TODO REFACTOR
+//        if(!stringRestriction.isNegated()) {
             if (stringRestriction.containsAllowedValues()) {
-                List<String> allowedValues = stringRestriction.getAllowedValues();
+                List<String> allowedValues = stringRestriction.getAllowedValues()
+                        .stream().filter(a -> !a.isNegated()).map(a -> a.getValue()).collect(Collectors.toList());
+                //List<String> notAllowedValues = stringRestriction.getAllowedValues()
+                  //      .stream().filter(a -> a.isNegated()).map(a -> a.getValue()).collect(Collectors.toList());
+                //allowedValues = allowedValues.stream().filter(a -> !notAllowedValues.contains(a)).collect(Collectors.toList());
                 randomValue = allowedValues.get(randomIndex(allowedValues));
             } else if(stringRestriction.containsLikeProperties()) {
                 randomValue = stringRestriction.getGenerex().random();
             } else {
                 randomValue = randomString(stringRestriction.getMinLength(), stringRestriction.getMaxLength());
             }
-        } else {
-            //TODO better handling of negated restrictions ?
-            randomValue = randomString(stringRestriction.getMinLength(), stringRestriction.getMaxLength());
-        }
+//        } else {
+//            //TODO better handling of negated restrictions ?
+//            randomValue = randomString(stringRestriction.getMinLength(), stringRestriction.getMaxLength());
+//        }
 
         attribute.setValue(randomValue);
         stringRestriction.setAllowedValues(singletonList(randomValue));

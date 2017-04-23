@@ -21,6 +21,7 @@ import pl.poznan.put.sqldatagenerator.restriction.types.StringRestriction;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
@@ -107,14 +108,15 @@ public class DatabaseProperties {
         return rangeSet;
     }
 
-    private List<Restriction> getStringConstraints(String tableName, String attributeName, List<String> allowedValues,
+    private List<Restriction> getStringConstraints(String tableName, String attributeName, List<String> stringAllowedValues,
                                                    List<Attribute> attributes) {
         List<Restriction> restrictionList = new ArrayList<>();
         for (Attribute attribute : attributes) {
             Range<Integer> allowedLength = Range.closed(getMinValue(tableName, attributeName).intValue(),
                     getMaxValue(tableName, attributeName).intValue());
+            List<StringRestriction.AllowedValue> allowedValues = stringAllowedValues.stream().map(a -> new StringRestriction.AllowedValue(a, false)).collect(Collectors.toList());
             StringRestriction stringRestriction =
-                    new StringRestriction(attribute, allowedLength, null, allowedValues, false);
+                    new StringRestriction(attribute, allowedLength, null, allowedValues);
             restrictionList.add(stringRestriction);
         }
         return restrictionList;

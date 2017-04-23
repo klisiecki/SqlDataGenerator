@@ -102,6 +102,15 @@ public class StoreGeneratorTest extends GeneratorTestBase {
         assertStoreOutputCorrect(files);
 
         List<String[]> clientsLines = getFileLines(files, CLIENTS_FILENAME);
+        assertColumnCondition(clientsLines, "LAST_NAME", s -> asList("A", "B", "C", "D").contains(s));
+    }
+
+    @Test
+    public void testStringsSimpleNotEquals() throws Exception {
+        List<File> files = runGenerator("store_test/sql_correct/stringsNotEquals.sql", 1.0);
+        assertStoreOutputCorrect(files);
+
+        List<String[]> clientsLines = getFileLines(files, CLIENTS_FILENAME);
         assertColumnCondition(clientsLines, "LAST_NAME", s -> asList("A", "B", "D").contains(s));
     }
 
