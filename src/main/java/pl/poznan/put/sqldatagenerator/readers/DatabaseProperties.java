@@ -108,15 +108,15 @@ public class DatabaseProperties {
         return rangeSet;
     }
 
-    private List<Restriction> getStringConstraints(String tableName, String attributeName, List<String> stringAllowedValues,
+    private List<Restriction> getStringConstraints(String tableName, String attributeName, List<String> allowedValues,
                                                    List<Attribute> attributes) {
         List<Restriction> restrictionList = new ArrayList<>();
         for (Attribute attribute : attributes) {
             Range<Integer> allowedLength = Range.closed(getMinValue(tableName, attributeName).intValue(),
                     getMaxValue(tableName, attributeName).intValue());
-            List<StringRestriction.AllowedValue> allowedValues = stringAllowedValues.stream().map(a -> new StringRestriction.AllowedValue(a, false)).collect(Collectors.toList());
+
             StringRestriction stringRestriction =
-                    new StringRestriction(attribute, allowedLength, null, allowedValues);
+                    new StringRestriction(attribute, allowedLength, null, allowedValues, null);
             restrictionList.add(stringRestriction);
         }
         return restrictionList;

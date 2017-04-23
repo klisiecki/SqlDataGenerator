@@ -103,11 +103,9 @@ public class Solver {
 //        TODO REFACTOR
 //        if(!stringRestriction.isNegated()) {
             if (stringRestriction.containsAllowedValues()) {
-                List<String> allowedValues = stringRestriction.getAllowedValues()
-                        .stream().filter(a -> !a.isNegated()).map(a -> a.getValue()).collect(Collectors.toList());
-                //List<String> notAllowedValues = stringRestriction.getAllowedValues()
-                  //      .stream().filter(a -> a.isNegated()).map(a -> a.getValue()).collect(Collectors.toList());
-                //allowedValues = allowedValues.stream().filter(a -> !notAllowedValues.contains(a)).collect(Collectors.toList());
+                List<String> allowedValues = stringRestriction.getAllowedValues();
+                List<String> notAllowedValues = stringRestriction.getNotAllowedValues();
+                allowedValues = allowedValues.stream().filter(a -> !notAllowedValues.contains(a)).collect(Collectors.toList());
                 randomValue = allowedValues.get(randomIndex(allowedValues));
             } else if(stringRestriction.containsLikeProperties()) {
                 randomValue = stringRestriction.getGenerex().random();

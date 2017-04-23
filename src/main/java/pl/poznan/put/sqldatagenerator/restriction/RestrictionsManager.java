@@ -212,31 +212,29 @@ public class RestrictionsManager {
             int minLength = first.getMinLength();
             int maxLength = first.getMaxLength();
             List<StringRestriction.LikeProperty> likeProperties = first.getLikeProperties(); // todo ??
-            List<String> allowedValues = new ArrayList<>();
+            List<String> allowedValues = null;
             List<String> notAllowedValues = new ArrayList<>();
             if(first.getAllowedValues() != null) {
-//                TODO REFACTOR
-//                if (first.isNegated()) notAllowedValues.addAll(first.getAllowedValues());
-//                else
+                allowedValues = new ArrayList<>();
                 allowedValues.addAll(first.getAllowedValues());
             }
-//            boolean isNegated = first.isNegated();
+            if(first.getNotAllowedValues() != null) {
+                notAllowedValues.addAll(first.getNotAllowedValues());
+            }
             for (int i = 1; i < stringRestrictions.size(); i++) {
                 StringRestriction restriction = stringRestrictions.get(i);
                 minLength = max(minLength, restriction.getMinLength());
                 maxLength = min(maxLength, restriction.getMaxLength());
                 toRemoveRestrictions.put(attribute, restriction);
-//                if (allowedValues != null) {
-//                    allowedValues = allowedValues.stream().filter(containsValuesFrom(restriction)).collect(toList());
-//                } else {
-//                    allowedValues = restriction.getAllowedValues();
-//                }
-                if(restriction.getAllowedValues() != null) {
-//                    TODO REFACTOR
-//                    if (restriction.isNegated()) notAllowedValues.addAll(restriction.getAllowedValues());
-//                    else
-                    allowedValues.addAll(restriction.getAllowedValues());
+
+                if (allowedValues != null) {
+                    allowedValues = allowedValues.stream().filter(containsValuesFrom(restriction)).collect(toList());
+                } else {
+                    allowedValues = restriction.getAllowedValues();
                 }
+
+                notAllowedValues.addAll(restriction.getNotAllowedValues());
+
                 if (restriction.getLikeProperties() != null) {
                     if (likeProperties != null) {
                         throw new SQLSyntaxNotSupportedException("Multiple like expression on attribute not supported (attribute= " + attribute + ")");
@@ -244,14 +242,11 @@ public class RestrictionsManager {
                         likeProperties = restriction.getLikeProperties();
                     }
                 }
-//                if (restriction.isNegated()) {
-//                    isNegated = true;
-//                }
             }
             toRemoveRestrictions.put(attribute, first);
             allowedValues.removeAll(notAllowedValues);
             StringRestriction mergedRestriction =
-                    new StringRestriction(attribute, Range.closed(minLength, maxLength), likeProperties, allowedValues, false);
+                    new StringRestriction(attribute, Range.closed(minLength, maxLength), likeProperties, allowedValues, notAllowedValues);
             restrictionsByAttribute.put(attribute, mergedRestriction);
         }
         return true;

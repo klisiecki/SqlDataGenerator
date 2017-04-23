@@ -38,15 +38,18 @@ public class StringRestriction extends OneAttributeRestriction {
     private Range<Integer> allowedLength;
 
     private List<LikeProperty> likeProperties;
-    private List<AllowedValue> allowedValues;
+    private List<String> allowedValues;
+    private List<String> notAllowedValues;
     Generex generex = null;
 
     public StringRestriction(Attribute attribute, Range<Integer> allowedLength,
-                             List<LikeProperty> likeProperties, List<AllowedValue> allowedValues) {
+                             List<LikeProperty> likeProperties, List<String> allowedValues,
+                             List<String> notAllowedValues) {
         this(attribute);
         this.allowedLength = allowedLength;
         this.likeProperties = likeProperties;
         this.allowedValues = allowedValues;
+        this.notAllowedValues = notAllowedValues;
     }
 
     private StringRestriction(Expression expression, Column column) {
@@ -92,16 +95,28 @@ public class StringRestriction extends OneAttributeRestriction {
         return likeProperties != null && likeProperties.size()>0;
     }
 
-    public List<AllowedValue> getAllowedValues() {
+    public List<String> getAllowedValues() {
         return allowedValues;
     }
 
-    public void setAllowedValues(List<AllowedValue> allowedValues) {
+    public void setAllowedValues(List<String> allowedValues) {
         this.allowedValues = allowedValues;
     }
 
     public boolean containsAllowedValues() {
         return allowedValues != null && allowedValues.size() > 0;
+    }
+
+    public List<String> getNotAllowedValues() {
+        return notAllowedValues;
+    }
+
+    public void setNotAllowedValues(List<String> notAllowedValues) {
+        this.notAllowedValues = notAllowedValues;
+    }
+
+    public boolean containsNotAllowedValues() {
+        return notAllowedValues != null && notAllowedValues.size() > 0;
     }
 
     public Generex getGenerex() {
@@ -148,19 +163,26 @@ public class StringRestriction extends OneAttributeRestriction {
         DatabaseType databaseType = AttributesMap.get(column).getDatabaseType();
 
         StringRestriction restriction = new StringRestriction(expression, column);
-        AllowedValue allowedValues = new AllowedValue(getInternalString(getValueExpression(expression), databaseType), isNegated);
-        restriction.setAllowedValues(singletonList(allowedValues));
+        if(isNegated) {
+            restriction.setNotAllowedValues(singletonList(getInternalString(getValueExpression(expression), databaseType)));
+        } else {
+            restriction.setAllowedValues(singletonList(getInternalString(getValueExpression(expression), databaseType)));
+        }
         return restriction;
     }
 
     public static StringRestriction fromIn(InExpression inExpression) {
         Column column = (Column) inExpression.getLeftExpression();
         DatabaseType databaseType = AttributesMap.get(column).getDatabaseType();
-        List<Expression> expressionValues = ((ExpressionList) inExpression.getRightItemsList()).getExpressions();
-        List<AllowedValue> allowedValues = expressionValues.stream().map(a -> new AllowedValue(getInternalString(a, databaseType), inExpression.isNot())).collect(toList());
+        List<String> values = ((ExpressionList) inExpression.getRightItemsList()).getExpressions()
+                .stream().map(a -> getInternalString(a, databaseType)).collect(toList());
 
         StringRestriction restriction = new StringRestriction(inExpression, column);
-        restriction.setAllowedValues(allowedValues);
+        if(inExpression.isNot()) {
+            restriction.setNotAllowedValues(values);
+        } else {
+            restriction.setAllowedValues(values);
+        }
         return restriction;
     }
 
@@ -225,29 +247,6 @@ public class StringRestriction extends OneAttributeRestriction {
         }
 
         public LikeProperty reverse() {
-            this.isNegated = !isNegated;
-            return this;
-        }
-    }
-
-    public static class AllowedValue {
-        private final String value;
-        private boolean isNegated;
-
-        public AllowedValue(String value, boolean isNegated) {
-            this.value = value;
-            this.isNegated = isNegated;
-        }
-
-        public String getValue() {
-            return value;
-        }
-
-        public boolean isNegated() {
-            return isNegated;
-        }
-
-        public AllowedValue reverse() {
             this.isNegated = !isNegated;
             return this;
         }
