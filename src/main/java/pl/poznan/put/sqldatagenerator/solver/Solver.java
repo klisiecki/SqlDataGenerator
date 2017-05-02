@@ -13,7 +13,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.stream.Collector;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static java.util.Collections.singletonList;
@@ -100,22 +100,28 @@ public class Solver {
     private void generateFromStringRestriction(Attribute attribute, StringRestriction stringRestriction) {
         String randomValue = "";
 
-//        TODO REFACTOR
-//        if(!stringRestriction.isNegated()) {
-            if (stringRestriction.containsAllowedValues()) {
-                List<String> allowedValues = stringRestriction.getAllowedValues();
+        if (stringRestriction.containsAllowedValues()) {
+            List<String> allowedValues = stringRestriction.getAllowedValues();
+
+            if(stringRestriction.containsNotAllowedValues()) {
                 List<String> notAllowedValues = stringRestriction.getNotAllowedValues();
                 allowedValues = allowedValues.stream().filter(a -> !notAllowedValues.contains(a)).collect(Collectors.toList());
-                randomValue = allowedValues.get(randomIndex(allowedValues));
-            } else if(stringRestriction.containsLikeProperties()) {
-                randomValue = stringRestriction.getGenerex().random();
-            } else {
-                randomValue = randomString(stringRestriction.getMinLength(), stringRestriction.getMaxLength());
             }
-//        } else {
-//            //TODO better handling of negated restrictions ?
-//            randomValue = randomString(stringRestriction.getMinLength(), stringRestriction.getMaxLength());
-//        }
+
+            logger.info("BEFORE REGEXP FILTERING: " + allowedValues);
+            if(stringRestriction.containsNonNegatedLikeProperties()) {
+                Pattern pattern = Pattern.compile(stringRestriction.getLikeProperties().get(0).getRegex());
+                allowedValues = allowedValues.stream().filter(a -> pattern.matcher(a).matches()).collect(Collectors.toList());
+            }
+            logger.info("AFTER REGEXP FILTERING: " + allowedValues);
+
+            randomValue = allowedValues.get(randomIndex(allowedValues));
+            logger.info("GENERATED VALUE: " + randomValue);
+        } else if(stringRestriction.containsNonNegatedLikeProperties()) {
+            randomValue = stringRestriction.getGenerex().random();
+        } else {
+            randomValue = randomString(stringRestriction.getMinLength(), stringRestriction.getMaxLength());
+        }
 
         attribute.setValue(randomValue);
         stringRestriction.setAllowedValues(singletonList(randomValue));

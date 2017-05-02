@@ -97,21 +97,30 @@ public class StoreGeneratorTest extends GeneratorTestBase {
     }
 
     @Test
-    public void testStringsSimple() throws Exception {
-        List<File> files = runGenerator("store_test/sql_correct/strings.sql", 1.0);
+    public void testStringsEquals() throws Exception {
+        List<File> files = runGenerator("store_test/sql_correct/stringsEquals.sql", 1.0);
         assertStoreOutputCorrect(files);
 
         List<String[]> clientsLines = getFileLines(files, CLIENTS_FILENAME);
-        assertColumnCondition(clientsLines, "LAST_NAME", s -> asList("A", "B", "C", "D").contains(s));
+        assertColumnCondition(clientsLines, "LAST_NAME", s -> asList("A").contains(s));
     }
 
     @Test
-    public void testStringsSimpleNotEquals() throws Exception {
-        List<File> files = runGenerator("store_test/sql_correct/stringsNotEquals.sql", 1.0);
+    public void testStringsIn() throws Exception {
+        List<File> files = runGenerator("store_test/sql_correct/stringsIn.sql", 1.0);
         assertStoreOutputCorrect(files);
 
         List<String[]> clientsLines = getFileLines(files, CLIENTS_FILENAME);
-        assertColumnCondition(clientsLines, "LAST_NAME", s -> asList("A", "B", "D").contains(s));
+        assertColumnCondition(clientsLines, "LAST_NAME", s -> asList("B", "C", "D").contains(s));
+    }
+
+    @Test
+    public void testStringsInNegative() throws Exception {
+        List<File> files = runGenerator("store_test/sql_correct/stringsInNegative.sql", 0.0);
+        assertStoreOutputCorrect(files);
+
+        List<String[]> clientsLines = getFileLines(files, CLIENTS_FILENAME);
+        assertColumnCondition(clientsLines, "LAST_NAME", s -> asList("B", "C", "D").contains(s));
     }
 
     @Test
@@ -120,18 +129,17 @@ public class StoreGeneratorTest extends GeneratorTestBase {
         assertStoreOutputCorrect(files);
 
         List<String[]> clientsLines = getFileLines(files, CLIENTS_FILENAME);
-        assertColumnCondition(clientsLines, "FIRST_NAME", s -> s.length() == 4 && s.charAt(1) == 'A');
-        assertColumnCondition(clientsLines, "LAST_NAME", s -> s.contains("B"));
+        assertColumnCondition(clientsLines, "FIRST_NAME", s -> s.length() == 4 && s.substring(0,2).equals("Ak"));
+        assertColumnCondition(clientsLines, "LAST_NAME", s -> s.contains("bnm"));
     }
 
-    // Ten test czasem może nie przechodzić, sory
     @Test
-    public void testStringsNotLike() throws Exception {
-        List<File> files = runGenerator("store_test/sql_correct/stringsNotLike.sql", 1.0);
+    public void testStringsInAndLike() throws Exception {
+        List<File> files = runGenerator("store_test/sql_correct/stringsInAndLike.sql", 1.0);
         assertStoreOutputCorrect(files);
 
         List<String[]> clientsLines = getFileLines(files, CLIENTS_FILENAME);
-        assertColumnCondition(clientsLines, "LAST_NAME", s -> !s.contains("Bac"));
+        assertColumnCondition(clientsLines, "FIRST_NAME", s -> asList("AAAA","XAXX", "AABB").contains(s));
     }
 
     @Test

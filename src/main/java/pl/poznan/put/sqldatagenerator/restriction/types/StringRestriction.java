@@ -91,8 +91,8 @@ public class StringRestriction extends OneAttributeRestriction {
         generex = null;
     }
 
-    public boolean containsLikeProperties() {
-        return likeProperties != null && likeProperties.size()>0;
+    public boolean containsNonNegatedLikeProperties() {
+        return likeProperties != null && likeProperties.size()>0 && !likeProperties.get(0).isNegated();
     }
 
     public List<String> getAllowedValues() {
@@ -132,6 +132,13 @@ public class StringRestriction extends OneAttributeRestriction {
     @Override
     public Restriction reverse() {
         logger.warn("REVERSING STRING RESTRICTION!!!!!!!!!!!!!!!!!!!!!!!");
+        if(likeProperties != null) {
+            likeProperties.stream().forEach(a -> a.reverse());
+        }
+        List<String> tempList = allowedValues;
+        allowedValues = notAllowedValues;
+        notAllowedValues = tempList;
+
         return this;
     }
 
@@ -144,9 +151,8 @@ public class StringRestriction extends OneAttributeRestriction {
             clone.setAllowedValues(new ArrayList<>(allowedValues));
         }
         if (likeProperties != null) {
-            clone.setLikeProperties(new ArrayList<>(likeProperties));
+            clone.setLikeProperties(likeProperties.stream().map(LikeProperty::new).collect(toList()));
         }
-        // TODO deep copy of elements needed?
         return clone;
     }
 
@@ -178,11 +184,11 @@ public class StringRestriction extends OneAttributeRestriction {
                 .stream().map(a -> getInternalString(a, databaseType)).collect(toList());
 
         StringRestriction restriction = new StringRestriction(inExpression, column);
-        if(inExpression.isNot()) {
-            restriction.setNotAllowedValues(values);
-        } else {
+//        if(inExpression.isNot()) {
+//            restriction.setNotAllowedValues(values);
+//        } else {
             restriction.setAllowedValues(values);
-        }
+//        }
         return restriction;
     }
 
@@ -202,10 +208,7 @@ public class StringRestriction extends OneAttributeRestriction {
             throw new NotImplementedException("LikeProperties size >1 is not allowed");
         }
 
-        String regexp = likeProperties.get(0).getLike();
-        regexp = regexp.replace("%", ".*?").replace("_", ".");
-
-        generex = new Generex(regexp);
+        generex = new Generex(likeProperties.get(0).getRegex());
     }
 
     @Override
@@ -214,7 +217,8 @@ public class StringRestriction extends OneAttributeRestriction {
                 getAttribute() +
                 ", length=[" + allowedLength + "]" +
                 (likeProperties == null ? "" : ", likeProperties=" + likeProperties) +
-                (allowedValues == null ? "" : ", allowedValues=" + allowedValues) + '}';
+                (allowedValues == null ? "" : ", allowedValues=" + allowedValues) +
+                (notAllowedValues == null ? "" : ", notAllowedValues=" + notAllowedValues) + '}';
     }
 
     public static class LikeProperty {
@@ -238,6 +242,10 @@ public class StringRestriction extends OneAttributeRestriction {
             return like;
         }
 
+        public String getRegex() {
+            return like.replace("%", ".*?").replace("_", ".");
+        }
+
         public String getEscapeCharacter() {
             return escapeCharacter;
         }
@@ -249,6 +257,13 @@ public class StringRestriction extends OneAttributeRestriction {
         public LikeProperty reverse() {
             this.isNegated = !isNegated;
             return this;
+        }
+
+        @Override
+        public String toString() {
+            return "LikeProperty{" +
+                    "like=" + like +
+                    ", isNegated=" + isNegated + '}';
         }
     }
 }

@@ -233,7 +233,9 @@ public class RestrictionsManager {
                     allowedValues = restriction.getAllowedValues();
                 }
 
-                notAllowedValues.addAll(restriction.getNotAllowedValues());
+                if(restriction.getNotAllowedValues() != null) {
+                    notAllowedValues.addAll(restriction.getNotAllowedValues());
+                }
 
                 if (restriction.getLikeProperties() != null) {
                     if (likeProperties != null) {
@@ -244,7 +246,9 @@ public class RestrictionsManager {
                 }
             }
             toRemoveRestrictions.put(attribute, first);
-            allowedValues.removeAll(notAllowedValues);
+            if(allowedValues != null) {
+                allowedValues.removeAll(notAllowedValues);
+            }
             StringRestriction mergedRestriction =
                     new StringRestriction(attribute, Range.closed(minLength, maxLength), likeProperties, allowedValues, notAllowedValues);
             restrictionsByAttribute.put(attribute, mergedRestriction);
