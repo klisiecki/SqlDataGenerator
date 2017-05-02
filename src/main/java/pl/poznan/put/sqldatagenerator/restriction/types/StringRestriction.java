@@ -131,7 +131,6 @@ public class StringRestriction extends OneAttributeRestriction {
 
     @Override
     public Restriction reverse() {
-        logger.warn("REVERSING STRING RESTRICTION!!!!!!!!!!!!!!!!!!!!!!!");
         if(likeProperties != null) {
             likeProperties.stream().forEach(a -> a.reverse());
         }
@@ -184,22 +183,19 @@ public class StringRestriction extends OneAttributeRestriction {
                 .stream().map(a -> getInternalString(a, databaseType)).collect(toList());
 
         StringRestriction restriction = new StringRestriction(inExpression, column);
-//        if(inExpression.isNot()) {
-//            restriction.setNotAllowedValues(values);
-//        } else {
-            restriction.setAllowedValues(values);
-//        }
+        restriction.setAllowedValues(values);
+
         return restriction;
     }
 
     public static StringRestriction fromLikeExpression(LikeExpression likeExpression) {
         Column column = (Column) likeExpression.getLeftExpression();
         String value = ((StringValue) likeExpression.getRightExpression()).getValue();
-        LikeProperty property = new LikeProperty(value, likeExpression.getEscape(), likeExpression.isNot());
+        LikeProperty property = new LikeProperty(value, likeExpression.isNot());
 
         StringRestriction restriction = new StringRestriction(likeExpression, column);
         restriction.setLikeProperties(Collections.singletonList(property));
-//        restriction.setNegated(likeExpression.isNot()); \\ todo NOWE uniknięcie podwójnego NEGATE
+
         return restriction;
     }
 
@@ -222,20 +218,17 @@ public class StringRestriction extends OneAttributeRestriction {
     }
 
     public static class LikeProperty {
-        private final String escapeCharacter;
-        //TODO do czego ten escapeCharacter potrzebny, co to jest?
         private final String like;
         private boolean isNegated;
 
 
-        public LikeProperty(String like, String escapeCharacter, boolean isNegated) {
+        public LikeProperty(String like, boolean isNegated) {
             this.like = like;
-            this.escapeCharacter = escapeCharacter;
             this.isNegated = isNegated;
         }
 
         public LikeProperty(LikeProperty likeProperty) {
-            this(likeProperty.getLike(), likeProperty.getEscapeCharacter(), likeProperty.isNegated());
+            this(likeProperty.getLike(), likeProperty.isNegated());
         }
 
         public String getLike() {
@@ -244,10 +237,6 @@ public class StringRestriction extends OneAttributeRestriction {
 
         public String getRegex() {
             return like.replace("%", ".*?").replace("_", ".");
-        }
-
-        public String getEscapeCharacter() {
-            return escapeCharacter;
         }
 
         public boolean isNegated() {

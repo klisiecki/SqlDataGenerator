@@ -108,15 +108,15 @@ public class Solver {
                 allowedValues = allowedValues.stream().filter(a -> !notAllowedValues.contains(a)).collect(Collectors.toList());
             }
 
-            logger.info("BEFORE REGEXP FILTERING: " + allowedValues);
+            logger.debug("BEFORE REGEXP FILTERING: " + allowedValues);
             if(stringRestriction.containsNonNegatedLikeProperties()) {
                 Pattern pattern = Pattern.compile(stringRestriction.getLikeProperties().get(0).getRegex());
                 allowedValues = allowedValues.stream().filter(a -> pattern.matcher(a).matches()).collect(Collectors.toList());
             }
-            logger.info("AFTER REGEXP FILTERING: " + allowedValues);
+            logger.debug("AFTER REGEXP FILTERING: " + allowedValues);
 
             randomValue = allowedValues.get(randomIndex(allowedValues));
-            logger.info("GENERATED VALUE: " + randomValue);
+            logger.debug("GENERATED VALUE: " + randomValue);
         } else if(stringRestriction.containsNonNegatedLikeProperties()) {
             randomValue = stringRestriction.getGenerex().random();
         } else {
