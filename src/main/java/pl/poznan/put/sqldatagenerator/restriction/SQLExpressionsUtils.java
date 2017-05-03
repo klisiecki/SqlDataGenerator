@@ -7,7 +7,10 @@ import net.sf.jsqlparser.expression.operators.relational.InExpression;
 import net.sf.jsqlparser.expression.operators.relational.IsNullExpression;
 import net.sf.jsqlparser.schema.Column;
 import pl.poznan.put.sqldatagenerator.generator.AttributesMap;
+import pl.poznan.put.sqldatagenerator.generator.datatypes.DataTypesConverter;
 import pl.poznan.put.sqldatagenerator.generator.datatypes.InternalType;
+
+import java.text.ParseException;
 
 public class SQLExpressionsUtils {
 
@@ -29,8 +32,8 @@ public class SQLExpressionsUtils {
     }
 
     private static boolean isColumnAndValueBetween(Between between) {
-        return isColumn(between.getLeftExpression()) && isNumberValue(between.getBetweenExpressionStart())
-                && isNumberValue(between.getBetweenExpressionEnd());
+        return isColumn(between.getLeftExpression()) && isNumberOrDateValue(between.getBetweenExpressionStart())
+                && isNumberOrDateValue(between.getBetweenExpressionEnd());
     }
 
     private static boolean isColumnAndValueInExpression(InExpression inExpression) {
@@ -76,6 +79,10 @@ public class SQLExpressionsUtils {
         return isNumberValue(expression) || isStringValue(expression);
     }
 
+    public static boolean isNumberOrDateValue(Expression expression) {
+        return isDoubleValue(expression) || isIntegerValue(expression)|| isDateValue(expression);
+    }
+
     public static boolean isNumberValue(Expression expression) {
         return isDoubleValue(expression) || isIntegerValue(expression);
     }
@@ -94,7 +101,16 @@ public class SQLExpressionsUtils {
     }
 
     public static boolean isDateValue(Expression expression) {
-        return expression instanceof DateValue;
+        if(!isStringValue(expression)) {
+            return false;
+        } else {
+            try {
+                DataTypesConverter.getLongFromDatetime(((StringValue) expression).getValue());
+            } catch (ParseException e) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public static boolean isDoubleValue(Expression expression) {

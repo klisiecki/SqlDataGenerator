@@ -5,12 +5,15 @@ import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
 import org.apache.commons.lang.RandomStringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pl.poznan.put.sqldatagenerator.configuration.Configuration;
 import pl.poznan.put.sqldatagenerator.generators.key.KeyGenerator;
 import pl.poznan.put.sqldatagenerator.generators.key.RandomKeyGenerator;
 import pl.poznan.put.sqldatagenerator.generators.key.SequenceKeyGenerator;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
@@ -22,6 +25,8 @@ import static pl.poznan.put.sqldatagenerator.util.RangeUtils.*;
 
 @SuppressWarnings("unchecked")
 public class RandomGenerator {
+    private static final Logger logger = LoggerFactory.getLogger(RandomGenerator.class);
+
     private static final Configuration configuration = Configuration.getInstance();
     private static final Boolean randomKeyGeneration = configuration.getBooleanProperty(RANDOM_KEYS_GENERATION, true);
     private static final ThreadLocalRandom random = ThreadLocalRandom.current();
@@ -98,14 +103,12 @@ public class RandomGenerator {
             return ranges.get(0);
         }
         long max = cumulativeProbabilities.get(cumulativeProbabilities.size() - 1);
-        long probabilityIndex = random.nextLong(max);
-        int i = 0;
-        long sum = 0;
-        while (sum < probabilityIndex) {
-            sum = cumulativeProbabilities.get(i++);
-        }
+        long randomProbability = random.nextLong(max);
 
-        return ranges.get(max(0, i - 1));
+        int searchResult = Collections.binarySearch(cumulativeProbabilities, randomProbability);
+        int selectedIndex = searchResult < 0 ? -searchResult-1 : searchResult+1;
+
+        return ranges.get(selectedIndex);
     }
 
     public static String randomString(int minLength, int maxLength) {

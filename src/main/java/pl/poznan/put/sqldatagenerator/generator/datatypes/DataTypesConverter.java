@@ -65,7 +65,7 @@ public class DataTypesConverter {
         return input;
     }
 
-    private static Long getLongFromDatetime(String input) throws ParseException {
+    public static Long getLongFromDatetime(String input) throws ParseException {
         Date date = new SimpleDateFormat(inputDateFormat).parse(input);
         return date.getTime();
     }

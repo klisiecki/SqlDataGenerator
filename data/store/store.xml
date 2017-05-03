@@ -109,7 +109,7 @@
 
     <TABLE>
         <NAME>ORDERS</NAME>
-        <ROWS_NUM>1000</ROWS_NUM>
+        <ROWS_NUM>87300</ROWS_NUM>
         <ATTRIBUTES>
             <ATTRIBUTE>
                 <NAME>ID</NAME>

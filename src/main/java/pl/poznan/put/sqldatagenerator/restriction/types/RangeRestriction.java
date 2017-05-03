@@ -91,7 +91,7 @@ public class RangeRestriction extends OneAttributeRestriction {
             ExpressionList list = (ExpressionList) in.getRightItemsList();
             Expression first = list.getExpressions().get(0);
             DatabaseType databaseType = AttributesMap.get(column).getDatabaseType();
-            if (isIntegerValue(first)) {
+            if (isIntegerValue(first) || isDateValue(first)) {
                 RangeSet<Long> rangeSet = TreeRangeSet.create();
                 for (Expression e : list.getExpressions()) {
                     Long value = DataTypesConverter.getInternalLong(e, databaseType);
