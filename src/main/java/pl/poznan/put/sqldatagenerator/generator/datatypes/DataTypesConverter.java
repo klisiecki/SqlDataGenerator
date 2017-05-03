@@ -33,7 +33,7 @@ public class DataTypesConverter {
                 case INTEGER:
                     return SQLExpressionsUtils.getLong(expression);
                 default:
-                    throw new InvalidInternalStateException("Invalid conversion request");
+                    throw new InvalidInternalStateException("Invalid conversion request (" + databaseType + " to Long");
             }
         } catch (ParseException e) {
             throw new SQLNotCompatibleWithDatabaseException("Can`t convert " + expression.toString() + " to Long");
@@ -44,14 +44,14 @@ public class DataTypesConverter {
         if (databaseType.getType() == DatabaseType.Type.FLOAT) {
             return SQLExpressionsUtils.getDouble(expression);
         }
-        throw new InvalidInternalStateException("Invalid conversion request");
+        throw new InvalidInternalStateException("Invalid conversion request (" + databaseType + " to Double");
     }
 
     public static String getInternalString(Expression expression, DatabaseType databaseType) {
         if (databaseType.getType() == DatabaseType.Type.VARCHAR) {
             return SQLExpressionsUtils.getString(expression);
         }
-        throw new InvalidInternalStateException("Invalid conversion request");
+        throw new InvalidInternalStateException("Invalid conversion request (" + databaseType + " to String");
     }
 
     public static String getDatabaseValue(String input, InternalType internalType, DatabaseType databaseType) {

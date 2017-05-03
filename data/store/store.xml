@@ -4,7 +4,7 @@
         xmlns="pl.poznan.put.sqldatagenerator">
     <TABLE>
         <NAME>PRODUCTS</NAME>
-        <ROWS_NUM>50</ROWS_NUM>
+        <ROWS_NUM>87300</ROWS_NUM>
         <ATTRIBUTES>
             <ATTRIBUTE>
                 <NAME>ID</NAME>
@@ -34,6 +34,13 @@
             </ATTRIBUTE>
 
             <ATTRIBUTE>
+                <NAME>OLD_PRICE</NAME>
+                <TYPE>FLOAT</TYPE>
+                <MIN_VALUE>0</MIN_VALUE>
+                <MAX_VALUE>100000</MAX_VALUE>
+            </ATTRIBUTE>
+
+            <ATTRIBUTE>
                 <NAME>CATEGORY</NAME>
                 <TYPE>VARCHAR</TYPE>
                 <VALUES>
@@ -42,6 +49,27 @@
                     <VALUE>COMPUTERS</VALUE>
                     <VALUE>ELECTRONICS</VALUE>
                 </VALUES>
+            </ATTRIBUTE>
+
+            <ATTRIBUTE>
+                <NAME>PACKAGE_WIDTH</NAME>
+                <TYPE>INTEGER</TYPE>
+                <MIN_VALUE>1</MIN_VALUE>
+                <MAX_VALUE>5000</MAX_VALUE>
+            </ATTRIBUTE>
+
+            <ATTRIBUTE>
+                <NAME>PACKAGE_HEIGHT</NAME>
+                <TYPE>INTEGER</TYPE>
+                <MIN_VALUE>1</MIN_VALUE>
+                <MAX_VALUE>5000</MAX_VALUE>
+            </ATTRIBUTE>
+
+            <ATTRIBUTE>
+                <NAME>PACKAGE_DEPTH</NAME>
+                <TYPE>INTEGER</TYPE>
+                <MIN_VALUE>1</MIN_VALUE>
+                <MAX_VALUE>5000</MAX_VALUE>
             </ATTRIBUTE>
 
         </ATTRIBUTES>
@@ -71,6 +99,11 @@
                 <MAX_VALUE>15</MAX_VALUE>
             </ATTRIBUTE>
 
+            <ATTRIBUTE>
+                <NAME>BIRTH_DATE</NAME>
+                <TYPE>TIMESTAMP</TYPE>
+            </ATTRIBUTE>
+
         </ATTRIBUTES>
     </TABLE>
 
@@ -97,6 +130,16 @@
             <ATTRIBUTE>
                 <NAME>DATETIME</NAME>
                 <TYPE>TIMESTAMP</TYPE>
+            </ATTRIBUTE>
+
+            <ATTRIBUTE>
+                <NAME>STATE</NAME>
+                <TYPE>INTEGER</TYPE>
+                <VALUES>
+                    <VALUE>0</VALUE>
+                    <VALUE>1</VALUE>
+                    <VALUE>2</VALUE>
+                </VALUES>
             </ATTRIBUTE>
         </ATTRIBUTES>
     </TABLE>

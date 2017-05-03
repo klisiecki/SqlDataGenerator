@@ -61,12 +61,12 @@ public class StoreGeneratorTest extends GeneratorTestBase {
 
     @Test
     public void testXMLValuesList() throws Exception {
-        List<File> files = runGenerator("store_test/sql_correct/simpleSelect.sql", 1.0);
+        List<File> files = runGenerator("store_test/sql_correct/simpleSelectAllTables.sql", 1.0);
         assertStoreOutputCorrect(files);
 
         List<String[]> ordersLines = getFileLines(files, ORDERS_FILENAME);
         List<String[]> productsLines = getFileLines(files, PRODUCTS_FILENAME);
-        assertColumnCondition(ordersLines, "STATE", s -> asList(1, 2, 3).contains(parseInt(s)));
+        assertColumnCondition(ordersLines, "STATE", s -> asList(0, 1, 2).contains(parseInt(s)));
         assertColumnCondition(productsLines, "CATEGORY",
                 s -> asList("AGD", "RTV", "COMPUTERS", "ELECTRONICS").contains(s));
     }

@@ -93,17 +93,18 @@ public class RandomGenerator {
                 max(getMinDouble(doubleRange), Long.MIN_VALUE) / 3 + 1);
     }
 
-    private static Range getRandomRange(List<Range> ranges, List<Long> probabilities) {
+    private static Range getRandomRange(List<Range> ranges, List<Long> cumulativeProbabilities) {
         if (ranges.size() == 1) {
             return ranges.get(0);
         }
-        long max = probabilities.get(probabilities.size() - 1);
+        long max = cumulativeProbabilities.get(cumulativeProbabilities.size() - 1);
         long probabilityIndex = random.nextLong(max);
         int i = 0;
         long sum = 0;
         while (sum < probabilityIndex) {
-            sum += probabilities.get(i++);
+            sum = cumulativeProbabilities.get(i++);
         }
+
         return ranges.get(max(0, i - 1));
     }
 

@@ -67,32 +67,6 @@ public class XMLDatabaseSchemaReader extends AbstractXMLReader implements Databa
         return result;
     }
 
-//    @Override
-//    public Integer getMinRowSize(String table) {
-//        XPathExpression expr = getXPathExpression(
-//                String.format("//TABLE[NAME/text()='%s']/MIN_ROW_SIZE/text()", table));
-//        Integer result;
-//        try {
-//            result = Integer.parseInt(expr.evaluate(document));
-//        } catch (Exception e) {
-//            return null;
-//        }
-//        return result;
-//    }
-//
-//    @Override
-//    public String getDistribution(String table) {
-//        XPathExpression expr = getXPathExpression(
-//                String.format("//TABLE[NAME/text()='%s']/DISTRIBUTION/text()", table));
-//        String result;
-//        try {
-//            result = expr.evaluate(document);
-//        } catch (Exception e) {
-//            return null;
-//        }
-//        return result;
-//    }
-
     @Override
     public String getType(String table, String attribute) {
         return getAttributeProperty(table, attribute, "TYPE");
@@ -102,11 +76,6 @@ public class XMLDatabaseSchemaReader extends AbstractXMLReader implements Databa
     public boolean isPrimaryKey(String table, String attribute) {
         return "true".equals(getAttributeProperty(table, attribute, "PRIMARY_KEY"));
     }
-
-//    @Override
-//    public Float getNullPercentage(String table, String attribute) {
-//        return getFloatAttributeProperty(table, attribute, "NULL_PERCENTAGE");
-//    }
 
     @Override
     public String getMinValue(String table, String attribute) {
@@ -125,16 +94,6 @@ public class XMLDatabaseSchemaReader extends AbstractXMLReader implements Databa
         List<String> values = getList(expr);
         return values.size() == 0 ? null : values;
     }
-
-//    @Override
-//    public Float getMinUniquePercentage(String table, String attribute) {
-//        return getFloatAttributeProperty(table, attribute, "UNIQUE_PERCENTAGE/MIN");
-//    }
-//
-//    @Override
-//    public Float getMaxUniquePercentage(String table, String attribute) {
-//        return getFloatAttributeProperty(table, attribute, "UNIQUE_PERCENTAGE/MAX");
-//    }
 
     private Float getFloatAttributeProperty(String table, String attribute, String property) {
         try {

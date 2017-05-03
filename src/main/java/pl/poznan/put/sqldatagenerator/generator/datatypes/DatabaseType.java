@@ -33,4 +33,11 @@ public class DatabaseType {
     public InternalType getInternalType() {
         return type.getInternalType();
     }
+
+    @Override
+    public String toString() {
+        return "DatabaseType{" +
+                "type=" + type +
+                '}';
+    }
 }
