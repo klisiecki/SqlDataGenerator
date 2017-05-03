@@ -17,6 +17,7 @@ import static java.lang.Double.parseDouble;
 import static java.lang.Integer.parseInt;
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class StoreGeneratorTest extends GeneratorTestBase {
 
@@ -94,6 +95,18 @@ public class StoreGeneratorTest extends GeneratorTestBase {
             double price = parseDouble(s);
             return (price >= 100 || price < 10) && price != 0;
         });
+    }
+
+    @Test
+    public void testDoublesIn() throws Exception {
+        List<File> files = runGenerator("store_test/sql_correct/doubleIn.sql", 1.0);
+        assertStoreOutputCorrect(files);
+
+        List<String[]> productsLines = getFileLines(files, PRODUCTS_FILENAME);
+        List<String> prices = getColumnValues(productsLines, "PRICE");
+        List<String> expectedPrices = asList("10.0", "25.78", "199.9");
+        expectedPrices.forEach(p -> assertTrue("Price: >>>" + p + "<<< not found in output file", prices.contains(p)));
+        assertColumnCondition(productsLines, "PRICE", expectedPrices::contains);
     }
 
     @Test
