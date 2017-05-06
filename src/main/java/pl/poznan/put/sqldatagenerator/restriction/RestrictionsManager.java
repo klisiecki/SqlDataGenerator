@@ -116,7 +116,8 @@ public class RestrictionsManager {
     private void addRestrictions(List<Restrictions> restrictionsList, Expression<Restriction> expression) {
         if (expression instanceof Or) {
             restrictionsList.addAll(((NExpression<Restriction>) expression).getChildren().stream()
-                    .map(Restrictions::fromExpression).collect(toList()));
+                                                                           .map(Restrictions::fromExpression)
+                                                                           .collect(toList()));
         } else {
             restrictionsList.add(Restrictions.fromExpression(expression));
         }
@@ -172,11 +173,14 @@ public class RestrictionsManager {
                                       RestrictionsByAttribute restrictionsByAttribute) {
 
         List<RangeRestriction> rangeRestrictions = restrictions.stream()
-                .filter(r -> r instanceof RangeRestriction).map(r -> (RangeRestriction) r).collect(toList());
+                                                               .filter(r -> r instanceof RangeRestriction)
+                                                               .map(r -> (RangeRestriction) r).collect(toList());
         List<StringRestriction> stringRestrictions = restrictions.stream()
-                .filter(r -> r instanceof StringRestriction).map(r -> (StringRestriction) r).collect(toList());
+                                                                 .filter(r -> r instanceof StringRestriction)
+                                                                 .map(r -> (StringRestriction) r).collect(toList());
         List<NullRestriction> nullRestrictions = restrictions.stream()
-                .filter(r -> r instanceof NullRestriction).map(r -> (NullRestriction) r).collect(toList());
+                                                             .filter(r -> r instanceof NullRestriction)
+                                                             .map(r -> (NullRestriction) r).collect(toList());
 
         return mergeRangeRestrictions(attribute, toRemoveRestrictions, restrictionsByAttribute, rangeRestrictions) &&
                 mergeStringRestrictions(attribute, toRemoveRestrictions, restrictionsByAttribute, stringRestrictions) &&
@@ -214,11 +218,11 @@ public class RestrictionsManager {
             List<StringRestriction.LikeProperty> likeProperties = first.getLikeProperties(); // todo ??
             List<String> allowedValues = null;
             List<String> notAllowedValues = new ArrayList<>();
-            if(first.getAllowedValues() != null) {
+            if (first.getAllowedValues() != null) {
                 allowedValues = new ArrayList<>();
                 allowedValues.addAll(first.getAllowedValues());
             }
-            if(first.getNotAllowedValues() != null) {
+            if (first.getNotAllowedValues() != null) {
                 notAllowedValues.addAll(first.getNotAllowedValues());
             }
             for (int i = 1; i < stringRestrictions.size(); i++) {
@@ -233,20 +237,21 @@ public class RestrictionsManager {
                     allowedValues = restriction.getAllowedValues();
                 }
 
-                if(restriction.getNotAllowedValues() != null) {
+                if (restriction.getNotAllowedValues() != null) {
                     notAllowedValues.addAll(restriction.getNotAllowedValues());
                 }
 
                 if (restriction.getLikeProperties() != null) {
                     if (likeProperties != null) {
-                        throw new SQLSyntaxNotSupportedException("Multiple like expression on attribute not supported (attribute= " + attribute + ")");
+                        throw new SQLSyntaxNotSupportedException("Multiple like expression on attribute not supported "
+                                + "(attribute= " + attribute + ")");
                     } else {
                         likeProperties = restriction.getLikeProperties();
                     }
                 }
             }
             toRemoveRestrictions.put(attribute, first);
-            if(allowedValues != null) {
+            if (allowedValues != null) {
                 allowedValues.removeAll(notAllowedValues);
             }
             StringRestriction mergedRestriction =
@@ -260,7 +265,8 @@ public class RestrictionsManager {
         return value -> restriction.getAllowedValues() == null || restriction.getAllowedValues().contains(value);
     }
 
-    private boolean mergeNullRestrictions(Attribute attribute, RestrictionsByAttribute toRemoveRestrictions, RestrictionsByAttribute restrictionsByAttribute, List<NullRestriction> nullRestrictions) {
+    private boolean mergeNullRestrictions(Attribute attribute, RestrictionsByAttribute toRemoveRestrictions,
+                                          RestrictionsByAttribute restrictionsByAttribute, List<NullRestriction> nullRestrictions) {
         if (nullRestrictions.stream().map(NullRestriction::isNegated).collect(toSet()).size() == 2) {
             return false;
         }

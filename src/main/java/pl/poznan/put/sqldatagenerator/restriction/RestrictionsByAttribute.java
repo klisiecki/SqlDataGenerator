@@ -107,7 +107,7 @@ public class RestrictionsByAttribute {
                 if (signType == EQUALS) {
                     return combineNumericEquality(firstAttribute, secondAttribute);
                 } else if (signType == NOT_EQUALS) {
-                    throw new NotImplementedException();
+                    return false;
                 } else if (signType == MINOR_THAN) {
                     return combineNumericInequality(firstAttribute, secondAttribute, relationRestriction.getBoundType());
                 } else if (signType == GREATER_THAN) {
