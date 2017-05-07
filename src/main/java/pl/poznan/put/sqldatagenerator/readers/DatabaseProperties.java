@@ -5,9 +5,11 @@ import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import pl.poznan.put.sqldatagenerator.exception.InvalidInternalStateException;
 import pl.poznan.put.sqldatagenerator.generator.Attribute;
 import pl.poznan.put.sqldatagenerator.generator.AttributesMap;
 import pl.poznan.put.sqldatagenerator.generator.BaseTable;
+import pl.poznan.put.sqldatagenerator.generator.datatypes.DataTypesConverter;
 import pl.poznan.put.sqldatagenerator.generator.datatypes.DatabaseType;
 import pl.poznan.put.sqldatagenerator.generator.datatypes.InternalType;
 import pl.poznan.put.sqldatagenerator.generators.RandomGenerator;
@@ -18,6 +20,7 @@ import pl.poznan.put.sqldatagenerator.restriction.types.RangeRestriction;
 import pl.poznan.put.sqldatagenerator.restriction.types.Restriction;
 import pl.poznan.put.sqldatagenerator.restriction.types.StringRestriction;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -122,15 +125,27 @@ public class DatabaseProperties {
         return restrictionList;
     }
 
+    //TODO Some duplicated code, getMinValue and getMaxValue
     private Double getMinValue(String tableName, String attributeName) {
         String typeName = getTypeName(tableName, attributeName);
         Double result = databaseTypesReader.getMinValue(typeName);
 
+        String baseType = databaseTypesReader.getBaseType(databaseSchemaReader.getType(tableName, attributeName));
         String schemaMinValueString = databaseSchemaReader.getMinValue(tableName, attributeName);
         if (schemaMinValueString != null) {
-            Double schemaMinValue = Double.valueOf(schemaMinValueString);
+            Double schemaMinValue = 0.0;
+            if(baseType.equals("DATETIME")) {
+                try {
+                    schemaMinValue = 1.0 * DataTypesConverter.getLongFromDatetime(schemaMinValueString);
+                } catch (ParseException e) {
+                    throw new InvalidInternalStateException("Invalid conversion request (" + schemaMinValueString + " to Long");
+                }
+            } else {
+                schemaMinValue = Double.valueOf(schemaMinValueString);
+            }
             result = max(result, schemaMinValue);
         }
+
         return result;
     }
 
@@ -138,9 +153,19 @@ public class DatabaseProperties {
         String typeName = getTypeName(tableName, attributeName);
         Double result = databaseTypesReader.getMaxValue(typeName);
 
+        String baseType = databaseTypesReader.getBaseType(databaseSchemaReader.getType(tableName, attributeName));
         String schemaMaxValueString = databaseSchemaReader.getMaxValue(tableName, attributeName);
         if (schemaMaxValueString != null) {
-            Double schemaMaxValue = Double.valueOf(schemaMaxValueString);
+            Double schemaMaxValue = 0.0;
+            if(baseType.equals("DATETIME")) {
+                try {
+                    schemaMaxValue = 1.0 * DataTypesConverter.getLongFromDatetime(schemaMaxValueString);
+                } catch (ParseException e) {
+                    throw new InvalidInternalStateException("Invalid conversion request (" + schemaMaxValueString + " to Long");
+                }
+            } else {
+                schemaMaxValue = Double.valueOf(schemaMaxValueString);
+            }
             result = min(result, schemaMaxValue);
         }
 

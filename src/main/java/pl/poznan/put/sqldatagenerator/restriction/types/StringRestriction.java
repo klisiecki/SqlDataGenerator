@@ -236,7 +236,7 @@ public class StringRestriction extends OneAttributeRestriction {
         }
 
         public String getRegex() {
-            return like.replace("%", ".*?").replace("_", ".");
+            return like.replace("%", "[a-zA-Z]*?").replace("_", "[a-zA-Z]");
         }
 
         public boolean isNegated() {

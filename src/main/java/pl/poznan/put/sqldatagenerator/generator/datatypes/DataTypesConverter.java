@@ -2,6 +2,7 @@ package pl.poznan.put.sqldatagenerator.generator.datatypes;
 
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.StringValue;
+import org.apache.commons.lang.time.DateUtils;
 import pl.poznan.put.sqldatagenerator.configuration.Configuration;
 import pl.poznan.put.sqldatagenerator.exception.InvalidInternalStateException;
 import pl.poznan.put.sqldatagenerator.exception.SQLNotCompatibleWithDatabaseException;
@@ -21,6 +22,7 @@ public class DataTypesConverter {
     private static final String inputDateFormat = configuration.getStringProperty(INPUT_DATE_FORMAT, "yyyy-MM-dd HH:mm:ss");
     private static final String outputDateFormat = configuration.getStringProperty(OUTPUT_DATE_FORMAT, "yyyy-MM-dd HH:mm:ss");
     private static final String nullValue = configuration.getStringProperty(DATABASE_NULL_VALUE, "NULL");
+    private static final int datesOffset = 40;
 
     public static Long getInternalLong(Expression expression, DatabaseType databaseType) {
         try {
@@ -59,14 +61,21 @@ public class DataTypesConverter {
             return nullValue;
         }
         if (internalType == InternalType.LONG && databaseType.getType() == DatabaseType.Type.DATETIME) {
-            return new SimpleDateFormat(outputDateFormat, Locale.ENGLISH).format(new Date(Long.valueOf(input)));
+            return getDatetimeFromLong(input);
         }
         //TODO implement all
         return input;
     }
 
+    private static String getDatetimeFromLong(String input) {
+        Date date = new Date(Long.valueOf(input));
+        date = DateUtils.addYears(date, -datesOffset);
+        return new SimpleDateFormat(outputDateFormat, Locale.ENGLISH).format(date);
+    }
+
     public static Long getLongFromDatetime(String input) throws ParseException {
         Date date = new SimpleDateFormat(inputDateFormat).parse(input);
+        date = DateUtils.addYears(date, datesOffset);
         return date.getTime();
     }
 }
