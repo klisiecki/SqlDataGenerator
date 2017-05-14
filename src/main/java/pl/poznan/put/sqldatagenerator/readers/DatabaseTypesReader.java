@@ -3,7 +3,7 @@ package pl.poznan.put.sqldatagenerator.readers;
 public interface DatabaseTypesReader {
     String getBaseType(String type);
 
-    Double getMinValue(String type);
+    String getMinValue(String type);
 
-    Double getMaxValue(String type);
+    String getMaxValue(String type);
 }

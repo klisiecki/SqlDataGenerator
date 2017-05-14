@@ -31,19 +31,19 @@ public class XMLDatabaseTypesReader extends AbstractXMLReader implements Databas
     }
 
     @Override
-    public Double getMinValue(String type) {
+    public String getMinValue(String type) {
         String rootType = findRoot(type);
         XPathExpression expr = getXPathExpression(
                 String.format("//DATATYPE[NAME/text()='%s']/MIN_VALUE/text()", rootType));
-        return getDoubleFromExpression(expr);
+        return getStringFromExpression(expr);
     }
 
     @Override
-    public Double getMaxValue(String type) {
+    public String getMaxValue(String type) {
         String rootType = findRoot(type);
         XPathExpression expr = getXPathExpression(
                 String.format("//DATATYPE[NAME/text()='%s']/MAX_VALUE/text()", rootType));
-        return getDoubleFromExpression(expr);
+        return getStringFromExpression(expr);
     }
 
 }

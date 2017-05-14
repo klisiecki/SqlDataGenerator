@@ -4,7 +4,7 @@
         xmlns="pl.poznan.put.sqldatagenerator">
     <TABLE>
         <NAME>PRODUCTS</NAME>
-        <ROWS_NUM>87300</ROWS_NUM>
+        <ROWS_NUM>10000</ROWS_NUM>
         <ATTRIBUTES>
             <ATTRIBUTE>
                 <NAME>ID</NAME>
@@ -77,7 +77,7 @@
 
     <TABLE>
         <NAME>CLIENTS</NAME>
-        <ROWS_NUM>10000</ROWS_NUM>
+        <ROWS_NUM>5000</ROWS_NUM>
         <ATTRIBUTES>
             <ATTRIBUTE>
                 <NAME>ID</NAME>
@@ -102,8 +102,8 @@
             <ATTRIBUTE>
                 <NAME>BIRTH_DATE</NAME>
                 <TYPE>TIMESTAMP</TYPE>
-                <MIN_VALUE>1940-01-01 00:00:00</MIN_VALUE>
-                <MAX_VALUE>2040-01-01 00:00:00</MAX_VALUE>
+                <MIN_VALUE>1985-01-01 00:00:00</MIN_VALUE>
+                <MAX_VALUE>1995-01-01 00:00:01</MAX_VALUE>
             </ATTRIBUTE>
 
         </ATTRIBUTES>
@@ -132,6 +132,8 @@
             <ATTRIBUTE>
                 <NAME>DATETIME</NAME>
                 <TYPE>TIMESTAMP</TYPE>
+                <MIN_VALUE>1950-01-01 00:00:00</MIN_VALUE>
+                <MAX_VALUE>2015-12-31 00:00:00</MAX_VALUE>
             </ATTRIBUTE>
 
             <ATTRIBUTE>

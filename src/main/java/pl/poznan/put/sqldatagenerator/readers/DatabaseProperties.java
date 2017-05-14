@@ -128,54 +128,59 @@ public class DatabaseProperties {
     //TODO Some duplicated code, getMinValue and getMaxValue
     private Double getMinValue(String tableName, String attributeName) {
         String typeName = getTypeName(tableName, attributeName);
-        Double result = databaseTypesReader.getMinValue(typeName);
+        Double typeMinValue = null;
+        Double schemaMinValue = null;
 
         String baseType = databaseTypesReader.getBaseType(databaseSchemaReader.getType(tableName, attributeName));
         String schemaMinValueString = databaseSchemaReader.getMinValue(tableName, attributeName);
-        if (schemaMinValueString != null) {
-            Double schemaMinValue = 0.0;
-            if(baseType.equals("DATETIME")) {
-                try {
+        String typeMinValueString = databaseTypesReader.getMinValue(typeName);
+
+        if(baseType.equals("DATETIME")) {
+            try {
+                if (schemaMinValueString != null) {
                     schemaMinValue = 1.0 * DataTypesConverter.getLongFromDatetime(schemaMinValueString);
-                } catch (ParseException e) {
-                    throw new InvalidInternalStateException("Invalid conversion request (" + schemaMinValueString + " to Long");
                 }
-            } else {
+                typeMinValue = 1.0 * DataTypesConverter.getLongFromDatetime(typeMinValueString);
+            } catch (ParseException e) {
+                throw new InvalidInternalStateException("Invalid conversion request (" + schemaMinValueString + " to Long");
+            }
+        } else {
+            if (schemaMinValueString != null) {
                 schemaMinValue = Double.valueOf(schemaMinValueString);
             }
-            result = max(result, schemaMinValue);
+            typeMinValue = Double.valueOf(typeMinValueString);
         }
+        Double result = schemaMinValue == null ? typeMinValue : max(typeMinValue, schemaMinValue);
 
         return result;
     }
 
     private Double getMaxValue(String tableName, String attributeName) {
         String typeName = getTypeName(tableName, attributeName);
-        Double result = databaseTypesReader.getMaxValue(typeName);
+        Double typeMaxValue = null;
+        Double schemaMaxValue = null;
 
         String baseType = databaseTypesReader.getBaseType(databaseSchemaReader.getType(tableName, attributeName));
         String schemaMaxValueString = databaseSchemaReader.getMaxValue(tableName, attributeName);
-        if (schemaMaxValueString != null) {
-            Double schemaMaxValue = 0.0;
-            if(baseType.equals("DATETIME")) {
-                try {
+        String typeMaxValueString = databaseTypesReader.getMaxValue(typeName);
+
+        if(baseType.equals("DATETIME")) {
+            try {
+                if (schemaMaxValueString != null) {
                     schemaMaxValue = 1.0 * DataTypesConverter.getLongFromDatetime(schemaMaxValueString);
-                } catch (ParseException e) {
-                    throw new InvalidInternalStateException("Invalid conversion request (" + schemaMaxValueString + " to Long");
                 }
-            } else {
+                typeMaxValue = 1.0 * DataTypesConverter.getLongFromDatetime(typeMaxValueString);
+            } catch (ParseException e) {
+                throw new InvalidInternalStateException("Invalid conversion request (" + schemaMaxValueString + " to Long");
+            }
+        } else {
+            if (schemaMaxValueString != null) {
                 schemaMaxValue = Double.valueOf(schemaMaxValueString);
             }
-            result = min(result, schemaMaxValue);
+            typeMaxValue = Double.valueOf(typeMaxValueString);
         }
+        Double result = schemaMaxValue == null ? typeMaxValue : min(typeMaxValue, schemaMaxValue);
 
-        Integer precision = getFirstParam(tableName, attributeName);
-        if (precision != null) {
-            if (!databaseTypesReader.getBaseType(typeName).equals("VARCHAR")) {
-                precision = (int) Math.pow(10, precision);
-            }
-            result = min(result, precision);
-        }
         return result;
     }
 
