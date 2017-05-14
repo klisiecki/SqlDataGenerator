@@ -19,11 +19,9 @@ public class DatabaseType {
     }
 
     private final Type type;
-    private final Integer scale;
 
-    public DatabaseType(Type type, Integer scale) {
+    public DatabaseType(Type type) {
         this.type = type;
-        this.scale = scale;
     }
 
     public Type getType() {

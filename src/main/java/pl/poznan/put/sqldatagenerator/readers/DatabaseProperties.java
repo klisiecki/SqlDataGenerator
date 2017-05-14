@@ -206,41 +206,13 @@ public class DatabaseProperties {
 
     public DatabaseType getType(String tableName, String attributeName) {
         String originalTypeName = getTypeName(tableName, attributeName);
-        Integer scale = getSecondParam(tableName, attributeName);
         String typeName = databaseTypesReader.getBaseType(originalTypeName);
-        return new DatabaseType(DatabaseType.Type.valueOf(typeName), scale);
+        return new DatabaseType(DatabaseType.Type.valueOf(typeName));
     }
 
     private String getTypeName(String tableName, String attributeName) {
         String type = databaseSchemaReader.getType(tableName, attributeName);
         int parenthesisPos = type.indexOf('(');
         return parenthesisPos < 0 ? type : type.substring(0, parenthesisPos);
-    }
-
-    private Integer getFirstParam(String tableName, String attributeName) {
-        String type = databaseSchemaReader.getType(tableName, attributeName);
-        String[] typeParams = getTypeParams(type);
-        if (typeParams != null) {
-            return Integer.valueOf(typeParams[0]);
-        }
-        return null;
-    }
-
-    private Integer getSecondParam(String tableName, String attributeName) {
-        String type = databaseSchemaReader.getType(tableName, attributeName);
-        String[] typeParams = getTypeParams(type);
-        if (typeParams != null && typeParams.length > 1) {
-            return Integer.valueOf(typeParams[1]);
-        }
-        return null;
-    }
-
-    private String[] getTypeParams(String type) {
-        int parenthesisPos = type.indexOf('(');
-        if (parenthesisPos > 0) {
-            String parameters = type.substring(parenthesisPos + 1, type.length() - 1);
-            return parameters.split(",");
-        }
-        return null;
     }
 }
