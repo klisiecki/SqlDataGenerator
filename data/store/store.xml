@@ -103,7 +103,7 @@
                 <NAME>BIRTH_DATE</NAME>
                 <TYPE>TIMESTAMP</TYPE>
                 <MIN_VALUE>1985-01-01 00:00:00</MIN_VALUE>
-                <MAX_VALUE>1995-01-01 00:00:01</MAX_VALUE>
+                <MAX_VALUE>2005-01-01 00:00:01</MAX_VALUE>
             </ATTRIBUTE>
 
         </ATTRIBUTES>

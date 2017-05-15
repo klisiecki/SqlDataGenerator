@@ -1,2 +1,2 @@
-SELECT *
-    FROM PRODUCTS P;
+SELECT count(*)
+      from CLIENTS C;
