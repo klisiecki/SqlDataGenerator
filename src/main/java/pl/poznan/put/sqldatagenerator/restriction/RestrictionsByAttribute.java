@@ -18,6 +18,8 @@ import java.util.*;
 import java.util.Map.Entry;
 
 import static com.google.common.collect.BoundType.OPEN;
+import static java.util.Collections.singletonList;
+import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.toSet;
 import static pl.poznan.put.sqldatagenerator.generator.datatypes.InternalType.*;
 import static pl.poznan.put.sqldatagenerator.restriction.types.SignType.*;
@@ -101,13 +103,13 @@ public class RestrictionsByAttribute {
                 if (signType == EQUALS) {
                     return combineStringEquality(firstAttribute, secondAttribute);
                 } else {
-                    throw new NotImplementedException();
+                    return combineStringsNotEquals(firstAttribute, secondAttribute);
                 }
             } else if (internalType == LONG || internalType == DOUBLE) {
                 if (signType == EQUALS) {
                     return combineNumericEquality(firstAttribute, secondAttribute);
                 } else if (signType == NOT_EQUALS) {
-                    return false;
+                    return combineNumbersNotEquals(firstAttribute, secondAttribute);
                 } else if (signType == MINOR_THAN) {
                     return combineNumericInequality(firstAttribute, secondAttribute, relationRestriction.getBoundType());
                 } else if (signType == GREATER_THAN) {
@@ -179,12 +181,41 @@ public class RestrictionsByAttribute {
         return true;
     }
 
-    private boolean combineStringEquality(Attribute firstAttribute, Attribute secondAttribute) {
-        StringRestriction firstStringRestriction = getStringRestriction(firstAttribute);
-        StringRestriction secondStringRestriction = getStringRestriction(secondAttribute);
+    private boolean combineNumbersNotEquals(Attribute firstAttribute, Attribute secondAttribute) {
+        return false; //TODO merge not equals when one value is generated
+    }
 
-        //TODO functions for merging StringRestrictions, common with RestrictionManager.mergeStringRestrictions
-        return false;
+    private boolean combineStringEquality(Attribute firstAttribute, Attribute secondAttribute) {
+        final String firstValue = firstAttribute.getValue();
+        final String secondValue = secondAttribute.getValue();
+
+        if (firstValue == null && secondValue == null) {
+            StringRestriction firstStringRestriction = getStringRestriction(firstAttribute);
+            StringRestriction secondStringRestriction = getStringRestriction(secondAttribute);
+            //TODO functions for merging StringRestrictions, common with RestrictionManager.mergeStringRestrictions
+            return false;
+        }
+        if (firstValue != null && secondValue != null) {
+            return false;
+        }
+        if (firstValue != null) {
+            return getStringRestriction(secondAttribute).setAllowedValues(singletonList(firstValue));
+        } else {
+            return getStringRestriction(firstAttribute).setAllowedValues(singletonList(secondValue));
+        }
+    }
+
+    private boolean combineStringsNotEquals(Attribute firstAttribute, Attribute secondAttribute) {
+        final String firstValue = firstAttribute.getValue();
+        final String secondValue = secondAttribute.getValue();
+        if (isNull(firstValue) == isNull(secondValue)) {
+            return false;
+        }
+        if (firstValue != null) {
+            return getStringRestriction(secondAttribute).addNotAllowedValue(firstValue);
+        } else {
+            return getStringRestriction(firstAttribute).addNotAllowedValue(secondValue);
+        }
     }
 
     private RangeRestriction getRangeRestriction(Attribute attribute) {

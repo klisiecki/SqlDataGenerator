@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 import static pl.poznan.put.sqldatagenerator.configuration.ConfigurationKeys.MAX_STRING_LENGTH;
@@ -40,7 +41,7 @@ public class StringRestriction extends OneAttributeRestriction {
     private List<LikeProperty> likeProperties;
     private List<String> allowedValues;
     private List<String> notAllowedValues;
-    Generex generex = null;
+    private Generex generex = null;
 
     public StringRestriction(Attribute attribute, Range<Integer> allowedLength,
                              List<LikeProperty> likeProperties, List<String> allowedValues,
@@ -99,8 +100,15 @@ public class StringRestriction extends OneAttributeRestriction {
         return allowedValues;
     }
 
-    public void setAllowedValues(List<String> allowedValues) {
+    public boolean setAllowedValues(List<String> allowedValues) {
+        if (this.allowedValues == null && allowedValues == null) {
+            return false;
+        }
+        if (this.allowedValues != null && this.allowedValues.equals(allowedValues)) {
+            return false;
+        }
         this.allowedValues = allowedValues;
+        return true;
     }
 
     public boolean containsAllowedValues() {
@@ -113,6 +121,17 @@ public class StringRestriction extends OneAttributeRestriction {
 
     public void setNotAllowedValues(List<String> notAllowedValues) {
         this.notAllowedValues = notAllowedValues;
+    }
+
+    public boolean addNotAllowedValue(String value) {
+        if (notAllowedValues == null) {
+            notAllowedValues = new ArrayList<>();
+        }
+        if (notAllowedValues.contains(value)) {
+            return false;
+        }
+        this.notAllowedValues.add(value);
+        return true;
     }
 
     public boolean containsNotAllowedValues() {
