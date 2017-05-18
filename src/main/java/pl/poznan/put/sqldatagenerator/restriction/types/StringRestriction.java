@@ -168,6 +168,9 @@ public class StringRestriction extends OneAttributeRestriction {
         if (allowedValues != null) {
             clone.setAllowedValues(new ArrayList<>(allowedValues));
         }
+        if (notAllowedValues != null) {
+            clone.setNotAllowedValues(new ArrayList<>(notAllowedValues));
+        }
         if (likeProperties != null) {
             clone.setLikeProperties(likeProperties.stream().map(LikeProperty::new).collect(toList()));
         }
