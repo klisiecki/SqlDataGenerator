@@ -1,9 +1,6 @@
 package pl.poznan.put.sqldatagenerator.restriction;
 
-import com.google.common.collect.BoundType;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Range;
-import com.google.common.collect.RangeSet;
+import com.google.common.collect.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.poznan.put.sqldatagenerator.exception.InvalidInternalStateException;
@@ -188,7 +185,26 @@ public class RestrictionsByAttribute {
     }
 
     private boolean combineNumbersNotEquals(Attribute firstAttribute, Attribute secondAttribute) {
-        return false; //TODO merge not equals when one value is generated
+        final String firstValue = firstAttribute.getValue();
+        final String secondValue = secondAttribute.getValue();
+        final RangeRestriction firstRestriction = getRangeRestriction(firstAttribute);
+        final RangeRestriction secondRestriction = getRangeRestriction(secondAttribute);
+
+        if (firstValue != null) {
+            return combineNumericRestrictions(firstRestriction, secondRestriction);
+        }
+        if (secondValue != null) {
+            return combineNumericRestrictions(secondRestriction, firstRestriction);
+        }
+        return false;
+    }
+
+    private boolean combineNumericRestrictions(RangeRestriction firstRestriction, RangeRestriction secondRestriction) {
+        final RangeSet originalRangeSet = secondRestriction.getRangeSet();
+        final RangeSet rangeSetCopy = TreeRangeSet.create(originalRangeSet);
+        rangeSetCopy.remove((Range) firstRestriction.getRangeSet().asRanges().iterator().next());
+        secondRestriction.setRangeSet(rangeSetCopy);
+        return !rangeSetCopy.equals(originalRangeSet);
     }
 
     private boolean combineStringEquality(Attribute firstAttribute, Attribute secondAttribute) {
