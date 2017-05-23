@@ -15,7 +15,7 @@ import pl.poznan.put.sqldatagenerator.sql.model.AttributesPair;
 
 import java.util.*;
 
-//TODO duplicated in history. Save if at least 2 tables generated?
+//TODO duplicated entries in history. Save if at least 2 tables were generated?
 public class History {
 
     private static final Logger logger = LoggerFactory.getLogger(History.class);

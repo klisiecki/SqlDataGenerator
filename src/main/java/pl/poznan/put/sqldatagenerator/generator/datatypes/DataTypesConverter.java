@@ -62,7 +62,6 @@ public class DataTypesConverter {
         if (internalType == InternalType.LONG && databaseType.getType() == DatabaseType.Type.DATETIME) {
             return getDatetimeFromLong(input);
         }
-        //TODO implement all
         return input;
     }
 

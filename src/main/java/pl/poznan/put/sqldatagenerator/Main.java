@@ -57,8 +57,6 @@ public class Main {
             e.printStackTrace();
         }
 
-        //TODO remove when problem with killing threads fixed
-        System.exit(1);
     }
 
     private static Namespace initArgumentParser(String[] args) throws ArgumentParserException {
