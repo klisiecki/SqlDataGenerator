@@ -165,7 +165,7 @@ public class RestrictionsManager {
             }
         }
         if (combinedRestrictions.isEmpty()) {
-            throw new UnsatisfiableSQLException();
+            throw new UnsatisfiableSQLException("Combining given restrictions resulted in unsatisfiable set");
         }
         return combinedRestrictions;
     }
