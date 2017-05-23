@@ -279,6 +279,16 @@ public class StoreGeneratorTest extends GeneratorTestBase {
     }
 
     @Test
+    public void testTwoColumnsRelation5() throws Exception {
+        List<File> files = runGenerator("store_test/sql_correct/twoColumnsRelation5.sql", 1.0);
+        assertStoreOutputCorrect(files);
+
+        List<String[]> productsLines = getFileLines(files, PRODUCTS_FILENAME);
+        assertColumnsRelation(productsLines, "PACKAGE_WIDTH", "PACKAGE_HEIGHT",
+                (a, b) -> !a.equals(b));
+    }
+
+    @Test
     public void testColumnsMultipleRelations1() throws Exception {
         List<File> files = runGenerator("store_test/sql_correct/twoColumnsMultipleRelations1.sql", 1.0);
         assertStoreOutputCorrect(files);
