@@ -22,7 +22,7 @@
             <ATTRIBUTE>
                 <NAME>DESCRIPTION</NAME>
                 <TYPE>VARCHAR</TYPE>
-                <MIN_VALUE>20</MIN_VALUE>
+                <MIN_VALUE>1</MIN_VALUE>
                 <MAX_VALUE>50</MAX_VALUE>
             </ATTRIBUTE>
 

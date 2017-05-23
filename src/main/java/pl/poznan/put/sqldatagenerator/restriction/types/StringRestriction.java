@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.poznan.put.sqldatagenerator.configuration.Configuration;
 import pl.poznan.put.sqldatagenerator.exception.NotImplementedException;
+import pl.poznan.put.sqldatagenerator.exception.SQLSyntaxNotSupportedException;
 import pl.poznan.put.sqldatagenerator.generator.Attribute;
 import pl.poznan.put.sqldatagenerator.generator.AttributesMap;
 import pl.poznan.put.sqldatagenerator.generator.datatypes.DatabaseType;
@@ -237,6 +238,38 @@ public class StringRestriction extends OneAttributeRestriction {
                 (likeProperties == null ? "" : ", likeProperties=" + likeProperties) +
                 (allowedValues == null ? "" : ", allowedValues=" + allowedValues) +
                 (notAllowedValues == null ? "" : ", notAllowedValues=" + notAllowedValues) + '}';
+    }
+
+    public static List<String> mergeAllowedValues(List<String> first, List<String> second) {
+        if (first == null) {
+            return second;
+        }
+        if (second == null) {
+            return first;
+        }
+        first.retainAll(second);
+        return first;
+    }
+
+    public static List<String> mergeNotAllowedValues(List<String> first, List<String> second) {
+        if (first == null) {
+            return second;
+        }
+        if (second == null) {
+            return first;
+        }
+        first.addAll(second);
+        return first;
+    }
+
+    public static List<LikeProperty> mergeLikeProperties(List<LikeProperty> first, List<LikeProperty> second) {
+        if (first == null) {
+            return second;
+        }
+        if (second == null) {
+            return first;
+        }
+        throw new SQLSyntaxNotSupportedException("Multiple like expression on attribute not supported");
     }
 
     public static class LikeProperty {

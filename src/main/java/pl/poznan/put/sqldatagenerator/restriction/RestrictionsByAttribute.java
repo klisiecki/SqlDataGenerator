@@ -18,10 +18,16 @@ import java.util.*;
 import java.util.Map.Entry;
 
 import static com.google.common.collect.BoundType.OPEN;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.toSet;
 import static pl.poznan.put.sqldatagenerator.generator.datatypes.InternalType.*;
+import static pl.poznan.put.sqldatagenerator.restriction.types.StringRestriction.mergeAllowedValues;
+import static pl.poznan.put.sqldatagenerator.restriction.types.StringRestriction.mergeLikeProperties;
+import static pl.poznan.put.sqldatagenerator.restriction.types.StringRestriction.mergeNotAllowedValues;
 import static pl.poznan.put.sqldatagenerator.restriction.types.SignType.*;
 import static pl.poznan.put.sqldatagenerator.util.RangeUtils.EPS;
 import static pl.poznan.put.sqldatagenerator.util.RangeUtils.intersectRangeSets;
@@ -190,9 +196,24 @@ public class RestrictionsByAttribute {
         final String secondValue = secondAttribute.getValue();
 
         if (firstValue == null && secondValue == null) {
-            StringRestriction firstStringRestriction = getStringRestriction(firstAttribute);
-            StringRestriction secondStringRestriction = getStringRestriction(secondAttribute);
-            //TODO functions for merging StringRestrictions, common with RestrictionManager.mergeStringRestrictions
+            StringRestriction firstRestriction = getStringRestriction(firstAttribute);
+            StringRestriction secondRestriction = getStringRestriction(secondAttribute);
+            final int minLength = max(firstRestriction.getMinLength(), secondRestriction.getMinLength());
+            final int maxLength = min(firstRestriction.getMaxLength(), secondRestriction.getMaxLength());
+            final List<String> allowedValues =
+                    mergeAllowedValues(firstRestriction.getAllowedValues(), secondRestriction.getAllowedValues());
+            final List<String> notAllowedValues =
+                    mergeNotAllowedValues(firstRestriction.getNotAllowedValues(), secondRestriction.getNotAllowedValues());
+            final List<StringRestriction.LikeProperty> likeProperties = mergeLikeProperties(firstRestriction
+                    .getLikeProperties(), secondRestriction.getLikeProperties());
+
+            asList(firstRestriction, secondRestriction).forEach(r -> {
+                r.setMinLength(minLength);
+                r.setMaxLength(maxLength);
+                r.setAllowedValues(allowedValues);
+                r.setNotAllowedValues(notAllowedValues);
+                r.setLikeProperties(likeProperties);
+            });
             return false;
         }
         if (firstValue != null && secondValue != null) {

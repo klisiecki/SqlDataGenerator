@@ -11,7 +11,6 @@ import com.google.common.collect.TreeRangeSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.poznan.put.sqldatagenerator.exception.InvalidInternalStateException;
-import pl.poznan.put.sqldatagenerator.exception.SQLSyntaxNotSupportedException;
 import pl.poznan.put.sqldatagenerator.exception.UnsatisfiableSQLException;
 import pl.poznan.put.sqldatagenerator.generator.Attribute;
 import pl.poznan.put.sqldatagenerator.generator.datatypes.InternalType;
@@ -19,6 +18,7 @@ import pl.poznan.put.sqldatagenerator.restriction.types.NullRestriction;
 import pl.poznan.put.sqldatagenerator.restriction.types.RangeRestriction;
 import pl.poznan.put.sqldatagenerator.restriction.types.Restriction;
 import pl.poznan.put.sqldatagenerator.restriction.types.StringRestriction;
+import pl.poznan.put.sqldatagenerator.restriction.types.StringRestriction.LikeProperty;
 import pl.poznan.put.sqldatagenerator.util.RangeUtils;
 
 import java.util.*;
@@ -29,6 +29,9 @@ import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
+import static pl.poznan.put.sqldatagenerator.restriction.types.StringRestriction.mergeAllowedValues;
+import static pl.poznan.put.sqldatagenerator.restriction.types.StringRestriction.mergeLikeProperties;
+import static pl.poznan.put.sqldatagenerator.restriction.types.StringRestriction.mergeNotAllowedValues;
 
 public class RestrictionsManager {
     private static final Logger logger = LoggerFactory.getLogger(RestrictionsManager.class);
@@ -215,7 +218,7 @@ public class RestrictionsManager {
             StringRestriction first = stringRestrictions.get(0);
             int minLength = first.getMinLength();
             int maxLength = first.getMaxLength();
-            List<StringRestriction.LikeProperty> likeProperties = first.getLikeProperties(); // todo ??
+            List<LikeProperty> likeProperties = first.getLikeProperties();
             List<String> allowedValues = null;
             List<String> notAllowedValues = new ArrayList<>();
             if (first.getAllowedValues() != null) {
@@ -231,24 +234,9 @@ public class RestrictionsManager {
                 maxLength = min(maxLength, restriction.getMaxLength());
                 toRemoveRestrictions.put(attribute, restriction);
 
-                if (allowedValues != null) {
-                    allowedValues = allowedValues.stream().filter(containsValuesFrom(restriction)).collect(toList());
-                } else {
-                    allowedValues = restriction.getAllowedValues();
-                }
-
-                if (restriction.getNotAllowedValues() != null) {
-                    notAllowedValues.addAll(restriction.getNotAllowedValues());
-                }
-
-                if (restriction.getLikeProperties() != null) {
-                    if (likeProperties != null) {
-                        throw new SQLSyntaxNotSupportedException("Multiple like expression on attribute not supported "
-                                + "(attribute= " + attribute + ")");
-                    } else {
-                        likeProperties = restriction.getLikeProperties();
-                    }
-                }
+                allowedValues = mergeAllowedValues(allowedValues, restriction.getAllowedValues());
+                notAllowedValues = mergeNotAllowedValues(notAllowedValues, restriction.getNotAllowedValues());
+                likeProperties = mergeLikeProperties(likeProperties, restriction.getLikeProperties());
             }
             toRemoveRestrictions.put(attribute, first);
             if (allowedValues != null) {
