@@ -1,4 +1,4 @@
-#Test data generator for SQL queries
+# Test data generator for SQL queries
 
 Java console application that generates data for specific SQL query. 
 May be useful when there is a need to test a query and no real data is available.
@@ -11,7 +11,7 @@ At current version, the generator supports limited set of SQL constructs.
 
 
 
-##Usage
+## Usage
 This application uses Gradle build system. You can run this app from an IDE like IntelliJ IDEA or Eclipse - 
 just start the Main class. You can also build the distribution with scripts to run the generator outside the IDE.
 To build the distribution use following command (on Unix system):
